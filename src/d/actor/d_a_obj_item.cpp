@@ -5,10 +5,10 @@
 
 #include "d/dolzel.h" // IWYU pragma: keep
 
-#include "d/actor/d_a_obj_item.h"
 #include "SSystem/SComponent/c_math.h"
-#include "d/d_a_itembase_static.h"
+#include "d/actor/d_a_obj_item.h"
 #include "d/actor/d_a_player.h"
+#include "d/d_a_itembase_static.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_item.h"
 #include "d/d_item_data.h"
@@ -17,6 +17,11 @@
 #include "m_Do/m_Do_mtx.h"
 
 #if TARGET_PC
+#include "d/actor/d_a_alink.h"
+
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#include "dusk/randomizer/game/verify_item_functions.h"
 #include "dusk/frame_interpolation.h"
 #endif
 
@@ -71,7 +76,7 @@ void daItem_c::setBaseMtx() {
     if (mpModel != NULL) {
         mpModel->setBaseScale(scale);
 
-        switch (m_itemNo) {
+        switch (M_ITEMNO_MODEL_ITEM_ID) {
         case dItemNo_GREEN_RUPEE_e:
         case dItemNo_BLUE_RUPEE_e:
         case dItemNo_YELLOW_RUPEE_e:
@@ -158,8 +163,8 @@ void daItem_c::CreateInit() {
     mCcCyl.SetCoHitCallback(itemGetCoCallBack);
     mCcCyl.SetTgHitCallback(itemGetTgCallBack);
 
-    f32 cylHeight = dItem_data::getH(m_itemNo);
-    f32 cylRadius = dItem_data::getR(m_itemNo);
+    f32 cylHeight = dItem_data::getH(M_ITEMNO_MODEL_ITEM_ID);
+    f32 cylRadius = dItem_data::getR(M_ITEMNO_MODEL_ITEM_ID);
 
     if (scale.x > 1.0f) {
         cylHeight *= scale.x;
@@ -177,6 +182,54 @@ void daItem_c::CreateInit() {
     procInitNormal();
     show();
 
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        // Adjust item scale based on item ID
+        switch(M_ITEMNO_MODEL_ITEM_ID)
+        {
+            case dItemNo_Randomizer_KAKERA_HEART_e:
+            case dItemNo_Randomizer_UTAWA_HEART_e:
+            case dItemNo_Randomizer_ARROW_1_e:
+            case dItemNo_Randomizer_ARROW_10_e:
+            case dItemNo_Randomizer_ARROW_20_e:
+            case dItemNo_Randomizer_ARROW_30_e:
+            case dItemNo_Randomizer_GREEN_RUPEE_e:
+            case dItemNo_Randomizer_BLUE_RUPEE_e:
+            case dItemNo_Randomizer_YELLOW_RUPEE_e:
+            case dItemNo_Randomizer_RED_RUPEE_e:
+            case dItemNo_Randomizer_PURPLE_RUPEE_e:
+            case dItemNo_Randomizer_ORANGE_RUPEE_e:
+            case dItemNo_Randomizer_SILVER_RUPEE_e:
+            case dItemNo_Randomizer_HEART_e:
+            {
+                mItemScale.setall(1.0f);
+                break;
+            }
+
+            case dItemNo_Randomizer_BOW_e:
+            {
+                mItemScale.setall(1.5f);
+                break;
+            }
+
+            case dItemNo_Randomizer_MASTER_SWORD_e:
+            case dItemNo_Randomizer_LIGHT_SWORD_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_1_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_2_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_3_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_4_e:
+            {
+                mItemScale.setall(0.7f);
+                break;
+            }
+            default:
+            {
+                mItemScale.setall(2.0f);
+                break;
+            }
+        }
+    } else
+#endif
     mItemScale.setall(1.0f);
 
     switch (daItem_prm::getType(this)) {
@@ -206,9 +259,9 @@ void daItem_c::CreateInit() {
     initBaseMtx();
     animPlay(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 
-    if (m_itemNo == dItemNo_BOOMERANG_e) {
+    if (m_itemNo == dItemNo_BOOMERANG_e IF_DUSK(&& !randomizer_IsActive())) {
         itemGetNextExecute();
-    } else if ((m_itemNo == dItemNo_ORANGE_RUPEE_e || m_itemNo == dItemNo_SILVER_RUPEE_e) &&
+    } else if ((M_ITEMNO_MODEL_ITEM_ID == dItemNo_ORANGE_RUPEE_e || M_ITEMNO_MODEL_ITEM_ID == dItemNo_SILVER_RUPEE_e) &&
                mSparkleEmtr.getEmitter() == NULL)
     {
         dComIfGp_particle_set(0x0C14, &mSparklePos, NULL, NULL, -1, &mSparkleEmtr, -1, NULL, NULL,
@@ -263,9 +316,13 @@ int daItem_c::_daItem_create() {
         current.angle.x = 0;
         shape_angle.z = 0;
         shape_angle.x = 0;
-
+#if TARGET_PC
+        setRandomizerItem(/*setFoolishItemModel = */true);
+#endif
         field_0x95d = true;
     }
+
+
 
     m_itemNo = daItem_prm::getItemNo(this);
 #if TARGET_PC
@@ -308,10 +365,10 @@ int daItem_c::_daItem_create() {
     if (flag) {
         CreateInit();
     } else {
-        phase_state = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(m_itemNo));
+        phase_state = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(M_ITEMNO_MODEL_ITEM_ID));
         if (phase_state == cPhs_COMPLEATE_e) {
             if (!fopAcM_entrySolidHeap(this, CheckFieldItemCreateHeap,
-                                       dItem_data::getFieldHeapSize(m_itemNo)))
+                                       dItem_data::getFieldHeapSize(M_ITEMNO_MODEL_ITEM_ID)))
             {
                 return cPhs_ERROR_e;
             }
@@ -328,7 +385,7 @@ int daItem_c::_daItem_execute() {
     CountTimer();
 
     eyePos = current.pos;
-    eyePos.y += (f32)dItem_data::getH(m_itemNo) / 2;
+    eyePos.y += (f32)dItem_data::getH(M_ITEMNO_MODEL_ITEM_ID) / 2;
 
     attention_info.position = current.pos;
 
@@ -370,7 +427,7 @@ int daItem_c::_daItem_execute() {
     mLastPos = current.pos;
     field_0x95f = (fopAcM_checkHookCarryNow(this) >> 0x14) & 1;
 
-    if (m_itemNo == dItemNo_ORANGE_RUPEE_e || m_itemNo == dItemNo_SILVER_RUPEE_e) {
+    if (M_ITEMNO_MODEL_ITEM_ID == dItemNo_ORANGE_RUPEE_e || M_ITEMNO_MODEL_ITEM_ID == dItemNo_SILVER_RUPEE_e) {
         mSparklePos = current.pos;
         mSparklePos.y += 18.0f;
     }
@@ -397,11 +454,11 @@ int daItem_c::_daItem_draw() {
 int daItem_c::_daItem_delete() {
     mSound.deleteObject();
 
-    if (m_itemNo == dItemNo_ORANGE_RUPEE_e || m_itemNo == dItemNo_SILVER_RUPEE_e) {
+    if (M_ITEMNO_MODEL_ITEM_ID == dItemNo_ORANGE_RUPEE_e || M_ITEMNO_MODEL_ITEM_ID == dItemNo_SILVER_RUPEE_e) {
         mSparkleEmtr.remove();
     }
 
-    DeleteBase(dItem_data::getFieldArc(m_itemNo));
+    DeleteBase(dItem_data::getFieldArc(M_ITEMNO_MODEL_ITEM_ID));
     return 1;
 }
 
@@ -499,7 +556,7 @@ void daItem_c::procMainSimpleGetDemo() {
 void daItem_c::procInitGetDemoEvent() {
     hide();
 
-    if (m_itemNo == dItemNo_ORANGE_RUPEE_e || m_itemNo == dItemNo_SILVER_RUPEE_e) {
+    if (M_ITEMNO_MODEL_ITEM_ID == dItemNo_ORANGE_RUPEE_e || M_ITEMNO_MODEL_ITEM_ID == dItemNo_SILVER_RUPEE_e) {
         mSparkleEmtr.remove();
     }
 
@@ -507,9 +564,21 @@ void daItem_c::procInitGetDemoEvent() {
     fopAcM_orderItemEvent(this, 0, 0);
     eventInfo.onCondition(dEvtCnd_CANGETITEM_e);
 
+#if TARGET_PC
+    // Set rando item again incase this item is progressive and
+    // player picked up another one before this one on the same stage
+    u8 oldItemNo = m_itemNo;
+    setRandomizerItem();
+#endif
     m_item_id = fopAcM_createItemForTrBoxDemo(&current.pos, m_itemNo, -1, fopAcM_GetRoomNo(this),
                                               NULL, NULL);
     JUT_ASSERT(0, m_item_id != fpcM_ERROR_PROCESS_ID_e);
+
+#if TARGET_PC
+    // Set the itemNo back to the old one since the game relies on this
+    // to properly delete the arc it loaded
+    m_itemNo = oldItemNo;
+#endif
 
     setStatus(STATUS_WAIT_GET_DEMO_EVENT_e);
 }
@@ -521,13 +590,21 @@ void daItem_c::procWaitGetDemoEvent() {
             dComIfGp_event_setItemPartnerId(m_item_id);
         }
     } else {
-        if (m_itemNo == dItemNo_BOOMERANG_e) {
+        if (m_itemNo == dItemNo_BOOMERANG_e IF_DUSK(&& !randomizer_IsActive())) {
             fopAcM_orderItemEvent(this, 0, 0);
             eventInfo.onCondition(dEvtCnd_CANGETITEM_e);
             return;
         }
 
+#if TARGET_PC
+        // Probably a better way to handle this, but will do for now
+        // Try to play the textbox in rando if possible (except for rupees/ammo
+        // and when snowboarding or swimming)
+        if ((cLib_calcTimer<u8>(&field_0x9c1) == 0 && !randomizer_IsActive()) || checkItemGet(m_itemNo, 1)
+            || daPy_getPlayerActorClass()->checkBoardRide() || daAlink_getAlinkActorClass()->checkSwimming()) {
+#else
         if (cLib_calcTimer<u8>(&field_0x9c1) == 0 || checkItemGet(m_itemNo, 1)) {
+#endif
             if (fopAcM_delete(m_item_id)) {
                 // "Item: Get Item deleted because Get Demo was canceled\n"
                 OS_REPORT("アイテム：ゲットデモ中止されたので、ゲットアイテム削除しました\n");
@@ -537,7 +614,8 @@ void daItem_c::procWaitGetDemoEvent() {
 
             procInitSimpleGetDemo();
             itemGet();
-            if (!haveItem) {
+            // Don't potentially unset item bits in rando unless they're rupees
+            if (!haveItem IF_DUSK(&& (!randomizer_IsActive() || isRupee(m_itemNo)))) {
                 dComIfGs_offItemFirstBit(m_itemNo);
             }
         } else {
@@ -559,8 +637,8 @@ void daItem_c::procInitBoomerangCarry() {
     scale = mItemScale;
     mBoomerangMove.initOffset(&current.pos);
 
-    u8 height = dItem_data::getH(m_itemNo);
-    u8 radius = dItem_data::getR(m_itemNo);
+    u8 height = dItem_data::getH(M_ITEMNO_MODEL_ITEM_ID);
+    u8 radius = dItem_data::getR(M_ITEMNO_MODEL_ITEM_ID);
     mCcCyl.SetR((f32)radius * 2.0f);
     mCcCyl.SetH((f32)height * 2.0f);
     mCcCyl.OnCoSPrmBit(1);
@@ -743,7 +821,7 @@ void daItem_c::mode_wait() {
         mAcch.SetGrndNone();
     }
 
-    switch (m_itemNo) {
+    switch (M_ITEMNO_MODEL_ITEM_ID) {
     case dItemNo_HEART_e:
         itemActionForHeart();
         break;
@@ -756,8 +834,15 @@ void daItem_c::mode_wait() {
         itemActionForArrow();
         break;
     case dItemNo_BOOMERANG_e:
+#if TARGET_PC
+        if (!randomizer_IsActive()) {
+            itemActionForBoomerang();
+            break;
+        }
+#else
         itemActionForBoomerang();
         break;
+#endif
     case dItemNo_GREEN_RUPEE_e:
     case dItemNo_BLUE_RUPEE_e:
     case dItemNo_YELLOW_RUPEE_e:
@@ -787,7 +872,7 @@ void daItem_c::mode_water() {
     }
 
     f32 scale = 1.0f;
-    switch (m_itemNo) {
+    switch (M_ITEMNO_MODEL_ITEM_ID) {
     case dItemNo_HEART_e:
         scale = 0.5f;
         break;
@@ -824,49 +909,100 @@ void daItem_c::itemGetNextExecute() {
         setFlag(FLAG_INIT_GET_ITEM_e);
         BOOL haveItem = false;
 
-        switch (m_itemNo) {
-        case dItemNo_HEART_e:
-        case dItemNo_GREEN_RUPEE_e:
-        case dItemNo_ARROW_10_e:
-        case dItemNo_ARROW_20_e:
-        case dItemNo_ARROW_30_e:
-        case dItemNo_ARROW_1_e:
-            procInitSimpleGetDemo();
-            itemGet();
-            break;
-        case dItemNo_BLUE_RUPEE_e:
-        case dItemNo_YELLOW_RUPEE_e:
-        case dItemNo_RED_RUPEE_e:
-        case dItemNo_PURPLE_RUPEE_e:
-        case dItemNo_ORANGE_RUPEE_e:
-        case dItemNo_SILVER_RUPEE_e:
-        case dItemNo_PACHINKO_SHOT_e:
-            if (daPy_getPlayerActorClass()->checkCanoeRide() ||
-                daPy_getPlayerActorClass()->checkHorseRide())
-            {
-                if (checkItemGet(m_itemNo, 1)) {
-                    haveItem = true;
-                }
+#if TARGET_PC
+        // Randomizer specific stuff for choosing if to play a demo or not.
+        // Just copying the whole switch statement here and modifying it
+        // is better than littering the original switch statement with #if TARGET_PC
+        if (randomizer_IsActive()) {
+            switch (m_itemNo) {
+            case dItemNo_HEART_e:
+            case dItemNo_GREEN_RUPEE_e:
+            case dItemNo_ARROW_10_e:
+            case dItemNo_ARROW_20_e:
+            case dItemNo_ARROW_30_e:
+            case dItemNo_ARROW_1_e:
                 procInitSimpleGetDemo();
                 itemGet();
+                break;
+            case dItemNo_BLUE_RUPEE_e:
+            case dItemNo_YELLOW_RUPEE_e:
+            case dItemNo_RED_RUPEE_e:
+            case dItemNo_PURPLE_RUPEE_e:
+            case dItemNo_ORANGE_RUPEE_e:
+            case dItemNo_SILVER_RUPEE_e:
+            case dItemNo_PACHINKO_SHOT_e:
+                if (daPy_getPlayerActorClass()->checkCanoeRide() ||
+                    daPy_getPlayerActorClass()->checkHorseRide() IF_DUSK(||
+                    daPy_getPlayerActorClass()->checkBoardRide())) // Check snowboarding for rando
+                {
+                    if (checkItemGet(m_itemNo, 1)) {
+                        haveItem = true;
+                    }
+                    procInitSimpleGetDemo();
+                    itemGet();
 
-                if (!haveItem) {
-                    dComIfGs_offItemFirstBit(m_itemNo);
+                    if (!haveItem) {
+                        dComIfGs_offItemFirstBit(m_itemNo);
+                    }
+                } else if (!checkItemGet(m_itemNo, 1)) {
+                    procInitGetDemoEvent();
+                } else {
+                    procInitSimpleGetDemo();
+                    itemGet();
                 }
-            } else if (!checkItemGet(m_itemNo, 1)) {
+                break;
+            default:
                 procInitGetDemoEvent();
-            } else {
+                break;
+            }
+        } else {
+#endif
+            switch (m_itemNo) {
+            case dItemNo_HEART_e:
+            case dItemNo_GREEN_RUPEE_e:
+            case dItemNo_ARROW_10_e:
+            case dItemNo_ARROW_20_e:
+            case dItemNo_ARROW_30_e:
+            case dItemNo_ARROW_1_e:
                 procInitSimpleGetDemo();
                 itemGet();
+                break;
+            case dItemNo_BLUE_RUPEE_e:
+            case dItemNo_YELLOW_RUPEE_e:
+            case dItemNo_RED_RUPEE_e:
+            case dItemNo_PURPLE_RUPEE_e:
+            case dItemNo_ORANGE_RUPEE_e:
+            case dItemNo_SILVER_RUPEE_e:
+            case dItemNo_PACHINKO_SHOT_e:
+                if (daPy_getPlayerActorClass()->checkCanoeRide() ||
+                    daPy_getPlayerActorClass()->checkHorseRide())
+                {
+                    if (checkItemGet(m_itemNo, 1)) {
+                        haveItem = true;
+                    }
+                    procInitSimpleGetDemo();
+                    itemGet();
+
+                    if (!haveItem) {
+                        dComIfGs_offItemFirstBit(m_itemNo);
+                    }
+                } else if (!checkItemGet(m_itemNo, 1)) {
+                    procInitGetDemoEvent();
+                } else {
+                    procInitSimpleGetDemo();
+                    itemGet();
+                }
+                break;
+            case dItemNo_BOOMERANG_e:
+                procInitGetDemoEvent();
+                break;
+            default:
+                // "[daItem_c] Get process not defined[%d]\n"
+                OS_REPORT_ERROR("[daItem_c]ゲット処理が定義されていません[%d]\n", m_itemNo);
             }
-            break;
-        case dItemNo_BOOMERANG_e:
-            procInitGetDemoEvent();
-            break;
-        default:
-            // "[daItem_c] Get process not defined[%d]\n"
-            OS_REPORT_ERROR("[daItem_c]ゲット処理が定義されていません[%d]\n", m_itemNo);
+#if TARGET_PC
         }
+#endif
 
         fopAcM_onItem(this, mItemBitNo);
         mCcCyl.SetTgType(0);
@@ -877,7 +1013,18 @@ void daItem_c::itemGetNextExecute() {
 }
 
 void daItem_c::itemGet() {
+#if TARGET_PC
+    // Set rando item again incase this item is progressive and
+    // player picked up another one before this one on the same stage
+    u8 oldItemNo = m_itemNo;
+    setRandomizerItem();
+#endif
     switch (m_itemNo) {
+#if TARGET_PC
+    // Play sound for heart pieces and containers as well (should only happen in rando)
+    case dItemNo_UTAWA_HEART_e:
+    case dItemNo_KAKERA_HEART_e:
+#endif
     case dItemNo_HEART_e:
         mDoAud_seStart(Z2SE_HEART_PIECE_GET, NULL, 0, 0);
         execItemGet(m_itemNo);
@@ -911,6 +1058,10 @@ void daItem_c::itemGet() {
         execItemGet(m_itemNo);
         break;
     case dItemNo_BOOMERANG_e:
+#if TARGET_PC
+        // Let boomerang fall through in rando
+        if (!randomizer_IsActive())
+#endif
         break;
     case dItemNo_ARROW_10_e:
     case dItemNo_ARROW_20_e:
@@ -919,11 +1070,24 @@ void daItem_c::itemGet() {
     case dItemNo_PACHINKO_SHOT_e:
         mDoAud_seStart(Z2SE_CONSUMP_ITEM_GET, NULL, 0, 0);
         execItemGet(m_itemNo);
+#if TARGET_PC
+        break;
+#endif
     default:
+#if TARGET_PC
+        if (randomizer_IsActive()) {
+            // Some kind of sound should play, otherwise it feels weird
+            mDoAud_seStart(Z2SE_CONSUMP_ITEM_GET, NULL, 0, 0);
+            execItemGet(m_itemNo);
+        }
+#endif
         // "[daItem_c] Get process not defined[%d]\n"
         OS_REPORT_ERROR("[daItem_c]ゲット処理が定義されていません[%d]\n", m_itemNo);
         break;
     }
+#if TARGET_PC
+    m_itemNo = oldItemNo;
+#endif
 }
 
 BOOL daItem_c::checkCountTimer() {
@@ -1086,7 +1250,32 @@ void daItem_c::set_bound_se() {
     }
 }
 
-s32 daItem_c::m_timer_max = 10000;
+#if TARGET_PC
+void daItem_c::setRandomizerItem(bool setFoolishItemModel) {
+    if (randomizer_IsActive()) {
+        u32 params = fopAcM_GetParam(this);
+        u8 flag = daItem_prm::getItemBitNo(this);
+        u8 stageIdx = getStageID();
+        u16 key = (stageIdx << 8) | flag;
+        auto& freestandingOverrides = randomizer_GetContext().mFreestandingItemOverrides;
+        // If we found an override for this freestanding item
+        if (freestandingOverrides.contains(key)) {
+            // Clear the itemId and set it to out new itemId
+            params &= 0xFFFFFF00;
+            u8 newItemId = freestandingOverrides[key];
+            params |= verifyProgressiveItem(newItemId);
+            fopAcM_SetParam(this, params);
+            m_itemNo = daItem_prm::getItemNo(this);
+            // Set the ice trap model if this is an ice trap, and it isn't set
+            if (setFoolishItemModel && m_itemNo == dItemNo_Randomizer_FOOLISH_ITEM_e && home.angle.z == 0) {
+                home.angle.z = randomizer_getRandomFoolishItemModelID();
+            }
+        }
+    }
+}
+#endif
+
+DUSK_GAME_DATA s32 daItem_c::m_timer_max = 10000;
 
 int daItem_c::CountTimer() {
     m_timer++;
@@ -1198,7 +1387,7 @@ void daItem_c::initScale() {
     }
 }
 
-procFunc daItem_c::mFuncPtr[] = {
+DUSK_GAME_DATA procFunc daItem_c::mFuncPtr[] = {
     &daItem_c::procMainNormal,        &daItem_c::procMainEnemyCarry,
     &daItem_c::procMainSimpleGetDemo, &daItem_c::procWaitGetDemoEvent,
     &daItem_c::procMainGetDemoEvent,  &daItem_c::procMainBoomerangCarry,
@@ -1206,7 +1395,7 @@ procFunc daItem_c::mFuncPtr[] = {
     &daItem_c::procMainForceGet,      NULL,
 };
 
-const dCcD_SrcCyl daItem_c::m_cyl_src = {
+DUSK_GAME_DATA const dCcD_SrcCyl daItem_c::m_cyl_src = {
     {
         {0, {{0, 0, 0}, {0xFFFFFFFF, 17}, 0x59}},
         {dCcD_SE_NONE, 0, 0, 0, {0}},

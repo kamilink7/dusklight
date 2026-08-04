@@ -43,6 +43,9 @@
 #include "dusk/settings.h"
 #include "dusk/autosave.h"
 #include "dusk/memory.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#include <dusk/autosave.h>
 #include "dusk/ui/ui.hpp"
 #endif
 
@@ -94,9 +97,9 @@ static OSTime resPreLoadTime1;
 
 static dScnPly_preLoad_HIO_c g_preLoadHIO;
 
-s8 dScnPly_c::pauseTimer;
+DUSK_GAME_DATA s8 dScnPly_c::pauseTimer;
 
-s8 dScnPly_c::nextPauseTimer;
+DUSK_GAME_DATA s8 dScnPly_c::nextPauseTimer;
 
 #if DEBUG
 u8 dScnPly_c::debugPause;
@@ -1201,7 +1204,7 @@ static int phase_1(dScnPly_c* i_this) {
 
     // Stage: Ordon Spring, Room: Ordon Spring
     if (!strcmp(dComIfGp_getStartStageName(), "F_SP104") && dComIfGp_getStartStageRoomNo() == 1 &&
-        dComIfGp_getStartStagePoint() == 23 && dComIfGp_getStartStageLayer() == 12)
+        dComIfGp_getStartStagePoint() == 23 && dComIfGp_getStartStageLayer() == 12 IF_DUSK(&& !randomizer_IsActive())) // Don't give the item in rando
     {
         dComIfGs_onItemFirstBit(dItemNo_HORSE_FLUTE_e);
         dComIfGs_setItem(SLOT_21, dItemNo_HORSE_FLUTE_e);
@@ -1401,9 +1404,9 @@ static int phase_3(dScnPly_c* i_this) {
     return cPhs_NEXT_e;
 }
 
-dScnPly_reg_HIO_c g_regHIO;
+DUSK_GAME_DATA dScnPly_reg_HIO_c g_regHIO;
 
-dScnPly_env_HIO_c g_envHIO;
+DUSK_GAME_DATA dScnPly_env_HIO_c g_envHIO;
 
 #if DEBUG
 dScnPly_preset_HIO_c g_presetHIO;

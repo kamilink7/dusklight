@@ -13,7 +13,10 @@
 #include "SSystem/SComponent/c_counter.h"
 #include <cstring>
 
-#include "dusk/string.hpp"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+#include "helpers/string.hpp"
 
 namespace {
 static u8 event_debug_evnt() {
@@ -390,7 +393,13 @@ int dEvt_control_c::talkEnd() {
     if (item != NULL && fopAcM_GetName(item) == fpcNm_ITEM_e) {
         item->dead();
     }
-
+#if TARGET_PC
+    if (g_randomizerState.getHasPendingToDChange())
+    {
+        g_randomizerState.setHasPendingToDChange(false);
+        g_randomizerState.handleTimeOfDayChange();
+    }
+#endif
     return 1;
 }
 
@@ -885,7 +894,10 @@ bool dEvt_control_c::skipper() {
         }
 
         bool is_trig_skipbtn = mDoCPd_c::getTrigStart(PAD_1);
-        if (is_trig_skipbtn) {
+        // Automatically skip cutscenes in rando if Skip Major Cutscenes is on
+        if (is_trig_skipbtn IF_DUSK(||
+            (randomizer_IsActive() && canSkip &&
+             randomizer_GetContext().mSettings[RandomizerContext::SKIP_MAJOR_CUTSCENES] == RandomizerContext::ON))) {
             if (mSkipTimer > 0) {
                 mSkipTimer = -1;
 

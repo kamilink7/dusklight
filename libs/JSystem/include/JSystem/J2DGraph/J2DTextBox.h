@@ -3,8 +3,8 @@
 
 #include "JSystem/J2DGraph/J2DMaterial.h"
 #include "JSystem/J2DGraph/J2DPane.h"
-#include "dusk/endian.h"
-#include "dusk/string.hpp"
+#include "helpers/endian.h"
+#include "helpers/string.hpp"
 
 class J2DMaterial;
 class JUTFont;
@@ -100,7 +100,7 @@ public:
                                  J2DTextBoxVBinding);
     void private_readStream(J2DPane*, JSURandomInputStream*, JKRArchive*);
     TEXT_SPAN getStringPtr() const;
-    dusk::TextSpan getSpan() const;
+    TextSpan getSpan() const;
     s32 setString(s16, char const*, ...);
     s32 setString(char const*, ...);
 
@@ -153,6 +153,18 @@ public:
     J2DTextBoxHBinding getHBinding() const {
         return (J2DTextBoxHBinding)((mFlags >> 2) & 3);
     }
+
+#if TARGET_PC
+    void setVBinding(J2DTextBoxVBinding vBinding) {
+        mFlags &= 0b1100;
+        mFlags |= (vBinding & 3);
+    }
+
+    void setHBinding(J2DTextBoxHBinding hBinding) {
+        mFlags &= 0b0011;
+        mFlags |= ((hBinding & 3) << 2);
+    }
+#endif
 
     JUtility::TColor getCharColor() { return mCharColor; }
     JUtility::TColor getGradColor() { return mGradientColor; }

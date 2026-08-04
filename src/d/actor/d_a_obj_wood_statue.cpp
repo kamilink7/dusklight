@@ -11,6 +11,11 @@
 #include "d/d_com_inf_game.h"
 #include "d/d_item_data.h"
 #include "d/d_s_play.h"
+#if TARGET_PC
+#include "dusk/randomizer/game/flags.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
 
 const static dCcD_SrcCyl l_cyl_src = {
     {
@@ -255,6 +260,12 @@ int daObjWStatue_c::initActionOrderGetDemo() {
     s16 eventIdx = dComIfGp_getEventManager().getEventIdx(this, "DEFAULT_GETITEM", 0xff);
     dComIfGp_getEvent()->reset(this);
     fopAcM_orderChangeEventId(this, eventIdx, 1, 0xffff);
+#if TARGET_PC
+    // Set the item before the demo again incase the player collected something else and then came back
+    if (randomizer_IsActive()) {
+        m_itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Wooden Statue"));
+    }
+#endif
     mItemId = fopAcM_createItemForTrBoxDemo(&current.pos, m_itemNo, 0xffffffff,
                                             fopAcM_GetRoomNo(this), 0, 0);
     JUT_ASSERT(544, mItemId != fpcM_ERROR_PROCESS_ID_e);

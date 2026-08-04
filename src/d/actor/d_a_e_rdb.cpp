@@ -16,6 +16,11 @@
 #include "f_op/f_op_camera_mng.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 class daE_RDB_HIO_c : public JORReflexible {
 public:
     daE_RDB_HIO_c();
@@ -1250,6 +1255,12 @@ static void demo_camera(e_rdb_class* i_this) {
             }
 
             if (iVar1 != 0) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    u8 itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Hyrule Castle King Bulblin Key"));
+                    daPy_getPlayerActorClass()->changeDemoMode(11, itemId, 0, 0);
+                } else // do the next line
+#endif
                 daPy_getPlayerActorClass()->changeDemoMode(11, 32, 0, 0);
                 i_this->mDemoMode = 12;
                 i_this->field_0x10aa = 0;

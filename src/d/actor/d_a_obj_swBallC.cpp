@@ -15,6 +15,11 @@
 #include "f_op/f_op_msg_mng.h"
 #include "f_op/f_op_msg.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#endif
+
 static int CheckCreateHeap(fopAc_ac_c* param_0) {
     return ((daObjSwBallC_c*)param_0)->CreateHeap();
 }
@@ -77,6 +82,15 @@ int daObjSwBallC_c::Create() {
     if (fopAcM_isSwitch(this, 0x3d) && fopAcM_isSwitch(this, 0x3e)) {
         field_0x574->setPlaySpeed(1.0f);
         field_0x574->setFrame(field_0x574->getEndFrame());
+#if TARGET_PC
+        // If randomizer, create the randomized item for
+        // Palace of Twilight Collect Both Sols
+        if (randomizer_IsActive()) {
+            cXyz scale{1.0f, 1.0f, 1.0f};
+            cXyz position{250.0f, -200.0f, 11000.0f};
+            initCreatePlayerItem(dItemNo_Randomizer_WOOD_STICK_e, 0x81, &position, fopAcM_GetRoomNo(this), &shape_angle, &scale);
+        }
+#endif
     }
     GXColor* color = mModel->getModelData()->getMaterialNodePointer(0)->getTevKColor(1);
     color->r = l_color.r;
@@ -143,6 +157,29 @@ static DUSK_CONSTEXPR char DUSK_CONST* action_table[13] = {
 
 void daObjSwBallC_c::actionWait() {
     if (fopAcM_isSwitch(this, 0x3d) && fopAcM_isSwitch(this, 0x3e)) {
+#if TARGET_PC
+        // Don't play the cutscene in rando, just spawn in the item for
+        // Palace of Twilight Collect Both Sols
+        if (randomizer_IsActive()) {
+            dComIfGs_onTbox(10);
+            dComIfGs_onTbox(11);
+
+            // Shrink the light balls
+            calcLightBallScale();
+
+            // Play the animation of the light going to the center
+            field_0x574->setPlaySpeed(1.0f);
+            if (field_0x574->play() != 0 && !fopAcM_isSwitch(this, 0x3F)) {
+                // When it finishes, spawn the item
+                fopAcM_onSwitch(this, 0x3f); // Saw light sword cutscene
+                fopAcM_onSwitch(this, 0x27); // Midna text after light sword cutscene
+                cXyz scale{1.0f, 1.0f, 1.0f};
+                cXyz position{250.0f, -200.0f, 11000.0f};
+                initCreatePlayerItem(dItemNo_Randomizer_WOOD_STICK_e, 0x81, &position, fopAcM_GetRoomNo(this), &shape_angle, &scale);
+            }
+            return;
+        }
+#endif
         setAction(1);
         fopAcM_orderOtherEventId(this, field_0x57c, field_0x57e, 0xffff, 0, 1);
         eventInfo.onCondition(2);

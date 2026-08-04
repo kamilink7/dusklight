@@ -13,6 +13,11 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 enum grO_RES_File_ID {
     /* BCK */
     /* 0x07 */ BCK_GRO_F_TALK_A = 0x7,
@@ -325,13 +330,13 @@ void daNpc_grO_HIO_c::genMessage(JORMContext* ctx) {
 }
 #endif
 
-char DUSK_CONST* DUSK_CONST daNpc_grO_c::mEvtCutNameList[3] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_grO_c::mEvtCutNameList[3] = {
     "",
     "BOKIN_FINISH",
     "PUSHOUT",
 };
 
-daNpc_grO_c::cutFunc DUSK_CONST daNpc_grO_c::mEvtCutList[3] = {
+DUSK_GAME_DATA daNpc_grO_c::cutFunc DUSK_CONST daNpc_grO_c::mEvtCutList[3] = {
     NULL,
     &daNpc_grO_c::ECut_bokinFinish,
     &daNpc_grO_c::cutPushOut,
@@ -355,7 +360,7 @@ daNpc_grO_c::~daNpc_grO_c() {
     #endif
 }
 
-daNpc_grO_HIOParam const daNpc_grO_Param_c::m = {
+DUSK_GAME_DATA daNpc_grO_HIOParam const daNpc_grO_Param_c::m = {
     160.0f,
     -3.0f,
     1.0f,
@@ -1681,6 +1686,12 @@ int daNpc_grO_c::talk(void* param_1) {
             if (facePlayerFlag && talkProc(NULL, TRUE, NULL)) {
                 if (mType == TYPE_MINES) {
                     if (mFlow.getEventId(&itemId) == 1) {
+#if TARGET_PC
+                        if (randomizer_IsActive()) {
+                            itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Goron Mines Gor Ebizo Key Shard"));
+                            randomizer_setTempFlagForLocation("Goron Mines Gor Ebizo Key Shard");
+                        }
+#endif
                         mItemID = fopAcM_createItemForPresentDemo(&current.pos, itemId, 0, -1, -1, NULL, NULL);
                         if (mItemID != fpcM_ERROR_PROCESS_ID_e) {
                             s16 eventIdx = dComIfGp_getEventManager().getEventIdx(this, "DEFAULT_GETITEM", 0xFF);

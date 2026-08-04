@@ -11,6 +11,11 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 enum {
     NUM_EVT_CUTS_e = 5,
 };
@@ -91,7 +96,7 @@ static DUSK_CONSTEXPR char DUSK_CONST* l_resNames[3] = {
 
 static DUSK_CONSTEXPR char DUSK_CONST* l_myName = "myna2";
 
-char DUSK_CONST* DUSK_CONST daNpc_myna2_c::mEvtCutNameList[5] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_myna2_c::mEvtCutNameList[5] = {
     "",
     "FIRST_TALK",
     "GAME_FAILURE",
@@ -99,7 +104,7 @@ char DUSK_CONST* DUSK_CONST daNpc_myna2_c::mEvtCutNameList[5] = {
     "GAME_GOAL_SUCCESS",
 };
 
-daNpc_myna2_c::EventFn DUSK_CONST daNpc_myna2_c::mEvtCutList[] = {
+DUSK_GAME_DATA daNpc_myna2_c::EventFn DUSK_CONST daNpc_myna2_c::mEvtCutList[] = {
     NULL,
     &daNpc_myna2_c::ECut_firstTalk,
     &daNpc_myna2_c::ECut_gameFailure,
@@ -107,7 +112,7 @@ daNpc_myna2_c::EventFn DUSK_CONST daNpc_myna2_c::mEvtCutList[] = {
     &daNpc_myna2_c::ECut_gameGoalSuccess,
 };
 
-const daNpc_myna2_HIOParam daNpc_myna2_Param_c::m = {
+DUSK_GAME_DATA const daNpc_myna2_HIOParam daNpc_myna2_Param_c::m = {
     60.0f,
     0.0f,
     1.0f,
@@ -1191,6 +1196,12 @@ int daNpc_myna2_c::ECut_gameGoalSuccess(int i_staffId) {
         case 20: {
             int itemNo = 0;
             if (mFlow.getEventId(&itemNo) == 1) {
+#if TARGET_PC
+                // If plumm tries giving us the heart piece, give the randomized item instead
+                if (randomizer_IsActive() && itemNo == dItemNo_KAKERA_HEART_e) {
+                    itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Plumm Fruit Balloon Minigame"));
+                }
+#endif
                 mItemPid = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
             }
             break;

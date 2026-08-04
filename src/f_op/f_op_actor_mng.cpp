@@ -18,6 +18,9 @@
 #include "SSystem/SComponent/c_math.h"
 #include "d/actor/d_a_obj_carry.h"
 #include "d/actor/d_a_player.h"
+#if TARGET_PC
+#include "d/actor/d_a_alink.h"
+#endif
 #include "d/actor/d_a_tag_stream.h"
 #include "d/d_item.h"
 #include "d/d_path.h"
@@ -27,6 +30,11 @@
 #include "f_op/f_op_camera_mng.h"
 #include "f_op/f_op_scene_mng.h"
 #include "m_Do/m_Do_lib.h"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#include "dusk/randomizer/game/tools.h"
+#endif
 #include <cstring>
 
 #define MAKE_ITEM_PARAMS(itemNo, itemBitNo, param_2, param_3)                                      \
@@ -379,14 +387,14 @@ s32 fopAcM_callCallback(fopAc_ac_c* i_actor, heapCallbackFunc i_callback, JKRHea
     return ret;
 }
 
-u8 fopAcM::HeapAdjustEntry;
-u8 fopAcM::HeapAdjustUnk;
-u8 fopAcM::HeapAdjustVerbose;
-u8 fopAcM::HeapAdjustQuiet;
-u8 fopAcM::HeapDummyCreate;
-u8 fopAcM::HeapSkipMargin;
-u8 fopAcM::HeapDummyCheck;
-int fopAcM::HeapAdjustMargin =
+DUSK_GAME_DATA u8 fopAcM::HeapAdjustEntry;
+DUSK_GAME_DATA u8 fopAcM::HeapAdjustUnk;
+DUSK_GAME_DATA u8 fopAcM::HeapAdjustVerbose;
+DUSK_GAME_DATA u8 fopAcM::HeapAdjustQuiet;
+DUSK_GAME_DATA u8 fopAcM::HeapDummyCreate;
+DUSK_GAME_DATA u8 fopAcM::HeapSkipMargin;
+DUSK_GAME_DATA u8 fopAcM::HeapDummyCheck;
+DUSK_GAME_DATA int fopAcM::HeapAdjustMargin =
 #if VERSION == VERSION_SHIELD_DEBUG
     0x1000;
 #else
@@ -914,7 +922,7 @@ bool fopAcM_checkCullingBox(Mtx m, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z
         return false;
 }
 
-cull_box l_cullSizeBox[fopAc_CULLBOX_MAX_e] = {
+DUSK_GAME_DATA cull_box l_cullSizeBox[fopAc_CULLBOX_MAX_e] = {
     {
         {-40.0f, 0.0f, -40.0f},
         {40.0f, 125.0f, 40.0f},
@@ -979,7 +987,7 @@ cull_box l_cullSizeBox[fopAc_CULLBOX_MAX_e] = {
 #endif
 };
 
-cull_sphere l_cullSizeSphere[fopAc_CULLSPHERE_MAX_e] = {
+DUSK_GAME_DATA cull_sphere l_cullSizeSphere[fopAc_CULLSPHERE_MAX_e] = {
     {
         {0.0f, 0.0f, 0.0f},
         80.0f,
@@ -1387,6 +1395,11 @@ fopAc_ac_c* fopAcM_getEventPartner(fopAc_ac_c const* i_actor) {
 fpc_ProcID fopAcM_createItemForPresentDemo(cXyz const* i_pos, int i_itemNo, u8 param_2,
                                            int i_itemBitNo, int i_roomNo, csXyz const* i_angle,
                                            cXyz const* i_scale) {
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        i_itemNo = verifyProgressiveItem(i_itemNo);
+    }
+#endif
     JUT_ASSERT(3214, 0 <= i_itemNo && i_itemNo < 256);
     dComIfGp_event_setGtItm(i_itemNo);
 
@@ -1400,7 +1413,11 @@ fpc_ProcID fopAcM_createItemForPresentDemo(cXyz const* i_pos, int i_itemNo, u8 p
 
 fpc_ProcID fopAcM_createItemForTrBoxDemo(cXyz const* i_pos, int i_itemNo, int i_itemBitNo,
                                          int i_roomNo, csXyz const* i_angle, cXyz const* i_scale) {
-   
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        i_itemNo = verifyProgressiveItem(i_itemNo);
+    }
+#endif
    JUT_ASSERT(3259, 0 <= i_itemNo && i_itemNo < 256);
    dComIfGp_event_setGtItm(i_itemNo);
 
@@ -1583,6 +1600,16 @@ fpc_ProcID fopAcM_createDemoItem(const cXyz* i_pos, int i_itemNo, int i_itemBitN
 fpc_ProcID fopAcM_createItemForBoss(const cXyz* i_pos, int i_itemNo, int i_roomNo,
                                     const csXyz* i_angle, const cXyz* i_scale, f32 i_speedF,
                                     f32 i_speedY, int param_8) {
+    #if TARGET_PC
+    if (randomizer_IsActive()) {
+        if (i_itemNo == dItemNo_Randomizer_UTAWA_HEART_e)
+        {
+            param_8 = 0x9F; // Custom flag used for dungeon heart containers.
+        }
+        // Don't use fastCreate for rando since it could take a bit to load the item resource
+        return initCreatePlayerItem(i_itemNo, param_8 & 0xFF, i_pos, i_roomNo, i_angle, i_scale);
+    } else {
+    #endif
     int _ = -1;
     u32 params = 0xFFFF0000 | param_8 << 8 | (i_itemNo & 0xFF);
 
@@ -1594,11 +1621,24 @@ fpc_ProcID fopAcM_createItemForBoss(const cXyz* i_pos, int i_itemNo, int i_roomN
     }
 
     return fopAcM_GetID(actor);
+    #if TARGET_PC
+    }
+    #endif
 }
 
 fpc_ProcID fopAcM_createItemForMidBoss(const cXyz* i_pos, int i_itemNo, int i_roomNo,
                                        const csXyz* i_angle, const cXyz* i_scale, int param_6,
                                        int param_7) {
+    #if TARGET_PC
+    // If we are fighting Ook in randomizer, we want to handle the boomerang check a different way.
+    if (randomizer_IsActive()) {
+        if (daAlink_c::checkStageName("D_MN05B")) {
+            i_itemNo = verifyProgressiveItem(i_itemNo);
+            return initCreatePlayerItem(i_itemNo, 0xFF, i_pos, i_roomNo, i_angle, i_scale);
+        }
+    }
+    #endif
+
     UNUSED(i_angle);
     UNUSED(param_6);
     fpc_ProcID ret = -1;
@@ -2097,11 +2137,11 @@ void fopAcM_GetRealMax(const fopAc_ac_c*) {
     static cXyz max;
 }
 
-dBgS_ObjLinChk fopAcM_lc_c::mLineCheck;
+DUSK_GAME_DATA dBgS_ObjLinChk fopAcM_lc_c::mLineCheck;
 
-dBgS_ObjGndChk fopAcM_gc_c::mGndCheck;
+DUSK_GAME_DATA dBgS_ObjGndChk fopAcM_gc_c::mGndCheck;
 
-f32 fopAcM_gc_c::mGroundY;
+DUSK_GAME_DATA f32 fopAcM_gc_c::mGroundY;
 
 void fopAcM_effSmokeSet1(u32* param_0, u32* param_1, cXyz const* param_2, csXyz const* param_3,
                          f32 param_4, dKy_tevstr_c const* param_5, int param_6) {
@@ -2316,13 +2356,13 @@ fopAc_ac_c* fopAcM_searchFromName4Event(char const* i_name, s16 i_eventID) {
     return fopAcM_Search((fopAcIt_JudgeFunc)fopAcM_findObject4EventCB, &prm);
 }
 
-dBgS_ObjRoofChk fopAcM_rc_c::mRoofCheck;
+DUSK_GAME_DATA dBgS_ObjRoofChk fopAcM_rc_c::mRoofCheck;
 
-dBgS_WtrChk fopAcM_wt_c::mWaterCheck;
+DUSK_GAME_DATA dBgS_WtrChk fopAcM_wt_c::mWaterCheck;
 
-f32 fopAcM_rc_c::mRoofY;
+DUSK_GAME_DATA f32 fopAcM_rc_c::mRoofY;
 
-f32 fopAcM_wt_c::mWaterY;
+DUSK_GAME_DATA f32 fopAcM_wt_c::mWaterY;
 
 s32 fopAcM_getWaterY(cXyz const* param_0, f32* o_waterY) {
     if (fopAcM_wt_c::waterCheck(param_0) && fopAcM_wt_c::getPolyAtt0() != 6) {

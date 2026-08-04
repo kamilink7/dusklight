@@ -14,6 +14,10 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#endif
 
 static s16 mAttackNo = 3;
 
@@ -1132,11 +1136,17 @@ static void e_po_dead(e_po_class* i_this) {
             camera_player->mCamera.Start();
             camera_player->mCamera.SetTrimSize(0);
             dComIfGp_event_reset();
-            dComIfGs_addPohSpiritNum();
+#if TARGET_PC
+            if (!randomizer_IsActive()) {
+#endif
+                dComIfGs_addPohSpiritNum();
 #if !PLATFORM_SHIELD
-            if (dComIfGs_getPohSpiritNum() == 0x14) {
-                /* dSv_event_flag_c::F_0457 - Castle Town - Revived cat */
-                dComIfGs_onEventBit(dSv_event_flag_c::saveBitLabels[457]);
+                if (dComIfGs_getPohSpiritNum() == 0x14) {
+                    /* dSv_event_flag_c::F_0457 - Castle Town - Revived cat */
+                    dComIfGs_onEventBit(dSv_event_flag_c::saveBitLabels[457]);
+                }
+#endif
+#if TARGET_PC
             }
 #endif
             daPy_getPlayerActorClass()->cancelOriginalDemo();
@@ -1265,6 +1275,14 @@ static void e_po_dead(e_po_class* i_this) {
             }
         } else {
             if (i_this->field_0x75C == -1) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    u16 key = getStageID() << 8 | i_this->BitSW;
+                    u8 itemId = randomizer_GetContext().mPoeOverrides[key];
+                    i_this->field_0x75C = fopAcM_createItemForPresentDemo(&a_this->current.pos, itemId, 0,
+                                                                      -1, -1, NULL, NULL);
+                } else
+#endif
                 i_this->field_0x75C = fopAcM_createItemForPresentDemo(&a_this->current.pos, 0xE0, 0,
                                                                       -1, -1, NULL, NULL);
             }

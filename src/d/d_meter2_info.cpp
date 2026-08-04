@@ -15,7 +15,12 @@
 
 #include <cstring>
 
-#include "dusk/string.hpp"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/version.hpp"
+#include "battery/embed.hpp"
+#endif
+#include "helpers/string.hpp"
 
 enum ITEMICON_RES_FILE_ID {
     ITEMICON_BTI_ARI_MESU_00=0x3,
@@ -534,13 +539,18 @@ f32 dMeter2Info_c::getStringLength(J2DTextBox* i_textbox, char* i_string) {
             str_width = 0.0f;
         } else {
             int c = (u8)*string;
-#if VERSION == VERSION_GCN_JPN
-            bool unkFlag1 = false;
-            if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xfc)) {
-                unkFlag1 = true;
-            }
-            if (unkFlag1) {
-                c = (c << 8) | (u8)*++string;
+#if TARGET_PC || VERSION == VERSION_GCN_JPN
+            #if TARGET_PC
+            if (dusk::version::isRegionJpn())
+            #endif
+            {
+                bool unkFlag1 = false;
+                if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xfc)) {
+                    unkFlag1 = true;
+                }
+                if (unkFlag1) {
+                    c = (c << 8) | (u8)*++string;
+                }
             }
 #endif
             str_width += charSpace + (fontSize.mSizeX * ((f32)font->getWidth(c) / (f32)font->getCellWidth()));
@@ -566,13 +576,18 @@ f32 dMeter2Info_c::getStringLength(JUTFont* i_font, f32 param_2, f32 param_3, ch
             str_width = 0.0f;
         } else {
             int c = (u8)*string;
-#if VERSION == VERSION_GCN_JPN
-            bool unkFlag1 = false;
-            if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xfc)) {
-                unkFlag1 = true;
-            }
-            if (unkFlag1) {
-                c = (c << 8) | (u8)*++string;
+#if TARGET_PC || VERSION == VERSION_GCN_JPN
+            #if TARGET_PC
+            if (dusk::version::isRegionJpn())
+            #endif
+            {
+                bool unkFlag1 = false;
+                if ((c >= 0x81 && c <= 0x9f) || (c >= 0xe0 && c <= 0xfc)) {
+                    unkFlag1 = true;
+                }
+                if (unkFlag1) {
+                    c = (c << 8) | (u8)*++string;
+                }
             }
 #endif
             str_width += param_3 + param_2 * ((f32)i_font->getWidth(c) / (f32)i_font->getCellWidth());
@@ -594,7 +609,7 @@ BOOL dMeter2Info_c::isDirectUseItem(int param_0) {
     return (mDirectUseItem & (u8)(1 << param_0)) ? TRUE : FALSE;
 }
 
-dMeter2Info_c g_meter2_info;
+DUSK_GAME_DATA dMeter2Info_c g_meter2_info;
 
 int dMeter2Info_c::setMeterString(s32 i_string) {
     if (mMeterString != 0) {
@@ -815,6 +830,11 @@ int dMeter2Info_c::readItemTexture(u8 i_itemNo, void* i_texBuf1, J2DPicture* i_p
         } else if ((itemType == ItemType_POU_FIRE || itemType == ItemType_FAIRY || itemType == ItemType_BEE_CHILD || itemType == ItemType_WORM) && i_texBuf3 == NULL) {
             u32 size = JKRReadIdxResource(i_texBuf1, 0xC00, get2ndTexture(itemType), dComIfGp_getItemIconArchive());
             JUT_ASSERT(1222, size != 0);
+#if TARGET_PC
+        } else if (randomizer_IsActive() && i_itemNo == dItemNo_Randomizer_MAGIC_LV1_e) {
+            auto shadowCrystalBti = b::embed<RANDO_ASSETS_PATH "textures/shadow_crystal.bti">();
+            std::memcpy(i_texBuf1, shadowCrystalBti.data(), shadowCrystalBti.size());
+#endif
         } else {
             u32 size;
             if (param_9 >= 0) {
@@ -1742,7 +1762,7 @@ bool dMeter2Info_isItemOpenCheck() {
     return true;
 }
 
-dMenu_LetterData dMenu_Letter::letter_data[64] = {
+DUSK_GAME_DATA dMenu_LetterData dMenu_Letter::letter_data[64] = {
     {0x09C5, 0x0A29, 0x0A8D, 0x010B}, {0x09C6, 0x0A2A, 0x0A8E, 0x0237},
     {0x09C7, 0x0A2B, 0x0A8F, 0x0236}, {0x09C8, 0x0A2C, 0x0A90, 0x0037},
     {0x09C9, 0x0A2D, 0x0A91, 0x0039}, {0x09CA, 0x0A2E, 0x0A92, 0x0067},

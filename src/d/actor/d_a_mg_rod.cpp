@@ -29,6 +29,7 @@
 #include "dusk/frame_interpolation.h"
 #include "dusk/settings.h"
 #include "dusk/version.hpp"
+#include "dusk/randomizer/game/randomizer_context.hpp"
 #endif
 
 class dmg_rod_HIO_c : public JORReflexible {
@@ -2955,6 +2956,10 @@ static void lure_heart(dmg_rod_class* i_this) {
             if (obj_life != NULL) {
                 fopAcM_delete(obj_life);
                 fopAcM_onItem(obj_life, 0x80);
+#if TARGET_PC
+                // Don't give the item here in rando. We give it later when the FLW message happens
+                if (!randomizer_IsActive())
+#endif
                 execItemGet(dItemNo_KAKERA_HEART_e);
                 u8 eventReg = dComIfGs_getEventReg(0xECFF);
                 eventReg |= (u8)0x40;
@@ -4090,6 +4095,10 @@ static void uki_catch(dmg_rod_class* i_this) {
             } else if (mgfish->mCaughtType == MG_CATCH_BIN) {
                 i_this->msgflow.init(actor, 0x139A, 0, NULL);
                 dComIfGs_onEventBit(dSv_event_flag_c::saveBitLabels[468]);
+#if TARGET_PC
+                // Don't give the item here in rando. We give it later in the FLW Message
+                if (!randomizer_IsActive())
+#endif
                 dComIfGs_setEmptyBottle();
             } else if (mgfish->mCaughtType == MG_CATCH_KN) {
                 i_this->msgflow.init(actor, 0x139C, 0, NULL);
@@ -4356,7 +4365,8 @@ static void uki_main(dmg_rod_class* i_this) {
                 }
 
                 if (!dComIfGs_isEventBit(dSv_event_flag_c::saveBitLabels[468])) {
-                    if (cM_rndF(1.0f) <= 0.5f) {
+                    // Always succeed the rng check in rando for fishing bottle
+                    if (cM_rndF(1.0f) <= 0.5f IF_DUSK(|| randomizer_IsActive())) {
                         cXyz bin_pos(6800.0f, 30.0f, -270.0f);
                         bin_pos -= player->current.pos;
 

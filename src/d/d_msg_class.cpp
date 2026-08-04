@@ -1,23 +1,35 @@
 #include "d/dolzel.h" // IWYU pragma: keep
 
-#include "d/d_msg_class.h"
 #include <cstdio>
 #include <cstring>
-#include "d/d_meter2_info.h"
-#include "d/d_msg_object.h"
-#include "d/d_msg_unit.h"
 #include "JSystem/J2DGraph/J2DTextBox.h"
-#include "d/d_msg_out_font.h"
-#include "m_Do/m_Do_graphic.h"
-#include "d/d_lib.h"
 #include "JSystem/JUtility/JUTFont.h"
+#include "d/d_lib.h"
+#include "d/d_meter2_info.h"
+#include "d/d_msg_class.h"
+#include "d/d_msg_object.h"
+#include "d/d_msg_out_font.h"
+#include "d/d_msg_unit.h"
+#include "dusk/version.hpp"
+#include "m_Do/m_Do_graphic.h"
 
 #if TARGET_PC
 #include "dusk/menu_pointer.h"
 #include "dusk/scope_guard.hpp"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/custom_flow_ids.hpp"
 #endif
 
-#if REGION_JPN
+#if TARGET_PC
+#define CHAR_CODE_MALE_ICON        (dusk::version::isRegionJpn() ? 0x8189 : 0xB2)
+#define CHAR_CODE_FEMALE_ICON      (dusk::version::isRegionJpn() ? 0x818A : 0xB3)
+#define CHAR_CODE_STAR_ICON        (dusk::version::isRegionJpn() ? 0x819A : 0xB1)
+#define CHAR_CODE_REFMARK          (dusk::version::isRegionJpn() ? 0x81A6 : 0x89)
+#define CHAR_CODE_THIN_LEFT_ARROW  (dusk::version::isRegionJpn() ? 0x81A9 : 0xB9)
+#define CHAR_CODE_THIN_RIGHT_ARROW (dusk::version::isRegionJpn() ? 0x81A8 : 0xBC)
+#define CHAR_CODE_THIN_UP_ARROW    (dusk::version::isRegionJpn() ? 0x81AA : 0xBD)
+#define CHAR_CODE_THIN_DOWN_ARROW  (dusk::version::isRegionJpn() ? 0x81AB : 0xBE)
+#elif REGION_JPN
 #define CHAR_CODE_MALE_ICON 0x8189
 #define CHAR_CODE_FEMALE_ICON 0x818A
 #define CHAR_CODE_STAR_ICON 0x819A
@@ -35,6 +47,34 @@
 #define CHAR_CODE_THIN_RIGHT_ARROW 0xBC
 #define CHAR_CODE_THIN_UP_ARROW 0xBD
 #define CHAR_CODE_THIN_DOWN_ARROW 0xBE
+#endif
+
+#if TARGET_PC
+// Custom function to return custom entries if applicable
+JMSMesgEntry_c& JMSMesgInfo_c::getEntry(u16 index) {
+    u32 key{};
+    auto& attributeOverrides = randomizer_GetContext().mAttributeOverrides;
+    if (index < BASE_CUSTOM_MSG_AND_FLOW_ID) {
+        // Regular entry
+        u8 group = dComIfGp_getMsgObjectClass()->getMessageGroup(index);
+        key = group << 16 | index;
+        // Override attributes if we modified them for this index
+        if (attributeOverrides.contains(key)) {
+            return *reinterpret_cast<JMSMesgEntry_c*>(&attributeOverrides[key]);
+        }
+        return entries[index];
+    }
+
+    // We have a custom index, use the custom index group
+    key = CUSTOM_BMG_GROUP << 16 | index;
+    if (attributeOverrides.contains(key)) {
+        return *reinterpret_cast<JMSMesgEntry_c*>(&attributeOverrides[key]);
+    }
+
+    // If we didn't specify attributes for the custom index, use the default
+    defaultJMSMesgEntry.message_id = index;
+    return defaultJMSMesgEntry;
+}
 #endif
 
 static bool checkCharInfoCharactor(int c) {
@@ -214,12 +254,18 @@ static bool isOutfontKanjiCode(int iCharacter) {
 }
 
 static u32 getFontCCColorTable(u8 i_colorNo, u8 i_fukiKind) {
-    static const u32 colorTable[9] = {
+    static const u32 colorTable[DUSK_IF_ELSE(12, 9)] = {
         0xFFFFFFFF, 0xF07878FF, 0xAADC8CFF, 0xA0B4DCFF, 0xDCDC82FF,
         0xB4C8E6FF, 0xC8A0DCFF, 0xFFFFFFFF, 0xDCAA78FF,
+#if TARGET_PC
+        // Extra text colors for randomizer
+        0x4BBE4BFF, // Dark Green
+        0x4B96D7FF, // Blue
+        0xBFBFBFFF, // Silver
+#endif
     };
 
-    if (i_colorNo > 8) {
+    if (i_colorNo > DUSK_IF_ELSE(11, 8)) {
         return 0xFFFFFFFF;
     }
 
@@ -248,12 +294,18 @@ static u32 getFontCCColorTable(u8 i_colorNo, u8 i_fukiKind) {
 }
 
 static u32 getFontGCColorTable(u8 i_colorNo, u8 i_fukiKind) {
-    static const u32 colorTable[9] = {
+    static const u32 colorTable[DUSK_IF_ELSE(12, 9)] = {
         0xFFFFFFFF, 0xF07878FF, 0xAADC8CFF, 0xA0B4DCFF, 0xDCDC82FF,
         0xB4C8E6FF, 0xC8A0DCFF, 0xFFFFFFFF, 0xDCAA78FF,
+#if TARGET_PC
+        // Extra text colors for randomizer
+        0x4BBE4BFF, // Dark Green
+        0x4B96D7FF, // Blue
+        0xBFBFBFFF, // Silver
+#endif
     };
 
-    if (i_colorNo > 8) {
+    if (i_colorNo > DUSK_IF_ELSE(11, 8)) {
         return 0xFFFFFFFF;
     }
 
@@ -431,8 +483,33 @@ void jmessage_tReference::calcDistance() {
 
 u8 jmessage_tReference::getLineMax() {
     int line_max;
-
-#if REGION_JPN
+#if TARGET_PC
+    if (dusk::version::isRegionJpn()) {
+        if (isKanban()) {
+            line_max = 6;
+        } else if (isBook()) {
+            line_max = 7;
+        } else if (isStaffRoll()) {
+            line_max = 10;
+        } else if (isSaveSeq()) {
+            line_max = 5;
+        } else {
+            line_max = 3;
+        }
+    } else {
+        if (isKanban()) {
+            line_max = 7;
+        } else if (isBook()) {
+            line_max = 9;
+        } else if (isStaffRoll()) {
+            line_max = 10;
+        } else if (isSaveSeq()) {
+            line_max = 6;
+        } else {
+            line_max = 4;
+        }
+    }
+#elif REGION_JPN
     if (isKanban()) {
         line_max = 6;
     } else if (isBook()) {
@@ -895,7 +972,7 @@ void jmessage_tMeasureProcessor::do_begin(void const* pEntry, char const* pszTex
     mSeSpeaker = ((JMSMesgEntry_c*)pEntry)->se_speaker;
     mSeMood = ((JMSMesgEntry_c*)pEntry)->se_mood;
 
-    for (int i = 0; i < D_MSG_CLASS_PAGE_CNT_MAX; i++) {
+    for (int i = 0; i < DUSK_IF_ELSE((dusk::version::isRegionJpn() ? 30 : D_MSG_CLASS_PAGE_CNT_MAX), D_MSG_CLASS_PAGE_CNT_MAX); i++) {
         pReference->setLineLength(i, 0.0f, 0.0f);
         pReference->setPageLine(i, 0);
         pReference->setPageLineMax(i, 0);
@@ -912,7 +989,11 @@ void jmessage_tMeasureProcessor::do_begin(void const* pEntry, char const* pszTex
                 pReference->setLineArrange(i, 1);
             }
 
-#if !REGION_JPN
+#if TARGET_PC
+            if (!dusk::version::isRegionJpn() && ((JMSMesgEntry_c*)pEntry)->unk_0xd == 0) {
+                pReference->setLineArrange(i, 1);
+            }
+#elif !REGION_JPN
             if (((JMSMesgEntry_c*)pEntry)->unk_0xd == 0) {
                 pReference->setLineArrange(i, 1);
             }
@@ -1591,6 +1672,33 @@ void jmessage_tMeasureProcessor::do_scale(f32 i_scale) {
         mPageLineMax--;
         JUT_ASSERT(0x930, mPageLineMax > 0);
 
+#if TARGET_PC
+        if (dusk::version::isRegionJpn()) {
+            if (field_0x3e == 0) {
+                pReference->setPageType(field_0x40, 2);
+            } else {
+                pReference->setPageType(field_0x40, 3);
+                if (field_0x3e == 1 && pReference->getPageType(field_0x40) == 2) {
+                    pReference->setPageType(field_0x40, 4);
+                }
+            }
+        } else {
+            if (field_0x3e == 0) {
+                pReference->setPageType(field_0x40, 2);
+            } else if (field_0x3e == 2 && mPageLineMax == 3) {
+                if (pReference->getPageType(field_0x40) == 4) {
+                    pReference->setPageType(field_0x40, 5);
+                } else {
+                    pReference->setPageType(field_0x40, 8);
+                }
+            } else {
+                pReference->setPageType(field_0x40, 3);
+                if (field_0x3e == 1 && pReference->getPageType(field_0x40) == 2) {
+                    pReference->setPageType(field_0x40, 4);
+                }
+            }
+        }
+#else
 #if REGION_JPN
         if (field_0x3e == 0) {
             pReference->setPageType(field_0x40, 2);
@@ -1612,6 +1720,7 @@ void jmessage_tMeasureProcessor::do_scale(f32 i_scale) {
                 pReference->setPageType(field_0x40, 4);
             }
         }
+#endif
     }
 }
 
@@ -1762,7 +1871,10 @@ void jmessage_tMeasureProcessor::do_pageType(int param_0) {
 
 void jmessage_tMeasureProcessor::do_name1() {
     const char* name = dComIfGs_getPlayerName();
-#if REGION_JPN
+#if TARGET_PC || REGION_JPN
+    if (!dusk::version::isRegionJpn())
+        return;
+
     int c = (((char)name[0] & 0xFF) << 8) | ((char)name[1] & 0xFF);
     // if first character is hiragana or katakana
     if ((c >= 0x829F && c <= 0x82F1) || (c >= 0x8340 && c <= 0x8396)) {
@@ -2041,7 +2153,7 @@ bool jmessage_tSequenceProcessor::do_isReady() {
                 field_0xae = 1;
                 field_0xa4 = 0;
                 pReference->onBatchFlag();
-                pReference->setCharCnt(D_MSG_CLASS_CHAR_CNT_MAX);
+                pReference->setCharCnt(DUSK_IF_ELSE(dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200, D_MSG_CLASS_CHAR_CNT_MAX));
                 field_0xa4 = field_0xa8;
                 return true;
             }
@@ -2061,7 +2173,7 @@ bool jmessage_tSequenceProcessor::do_isReady() {
                 field_0xae = 1;
                 field_0xa4 = 0;
                 pReference->onBatchFlag();
-                pReference->setCharCnt(D_MSG_CLASS_CHAR_CNT_MAX);
+                pReference->setCharCnt(DUSK_IF_ELSE(dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200, D_MSG_CLASS_CHAR_CNT_MAX));
                 return true;
             }
             
@@ -2084,7 +2196,7 @@ bool jmessage_tSequenceProcessor::do_isReady() {
                 if (mDoCPd_c::getTrigA(PAD_1) || field_0xb2 != 0 IF_DUSK(|| (dusk::getSettings().game.instantText && mDoCPd_c::getHoldB(0)))) {
                     field_0xa4 = 0;
                     pReference->onBatchFlag();
-                    pReference->setCharCnt(D_MSG_CLASS_CHAR_CNT_MAX);
+                    pReference->setCharCnt(DUSK_IF_ELSE(dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200, D_MSG_CLASS_CHAR_CNT_MAX));
                 }
                 break;
             case 1:
@@ -2093,7 +2205,7 @@ bool jmessage_tSequenceProcessor::do_isReady() {
             case 9:
                 field_0xa4 = 0;
                 pReference->onBatchFlag();
-                pReference->setCharCnt(D_MSG_CLASS_CHAR_CNT_MAX);
+                pReference->setCharCnt(DUSK_IF_ELSE(dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200, D_MSG_CLASS_CHAR_CNT_MAX));
                 break;
             case 2:
                 if (field_0xb2 != 0) {
@@ -2108,7 +2220,9 @@ bool jmessage_tSequenceProcessor::do_isReady() {
             }
 
             field_0xa6++;
-#if REGION_JPN
+#if TARGET_PC
+            if ((dusk::version::isRegionJpn() && field_0xa6 >= 1) || (!dusk::version::isRegionJpn() && field_0xa6 >= 2)) {
+#elif REGION_JPN
             if (field_0xa6 >= 1) {
 #else
             if (field_0xa6 >= 2) {
@@ -2533,7 +2647,10 @@ bool jmessage_tSequenceProcessor::do_jump_isReady() {
 
 void jmessage_tSequenceProcessor::do_name1() {
     const char* name = dComIfGs_getPlayerName();
-#if REGION_JPN
+#if TARGET_PC || REGION_JPN
+    if (!dusk::version::isRegionJpn())
+        return;
+
     int c = (((char)name[0] & 0xFF) << 8) | ((char)name[1] & 0xFF);
     // if first character is hiragana or katakana
     if ((c >= 0x829F && c <= 0x82F1) || (c >= 0x8340 && c <= 0x8396)) {
@@ -3357,9 +3474,9 @@ void jmessage_tRenderingProcessor::do_heightcenter() {
         }
         break;
     }
-#if REGION_JPN
+#if TARGET_PC || REGION_JPN
     case 2:
-        if ((s8)pReference->getLineMax() == 3) {
+        if (IF_DUSK(dusk::version::isRegionJpn() &&) (s8)pReference->getLineMax() == 3) {
             int nowPageLine = pReference->getNowPageLine();
             field_0x138 = pReference->getLineSpace() * (0.5f * (pReference->getLineMax() - (s16)nowPageLine));
             var_f31 += field_0x138;
@@ -3368,12 +3485,25 @@ void jmessage_tRenderingProcessor::do_heightcenter() {
         if (field_0x142 == 0) {
             field_0x138 = pReference->getLineSpace();
             var_f31 += field_0x138;
-        } else if (field_0x142 == 1) {
+        }
+#if TARGET_PC
+        else if (!dusk::version::isRegionJpn() || (dusk::version::isRegionJpn() && field_0x142 == 1))
+#else
+        else if (field_0x142 == 1)
+#endif
+        {
             field_0x138 = 0.5f * pReference->getLineSpace();
             var_f31 += field_0x138;
         }
         break;
     case 3: {
+#if TARGET_PC
+        if (!dusk::version::isRegionJpn()) {
+            field_0x138 = 0.5f * pReference->getLineSpace();
+            var_f31 += field_0x138;
+            break;
+        }
+#endif
         if (field_0x142 == 1) {
             int nowPageLine = pReference->getNowPageLine();
             field_0x138 = pReference->getLineSpace() * (0.5f * (pReference->getLineMax() - (s16)nowPageLine));
@@ -3383,8 +3513,25 @@ void jmessage_tRenderingProcessor::do_heightcenter() {
         break;
     }
     case 4: {
+        #if TARGET_PC
+        if (!dusk::version::isRegionJpn() && field_0x142 == 0) {
+            int nowPageLine = pReference->getNowPageLine();
+            field_0x138 = pReference->getLineSpace() * (0.5f * (pReference->getLineMax() - (s16)nowPageLine));
+            var_f31 += field_0x138;
+        }
+        #endif
+
         if (field_0x142 == 1) {
+            #if TARGET_PC
+            if (!dusk::version::isRegionJpn()) {
+                field_0x138 = 0.5f * pReference->getLineSpace();
+                var_f31 += field_0x138;
+            } else {
+                var_f31 += 0.5f * pReference->getLineSpace();
+            }
+            #else
             var_f31 += 0.5f * pReference->getLineSpace();
+            #endif
         }
 
         f32 sp8 = pReference->getLineScale(field_0x142) / 100.0f;
@@ -3662,7 +3809,7 @@ void jmessage_tRenderingProcessor::do_strcat(char* i_str, bool param_2, bool par
             } else {
                 JUT_WARN(5316, "%s", "TextBox Alloc Byte Over!!");
             }
-        } else if (field_0x11c < D_MSG_CLASS_CHAR_CNT_MAX) {
+        } else if (field_0x11c < DUSK_IF_ELSE((dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200), D_MSG_CLASS_CHAR_CNT_MAX)) {
             if (param_2) {
                 field_0x146++;
                 if (pReference->getBatchColorFlag() != 0) {
@@ -3697,7 +3844,7 @@ void jmessage_tRenderingProcessor::do_strcat(char* i_str, bool param_2, bool par
                         int length = 0;
                         length = strlen(buffer);
 
-                        if (field_0x11c + length < D_MSG_CLASS_CHAR_CNT_MAX) {
+                        if (field_0x11c + length < DUSK_IF_ELSE((dusk::version::isRegionJpn() ? D_MSG_CLASS_CHAR_CNT_MAX : 0x200), D_MSG_CLASS_CHAR_CNT_MAX)) {
                             field_0x148 = strlen(pReference->getTextPtr());
                             field_0x14a = strlen(pReference->getTextSPtr());
 
@@ -3792,7 +3939,10 @@ void jmessage_tRenderingProcessor::do_rubystrcat(char* i_src, TEXT_SPAN i_dst, f
 
 void jmessage_tRenderingProcessor::do_name1() {
     const char* name = dComIfGs_getPlayerName();
-#if REGION_JPN
+#if TARGET_PC || REGION_JPN
+    if (!dusk::version::isRegionJpn())
+        return;
+
     int c = (((char)name[0] & 0xFF) << 8) | ((char)name[1] & 0xFF);
     // if first character is hiragana or katakana
     if ((c >= 0x829F && c <= 0x82F1) || (c >= 0x8340 && c <= 0x8396)) {
@@ -3889,7 +4039,7 @@ void jmessage_string_tReference::init(J2DTextBox* panePtr, J2DTextBox* runyPaneP
     mRubyPanePtr = runyPanePtr;
     mOutFontPtr = outFontPtr;
     mLineCount = 0;
-    mLineMax = D_MSG_CLASS_LINE_MAX;
+    mLineMax = DUSK_IF_ELSE(dusk::version::isRegionJpn() ? 9 : D_MSG_CLASS_LINE_MAX, D_MSG_CLASS_LINE_MAX);
     mNowPage = 0;
     mFlags = flags;
     if (font != NULL) {

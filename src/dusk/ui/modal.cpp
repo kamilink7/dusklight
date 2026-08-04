@@ -1,5 +1,7 @@
 #include "modal.hpp"
 
+#include "string_button.hpp"
+
 namespace dusk::ui {
 
 Modal::Modal(Props props) : WindowSmall("modal", "modal-dialog"), mProps(std::move(props)) {
@@ -107,6 +109,37 @@ bool Modal::handle_nav_command(Rml::Event& event, NavCommand cmd) {
         }
     }
     return false;
+}
+
+TextInputModal::TextInputModal(Props props) : Modal(props) {
+    auto modalBody = mDialog->QuerySelector(".modal-body");
+
+    mInput = std::make_unique<StringButton>(modalBody, StringButton::Props{
+        .getValue = [this]{return mInputText;},
+        .setValue = [this](Rml::String value) { mInputText = value; },
+    });
+
+    mInput->start_editing();
+}
+
+bool TextInputModal::handle_nav_command(Rml::Event& event, NavCommand cmd) {
+    auto retVal = Modal::handle_nav_command(event, cmd);
+    if (!retVal) {
+        if (mInput->root()->IsPseudoClassSet("focus") && cmd == NavCommand::Down) {
+            mButtons[0]->focus();
+            retVal = true;
+        } else if (!mInput->root()->IsPseudoClassSet("focus") && cmd == NavCommand::Up) {
+            mInput->focus();
+            retVal = true;
+        }
+    }
+
+    return retVal;
+}
+
+void TextInputModal::update() {
+    mInput->update();
+    Document::update();
 }
 
 }  // namespace dusk::ui

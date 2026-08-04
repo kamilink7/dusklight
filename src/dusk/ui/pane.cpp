@@ -15,7 +15,7 @@ Rml::Element* createRoot(Rml::Element* parent) {
 
 }  // namespace
 
-Pane::Pane(Rml::Element* parent, Type type) : FluentComponent(createRoot(parent)), mType(type) {
+Pane::Pane(Rml::Element* parent, Type type, bool bottomSpacer) : FluentComponent(createRoot(parent)), mType(type), mBottomSpacer(bottomSpacer) {
     listen(Rml::EventId::Keydown, [this](Rml::Event& event) {
         const auto cmd = map_nav_event(event);
 
@@ -166,13 +166,13 @@ bool Pane::focus() {
 Rml::Element* Pane::add_section(const Rml::String& text) {
     auto* elem = append(mRoot, "div");
     elem->SetClass("section-heading", true);
-    elem->SetInnerRML(escape(text));
+    append_text(elem, text);
     return elem;
 }
 
 Rml::Element* Pane::add_text(const Rml::String& text) {
     auto* elem = append(mRoot, "div");
-    elem->SetInnerRML(escape(text));
+    append_text(elem, text);
     return elem;
 }
 
@@ -192,12 +192,55 @@ void Pane::finalize() {
     // padding-bottom or margin-bottom on a scrollable flex container, so
     // we need to create a fake spacer with an actual layout height to get
     // padding at the bottom of a scrollable container.
-    append(mRoot, "spacer");
+    if (mBottomSpacer) {
+        append(mRoot, "spacer");
+    }
 }
 
 void Pane::clear() {
     clear_children();
     finalized = false;
+}
+
+float Pane::get_focused_child_y() {
+    float childToFocusY = -1.f;
+    for (const auto& child : children()) {
+        if (child->root()->IsPseudoClassSet("focus")) {
+            childToFocusY = child->root()->GetAbsoluteTop();
+        }
+    }
+    return childToFocusY;
+}
+
+// Focuses the child closest to the given y position
+bool Pane::focus_closest_child(float posY) {
+    Rml::Element* closestchild = nullptr;
+    // If the y-pos is less than 0, focus the middle child
+    if (posY < 0.f && !children().empty()) {
+        closestchild = children().at(children().size() / 2)->root();
+    // Otherwise, choose the closest one
+    } else if (posY >= 0.f) {
+        float closestRightChildDistance = std::numeric_limits<float>::max();
+        for (const auto& child : children()) {
+            if (child->disabled()) {
+                continue;
+            }
+            float distance = std::abs(posY - child->root()->GetAbsoluteTop());
+            if (distance < closestRightChildDistance) {
+                closestchild = child->root();
+                closestRightChildDistance = distance;
+            }
+        }
+    }
+
+    // If we found a child, focus it
+    if (closestchild) {
+        closestchild->SetPseudoClass("focus-visible", true);
+        closestchild->Focus();
+        return true;
+    }
+
+    return false;
 }
 
 }  // namespace dusk::ui

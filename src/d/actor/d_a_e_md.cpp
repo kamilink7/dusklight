@@ -10,6 +10,10 @@
 #include "d/d_s_play.h"
 #include "c/c_damagereaction.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 enum daE_MD_TYPE {
     TYPE_DUMMY,
     TYPE_REAL,
@@ -396,7 +400,10 @@ inline int daE_MD_c::create() {
     int phase_state = dComIfG_resLoad(&mPhase, "E_MD");
     if (phase_state == cPhs_COMPLEATE_e) {
         OS_REPORT("E_MD PARAM %x\n", fopAcM_GetParam(this));
-        if (cDmr_SkipInfo != 0 && current.pos.z > -1500.0f) {
+
+        // Always create the armor in rando (otherwise ball and chain won't spawn
+        // if the player leaves and re-enters without getting it)
+        if (cDmr_SkipInfo != 0 && current.pos.z > -1500.0f IF_DUSK(&& !randomizer_IsActive())) {
             return cPhs_ERROR_e;
         }
 

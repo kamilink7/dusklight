@@ -20,6 +20,9 @@
 #include "d/d_tresure.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
 
 enum ykM_RES_File_ID {
     /* BCK */
@@ -175,7 +178,7 @@ enum RES_Name {
     /* 0x4 */ YKM3,
 };
 
-daNpc_ykM_HIOParam const daNpc_ykM_Param_c::m = {
+DUSK_GAME_DATA daNpc_ykM_HIOParam const daNpc_ykM_Param_c::m = {
     500.0f,
     -4.0f,
     1.0f,
@@ -511,7 +514,7 @@ static DUSK_CONSTEXPR daNpcT_MotionSeqMngr_c::sequenceStepData_c l_motionSequenc
     {0x27, -1, 1}, {0x28, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
 };
 
-char DUSK_CONST* DUSK_CONST daNpc_ykM_c::mCutNameList[10] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_ykM_c::mCutNameList[10] = {
     "",
     "SLIDEDOWN",
     "MEETING_AGAIN",
@@ -524,7 +527,7 @@ char DUSK_CONST* DUSK_CONST daNpc_ykM_c::mCutNameList[10] = {
     "HUG"
 };
 
-daNpc_ykM_c::cutFunc DUSK_CONST daNpc_ykM_c::mCutList[10] = {
+DUSK_GAME_DATA daNpc_ykM_c::cutFunc DUSK_CONST daNpc_ykM_c::mCutList[10] = {
     NULL,
     &daNpc_ykM_c::cutSlideDown,
     &daNpc_ykM_c::cutMeetingAgain,
@@ -947,6 +950,9 @@ BOOL daNpc_ykM_c::isDelete() {
             return FALSE;
 
         case TYPE_COOK:
+#if TARGET_PC
+            if (randomizer_IsActive()) return false; // We don't want cooking Yeto to leave the dungeon, even if the BK is obtained.
+#endif
             return dComIfGs_isDungeonItemBossKey();
 
         case TYPE_2:

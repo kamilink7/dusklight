@@ -11,6 +11,13 @@
 #include "m_Do/m_Do_lib.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "d/d_item_data.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 const char* daShopItem_c::getShopArcname() {
     switch (m_itemNo) {
     case dItemNo_NONE_e:
@@ -88,10 +95,67 @@ const char* daShopItem_c::getShopArcname() {
         return NULL;
     }
 
-    return mData[mShopItemID].get_arcName();
+#if TARGET_PC
+    if (isRandomized()) {
+        // Override the item model with whichever item is randomized to this shop item
+        u8 stage = getStageID();
+        u16 key = (stage << 8) | m_itemNo;
+        u8 itemId = randomizer_GetContext().mShopOverrides.at(key);
+        itemId = verifyProgressiveItem(itemId);
+
+        if (itemId == dItemNo_Randomizer_FOOLISH_ITEM_e) {
+            if (home.angle.x != -1) {
+                home.angle.z = randomizer_getRandomFoolishItemModelID();
+                home.angle.x = -1;
+            }
+            itemId = home.angle.z;
+
+        }
+
+        // Replace the necessary index in daShopItem_c::mRandoData with the model data from dItem_data
+        auto& shopModel = mRandoData[mShopItemID];
+        shopModel.mArcName = dItem_data::getArcName(itemId);
+        shopModel.mBmdName = dItem_data::getBmdName(itemId);
+        shopModel.mBtkName = dItem_data::getBtkName(itemId);
+        shopModel.mBckName = dItem_data::getBckName(itemId);
+        shopModel.mBrkName = dItem_data::getBrkName(itemId);
+        shopModel.mBtpName = dItem_data::getBtpName(itemId);
+        shopModel.mTevFrm = dItem_data::getTevFrm(itemId);
+        shopModel.mBtpFrm = -1;
+        shopModel.mFlag = -1;
+
+        // Move the item higher up if it's the magic armor slot
+        if (mShopItemID == SHOP_ITEMNO_ARMOR) {
+            switch (itemId) {
+            case dItemNo_Randomizer_GREEN_RUPEE_e:
+            case dItemNo_Randomizer_BLUE_RUPEE_e:
+            case dItemNo_Randomizer_YELLOW_RUPEE_e:
+            case dItemNo_Randomizer_RED_RUPEE_e:
+            case dItemNo_Randomizer_PURPLE_RUPEE_e:
+            case dItemNo_Randomizer_ORANGE_RUPEE_e:
+            case dItemNo_Randomizer_SILVER_RUPEE_e:
+            case dItemNo_Randomizer_LINKS_SAVINGS_e:
+                shopModel.mOffsetY = 65.0f;
+            default:
+                shopModel.mOffsetY = 60.0f;
+            }
+        } else {
+            shopModel.mOffsetY = 15.0f;
+        }
+
+        // Scale down the Master Sword model so it looks better
+        if (itemId == dItemNo_Randomizer_MASTER_SWORD_e || itemId == dItemNo_Randomizer_LIGHT_SWORD_e) {
+            shopModel.mScale = 0.35f;
+        } else {
+            shopModel.mScale = 1.0f;
+        }
+    }
+#endif
+
+    return M_SHOP_DATA[mShopItemID].get_arcName();
 }
 
-const f32 daShopItem_c::m_cullfar_max = 5000.0f;
+DUSK_GAME_DATA const f32 daShopItem_c::m_cullfar_max = 5000.0f;
 
 u16 daShopItem_c::getHeapSize() {
     static const u16 HeapSizeTbl[] = {
@@ -119,11 +183,11 @@ void daShopItem_c::CreateInit() {
 
     if (strcmp("R_SP109", dComIfGp_getStartStageName()) == 0 && dComIfGp_getStartStageRoomNo() == 1)
     {
-        scale.set(mData[mShopItemID].get_scale() * 0.8f, mData[mShopItemID].get_scale() * 0.8f,
-                  mData[mShopItemID].get_scale() * 0.8f);
+        scale.set(M_SHOP_DATA[mShopItemID].get_scale() * 0.8f, M_SHOP_DATA[mShopItemID].get_scale() * 0.8f,
+                  M_SHOP_DATA[mShopItemID].get_scale() * 0.8f);
     } else {
-        scale.set(mData[mShopItemID].get_scale(), mData[mShopItemID].get_scale(),
-                  mData[mShopItemID].get_scale());
+        scale.set(M_SHOP_DATA[mShopItemID].get_scale(), M_SHOP_DATA[mShopItemID].get_scale(),
+                  M_SHOP_DATA[mShopItemID].get_scale());
     }
 
     home.pos = current.pos;
@@ -137,7 +201,7 @@ void daShopItem_c::set_mtx() {
     if (daShopItem_prm::getGroup(this) == 15) {
         mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     } else {
-        mDoMtx_stack_c::transS(current.pos.x, current.pos.y + mData[mShopItemID].get_offsetY(),
+        mDoMtx_stack_c::transS(current.pos.x, current.pos.y + M_SHOP_DATA[mShopItemID].get_offsetY(),
                                current.pos.z);
     }
 
@@ -147,8 +211,8 @@ void daShopItem_c::set_mtx() {
     if (daShopItem_prm::getGroup(this) == 15) {
         mDoMtx_stack_c::ZXYrotM(-11300, 32700, 7300);
     } else {
-        mDoMtx_stack_c::ZXYrotM(mAngleX + mData[mShopItemID].get_angleX(),
-                                mData[mShopItemID].get_angleY(), mData[mShopItemID].get_angleZ());
+        mDoMtx_stack_c::ZXYrotM(mAngleX + M_SHOP_DATA[mShopItemID].get_angleX(),
+                                M_SHOP_DATA[mShopItemID].get_angleY(), M_SHOP_DATA[mShopItemID].get_angleZ());
     }
 
     mDoMtx_stack_c::ZXYrotM(current.angle.x, current.angle.y, current.angle.z);
@@ -156,7 +220,7 @@ void daShopItem_c::set_mtx() {
     if (daShopItem_prm::getGroup(this) == 15) {
         mDoMtx_stack_c::XrotM(0);
     } else {
-        mDoMtx_stack_c::XrotM(mData[mShopItemID].get_angleOffsetX());
+        mDoMtx_stack_c::XrotM(M_SHOP_DATA[mShopItemID].get_angleOffsetX());
     }
 
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
@@ -190,28 +254,41 @@ void daShopItem_c::setShadow() {
 }
 
 BOOL daShopItem_c::chkFlag(int i_flag) {
-    return mData[mShopItemID].get_flag() & i_flag;
+    return M_SHOP_DATA[mShopItemID].get_flag() & i_flag;
 }
 
 s8 daShopItem_c::getTevFrm() {
-    return mData[mShopItemID].get_tevfrm();
+    return M_SHOP_DATA[mShopItemID].get_tevfrm();
 }
 
 s8 daShopItem_c::getBtpFrm() {
-    return mData[mShopItemID].get_btpfrm();
+    return M_SHOP_DATA[mShopItemID].get_btpfrm();
 }
 
 u8 daShopItem_c::getShadowSize() {
-    return mData[mShopItemID].get_shadowSize();
+    return M_SHOP_DATA[mShopItemID].get_shadowSize();
 }
 
 u8 daShopItem_c::getCollisionH() {
-    return mData[mShopItemID].get_collisionH();
+    return M_SHOP_DATA[mShopItemID].get_collisionH();
 }
 
 u8 daShopItem_c::getCollisionR() {
-    return mData[mShopItemID].get_collisionR();
+    return M_SHOP_DATA[mShopItemID].get_collisionR();
 }
+
+#if TARGET_PC
+// Custom function to check if this shop item is randomized
+BOOL daShopItem_c::isRandomized() const {
+    if (randomizer_IsActive()) {
+        u8 stage = getStageID();
+        u8 itemId = m_itemNo;
+        u16 key = (stage << 8) | itemId;
+        return randomizer_GetContext().mShopOverrides.contains(key);
+    }
+    return false;
+}
+#endif
 
 int daShopItem_c::_create() {
     fopAcM_ct(this, daShopItem_c);

@@ -13,6 +13,10 @@
 #include "d/d_item_data.h"
 #include <cmath>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 const static dCcD_SrcCyl l_cyl_src = {
     {
         {0x0, {{0x0, 0x0, 0x0}, {0xffffffff, 0x11}, 0x59}}, // mObj
@@ -108,7 +112,15 @@ int daItemShield_c::__CreateHeap() {
 
 int daItemShield_c::create() {
     fopAcM_ct(this, daItemShield_c);
-    m_itemNo = dItemNo_WOOD_SHIELD_e;
+    m_itemNo = IF_DUSK(randomizer_IsActive() ? randomizer_getItemAtLocation("Ordon Shield") : ) dItemNo_WOOD_SHIELD_e;
+#if TARGET_PC
+    // Use home.angle.x as a check to see if we've set the foolish item model or not
+    // Otherwise we end up setting it twice
+    if (randomizer_IsActive() && m_itemNo == dItemNo_Randomizer_FOOLISH_ITEM_e && home.angle.x != 0) {
+        home.angle.z = randomizer_getRandomFoolishItemModelID();
+        home.angle.x = 0;
+    }
+#endif
     if (fopAcM_isSwitch(this, getSwBit2())) {
         OS_REPORT("木の盾：もう取ったので出ません\n");
         return cPhs_ERROR_e;
@@ -119,7 +131,7 @@ int daItemShield_c::create() {
     if (getSwBit() == 0xff) {
         OS_REPORT("[43;30m木の盾：スイッチビット指定がありません！\n\x1b[m");
     }
-    int rv = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(m_itemNo));
+    int rv = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(M_ITEMNO_MODEL_ITEM_ID));
     if (rv == cPhs_COMPLEATE_e) {
         if (fopAcM_entrySolidHeap(this, CheckFieldItemCreateHeap, 0x820) == 0) {
             return cPhs_ERROR_e;
@@ -240,6 +252,11 @@ int daItemShield_c::initActionOrderGetDemo() {
     daItemBase_c::hide();
     fopAcM_orderItemEvent(this, 0, 0);
     eventInfo.onCondition(dEvtCnd_CANGETITEM_e);
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        randomizer_setTempFlagForLocation("Ordon Shield");
+    }
+#endif
     mItemId =
         fopAcM_createItemForTrBoxDemo(&current.pos, m_itemNo, -1, fopAcM_GetRoomNo(this), 0, 0);
     JUT_ASSERT(682, mItemId != fpcM_ERROR_PROCESS_ID_e)
@@ -338,7 +355,7 @@ int daItemShield_c::draw() {
 }
 
 int daItemShield_c::_delete() {
-    daItemBase_c::DeleteBase(dItem_data::getFieldArc(m_itemNo));
+    daItemBase_c::DeleteBase(dItem_data::getFieldArc(M_ITEMNO_MODEL_ITEM_ID));
     return 1;
 }
 

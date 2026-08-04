@@ -14,7 +14,11 @@
 #include "d/d_msg_object.h"
 #include "d/d_s_play.h"
 #include "d/d_debug_viewer.h"
+
+#if TARGET_PC
 #include "dusk/frame_interpolation.h"
+#include "dusk/cosmetics/midna_hair_color.hpp"
+#endif
 
 static f32 dummy_lit_3777(int idx, u8 foo) {
     Vec dummy_vec = {0.0f, 0.0f, 0.0f};
@@ -109,7 +113,7 @@ void daMidna_hio_c::genMessage(JORMContext* ctx) {
 }
 #endif
 
-daMidna_hio_c1 const daMidna_hio_c0::m = {
+DUSK_GAME_DATA daMidna_hio_c1 const daMidna_hio_c0::m = {
     0,
     0,
     0,
@@ -126,8 +130,8 @@ daMidna_hio_c1 const daMidna_hio_c0::m = {
     25.0f,
 };
 
-bool daMidna_matAnm_c::sEyeMoveFlg;
-u8 daMidna_matAnm_c::sMorfFrame;
+DUSK_GAME_DATA bool daMidna_matAnm_c::sEyeMoveFlg;
+DUSK_GAME_DATA u8 daMidna_matAnm_c::sMorfFrame;
 
 void daMidna_matAnm_c::init() {
     mOldTransX = 0.0f;
@@ -173,7 +177,7 @@ int daMidna_McaMorfCB1_c::execute(u16 i_jointNo, J3DTransformInfo* transform) {
     return 1;
 }
 
-daMidna_texData_s const daMidna_c::m_texDataTable[21] = {
+DUSK_GAME_DATA daMidna_texData_s const daMidna_c::m_texDataTable[21] = {
     0x0405, 0x03A4,
     0x03F5, 0x0399,
     0x03F6, 0x0399,
@@ -197,7 +201,7 @@ daMidna_texData_s const daMidna_c::m_texDataTable[21] = {
     0x03FD, 0x0399,
 };
 
-daMidna_anmData_s const daMidna_c::m_anmDataTable[53] = {
+DUSK_GAME_DATA daMidna_anmData_s const daMidna_c::m_anmDataTable[53] = {
     0x01DC, 0x00, -1.0f, 0,
     0x01B7, 0x01, -1.0f, 0,
     0x01B8, 0x02, -1.0f, 0,
@@ -686,28 +690,28 @@ cPhs_Step daMidna_c::create() {
         mpMorf->modelCalc();
         setBodyPartMatrix();
         
-        field_0x6e0.r = l_normalColor.r;
-        field_0x6e0.g = l_normalColor.g;
-        field_0x6e0.b = l_normalColor.b;
-        field_0x6e0.a = l_normalColor.a;
+        field_0x6e0.r = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalColor()->r , l_normalColor.r);
+        field_0x6e0.g = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalColor()->g , l_normalColor.g);
+        field_0x6e0.b = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalColor()->b , l_normalColor.b);
+        field_0x6e0.a = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalColor()->a , l_normalColor.a);
         if (dKy_darkworld_check()) {
-            field_0x6e8.r = l_normalKColor.r;
-            field_0x6e8.g = l_normalKColor.g;
-            field_0x6e8.b = l_normalKColor.b;
-            field_0x6e8.a = l_normalKColor.a;
-            field_0x6ec.r = l_normalKColor2.r;
-            field_0x6ec.g = l_normalKColor2.g;
-            field_0x6ec.b = l_normalKColor2.b;
-            field_0x6ec.a = l_normalKColor2.a;
+            field_0x6e8.r = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor()->r, l_normalKColor.r);
+            field_0x6e8.g = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor()->g, l_normalKColor.g);
+            field_0x6e8.b = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor()->b, l_normalKColor.b);
+            field_0x6e8.a = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor()->a, l_normalKColor.a);
+            field_0x6ec.r = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2()->r, l_normalKColor2.r);
+            field_0x6ec.g = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2()->g, l_normalKColor2.g);
+            field_0x6ec.b = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2()->b, l_normalKColor2.b);
+            field_0x6ec.a = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2()->a, l_normalKColor2.a);
         } else {
-            field_0x6e8.r = l_lNormalKColor.r;
-            field_0x6e8.g = l_lNormalKColor.g;
-            field_0x6e8.b = l_lNormalKColor.b;
-            field_0x6e8.a = l_lNormalKColor.a;
-            field_0x6ec.r = l_lNormalKColor2.r;
-            field_0x6ec.g = l_lNormalKColor2.g;
-            field_0x6ec.b = l_lNormalKColor2.b;
-            field_0x6ec.a = l_lNormalKColor2.a;
+            field_0x6e8.r = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor()->r, l_lNormalKColor.r);
+            field_0x6e8.g = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor()->g, l_lNormalKColor.g);
+            field_0x6e8.b = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor()->b, l_lNormalKColor.b);
+            field_0x6e8.a = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor()->a, l_lNormalKColor.a);
+            field_0x6ec.r = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor2()->r, l_lNormalKColor2.r);
+            field_0x6ec.g = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor2()->g, l_lNormalKColor2.g);
+            field_0x6ec.b = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor2()->b, l_lNormalKColor2.b);
+            field_0x6ec.a = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor2()->a, l_lNormalKColor2.a);
         }
 
         model = mpShadowModel;
@@ -1060,7 +1064,7 @@ void daMidna_c::setBodyPartMatrix() {
         const GXColorS10* color;
         const GXColor* kcolor1;
         const GXColor* kcolor2;
-        
+
         if (bvar2) {
             if (bvar8) {
                 modelData->getMaterialNodePointer(2)->getShape()->show();
@@ -1068,24 +1072,24 @@ void daMidna_c::setBodyPartMatrix() {
                 modelData->getMaterialNodePointer(1)->getShape()->show();
             }
 
-            kcolor1 = &l_bigKColor;
+            kcolor1 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_bigKColor(), &l_bigKColor);
             if (dKy_darkworld_check()) {
-                color = &l_bigColor;
-                kcolor2 = &l_normalKColor2;
+                color = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_bigColor(), &l_bigColor);
+                kcolor2 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2(), &l_normalKColor2);
             } else {
-                color = &l_lBigColor;
-                kcolor2 = &l_lBigKColor2;
+                color = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lBigColor(), &l_lBigColor);
+                kcolor2 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lBigKColor2(), &l_lBigKColor2);
             }
         } else {
             modelData->getMaterialNodePointer(0)->getShape()->show();
 
-            color = &l_normalColor;
+            color = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalColor(), &l_normalColor);
             if (dKy_darkworld_check()) {
-                kcolor1 = &l_normalKColor;
-                kcolor2 = &l_normalKColor2;
+                kcolor1 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor(), &l_normalKColor);
+                kcolor2 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_normalKColor2(), &l_normalKColor2);
             } else {
-                kcolor1 = &l_lNormalKColor;
-                kcolor2 = &l_lNormalKColor2;
+                kcolor1 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor(), &l_lNormalKColor);
+                kcolor2 = DUSK_IF_ELSE(dusk::cosmetics::get_midna_hair_lNormalKColor2(), &l_lNormalKColor2);
             }
         }
 

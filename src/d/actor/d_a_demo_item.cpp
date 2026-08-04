@@ -15,6 +15,10 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 static cXyz l_player_offset = cXyz(0.0f, 115.0f, 54.0f);
 
 static cXyz l_wolf_offset = cXyz(13.0f, 135.0f, 57.0f);
@@ -530,6 +534,33 @@ int daDitem_c::execute() {
     }
 
     mSound.framework(0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+
+#if TARGET_PC
+    // Certain items use field models that are too big to fit in link's hands so we want to scale them down to fit.
+    if (randomizer_IsActive()) {
+        switch (m_itemNo)
+        {
+            case dItemNo_Randomizer_MIRROR_PIECE_1_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_2_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_3_e:
+            case dItemNo_Randomizer_MIRROR_PIECE_4_e:
+            {
+                scale.x = 0.05f;
+                break;
+            }
+            case dItemNo_Randomizer_MASTER_SWORD_e:
+            case dItemNo_Randomizer_LIGHT_SWORD_e:
+            {
+                scale.x = 0.001f;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+#endif
     return 1;
 }
 

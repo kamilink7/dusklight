@@ -25,19 +25,32 @@ public:
     explicit Modal(Props props);
 
     bool focus() override;
-
     void add_action(ModalAction action);
     void set_body(const Rml::String& bodyRml);
     void set_icon(const Rml::String& icon);
 
 protected:
     bool handle_nav_command(Rml::Event& event, NavCommand cmd) override;
-
-private:
     void dismiss();
 
     Props mProps;
     std::vector<std::unique_ptr<Button> > mButtons;
+};
+
+class StringButton;
+
+class TextInputModal : public Modal {
+public:
+    explicit TextInputModal(Props props);
+
+    Rml::String get_input_text() {return mInputText;}
+    void update() override;
+
+protected:
+    bool handle_nav_command(Rml::Event& event, NavCommand cmd) override;
+private:
+    std::unique_ptr<StringButton> mInput{};
+    Rml::String mInputText{};
 };
 
 }  // namespace dusk::ui

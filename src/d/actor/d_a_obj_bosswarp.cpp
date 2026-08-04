@@ -14,6 +14,10 @@
 #include "d/actor/d_a_obj_ystone.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 static DUSK_CONST char* l_arcName = "ef_Portal";
 
 static char const* l_clearEvName[9] = {
@@ -506,6 +510,13 @@ int daObjBossWarp_c::demoProc() {
             mDoMtx_stack_c::multVec(&mYstoneTargetPos, &mYstoneTargetPos);
             mYstonePos.x = mYstoneTargetPos.x;
             mYstonePos.z = mYstoneTargetPos.z;
+#if TARGET_PC
+            // Skip giving the vanilla dungeon reward in rando
+            if (randomizer_IsActive()) {
+                mCounter = 0;
+                break;
+            }
+#endif
             switch (getNowLevel()) {
             case 0:
                 dComIfGs_onCollectCrystal(0);

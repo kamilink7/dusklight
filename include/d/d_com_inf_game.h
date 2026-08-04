@@ -17,7 +17,15 @@
 #include "m_Do/m_Do_graphic.h"
 #include <cstring>
 
-#include "dusk/profiling.hpp"
+#if defined(DUSK_BUILDING_GAME)
+#include <tracy/Tracy.hpp>
+#include "dusk/settings.h"
+#else
+#ifndef ZoneScoped
+#define ZoneScoped
+#define ZoneScopedN(name)
+#endif
+#endif
 
 enum dComIfG_ButtonStatus {
     /* 0x00 */ BUTTON_STATUS_NONE,
@@ -466,6 +474,9 @@ public:
     s8 getNextStageRoomNo() { return mNextStage.getRoomNo(); }
     s8 getNextStageLayer() { return mNextStage.getLayer(); }
     BOOL isEnableNextStage() { return mNextStage.isEnable(); }
+#if TARGET_PC
+    void setEnableNextStage() { return mNextStage.setEnable(); }
+#endif
     void offEnableNextStage() { mNextStage.offEnable(); }
     s8 getNextStageWipe() { return mNextStage.getWipe(); }
     u8 getNextStageWipeSpeed() { return mNextStage.getWipeSpeed(); }
@@ -1049,11 +1060,11 @@ public:
 
 STATIC_ASSERT(122384 == sizeof(dComIfG_inf_c));
 
-extern dComIfG_inf_c g_dComIfG_gameInfo;
-extern GXColor g_blackColor;
-extern GXColor g_clearColor;
-extern GXColor g_whiteColor;
-extern GXColor g_saftyWhiteColor;
+DUSK_GAME_EXTERN dComIfG_inf_c g_dComIfG_gameInfo;
+DUSK_GAME_EXTERN GXColor g_blackColor;
+DUSK_GAME_EXTERN GXColor g_clearColor;
+DUSK_GAME_EXTERN GXColor g_whiteColor;
+DUSK_GAME_EXTERN GXColor g_saftyWhiteColor;
 
 int dComLbG_PhaseHandler(request_of_phase_process_class*, request_of_phase_process_fn*,
                          void*);
@@ -1268,6 +1279,10 @@ int dComIfGd_setShadow(u32 param_0, s8 param_1, J3DModel* param_2, cXyz* param_3
                        f32 param_5, f32 param_6, f32 param_7, cBgS_PolyInfo& param_8,
                        dKy_tevstr_c* param_9, s16 param_10, f32 param_11, TGXTexObj* param_12);
 
+#if TARGET_PC
+void dComIfGs_setupRandomizerSave();
+#endif
+
 inline dSv_info_c* dComIfGs_getSaveInfo() {
     return &g_dComIfG_gameInfo.info;
 }
@@ -1328,9 +1343,13 @@ inline u8 dComIfGs_getSelectEquipShield() {
     return g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusA().getSelectEquip(COLLECT_SHIELD);
 }
 
+#if TARGET_PC
+u8 dComIfGs_getCollectSmell();
+#else
 inline u8 dComIfGs_getCollectSmell() {
     return g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusA().getSelectEquip(COLLECT_SMELL);
 }
+#endif
 
 inline void dComIfGs_setCollectSmell(u8 smell) {
     g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusA().setSelectEquip(COLLECT_SMELL, smell);
@@ -1420,6 +1439,12 @@ inline BOOL dComIfGs_isDarkClearLV(int i_no) {
     return g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusB().isDarkClearLV(i_no);
 }
 
+#if TARGET_PC
+inline u8 dComIfGs_getDarkClearLV() {
+    return g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusB().getDarkClearLV();
+}
+#endif
+
 inline void dComIfGs_onTransformLV(int i_no) {
     g_dComIfG_gameInfo.info.getPlayer().getPlayerStatusB().onTransformLV(i_no);
 }
@@ -1496,6 +1521,12 @@ inline BOOL dComIfGs_isRegionBit(int i_region) {
 inline void dComIfGs_onRegionBit(int i_region) {
     g_dComIfG_gameInfo.info.getPlayer().getPlayerFieldLastStayInfo().onRegionBit(i_region);
 }
+
+#if TARGET_PC
+inline void dComIfGs_setRegionBit(u8 i_region) {
+    g_dComIfG_gameInfo.info.getPlayer().getPlayerFieldLastStayInfo().setRegionBit(i_region);
+}
+#endif
 
 inline void dComIfGs_setPlayerFieldLastStayInfo(const char* i_stage, cXyz& i_pos, s16 i_angle,
                                                 s8 i_point, u8 i_region) {
@@ -1647,6 +1678,16 @@ inline u8 dComIfGs_getPachinkoNum() {
 inline void dComIfGs_setPachinkoNum(u8 i_num) {
     g_dComIfG_gameInfo.info.getPlayer().getItemRecord().setPachinkoNum(i_num);
 }
+
+#if TARGET_PC
+inline u8 dComIfGs_getAncientDocumentNum() {
+    return g_dComIfG_gameInfo.info.getPlayer().getItemRecord().getAncientDocumentNum();
+}
+
+inline void dComIfGs_setAncientDocumentNum(u8 i_num) {
+    g_dComIfG_gameInfo.info.getPlayer().getItemRecord().setAncientDocumentNum(i_num);
+}
+#endif
 
 inline u8 dComIfGs_getPachinkoMax() {
     return 50;
@@ -1820,7 +1861,16 @@ inline u8 dComIfGs_getGetNumber(int i_no) {
 inline void dComIfGs_setGetNumber(int i_no, u8 i_value) {
     g_dComIfG_gameInfo.info.getPlayer().getLetterInfo().setGetNumber(i_no, i_value);
 }
+#if TARGET_PC
+// For rando
+inline void dComIfGs_setAllLetterGet() {
+    g_dComIfG_gameInfo.info.getPlayer().getLetterInfo().setAllLetterGet();
+}
 
+inline void dComIfGs_setAllLetterRead() {
+    g_dComIfG_gameInfo.info.getPlayer().getLetterInfo().setAllLetterRead();
+}
+#endif
 inline void dComIfGs_addFishNum(u8 param_0) {
     g_dComIfG_gameInfo.info.getPlayer().getFishingInfo().addFishCount(param_0);
 }
@@ -1936,6 +1986,16 @@ inline u8 dComIfGs_getPalLanguage() {
     return g_dComIfG_gameInfo.info.getPlayer().getConfig().getPalLanguage();
 }
 
+#if TARGET_PC
+// Kinda hacky, but will do for now
+inline void dComIfGs_onRegionFlag(int i_stageNo, int i_no) {
+    auto regionFlags = reinterpret_cast<u8*>(&g_dComIfG_gameInfo.info.getSavedata().getSave(i_stageNo).getBit());
+    const int offset = i_no / 8;
+    const int shift = i_no % 8;
+    regionFlags[offset] |= (0x80 >> shift);
+}
+#endif
+
 inline BOOL dComIfGs_isSaveTbox(int i_stageNo, int i_no) {
     return g_dComIfG_gameInfo.info.getSavedata().getSave(i_stageNo).getBit().isTbox(i_no);
 }
@@ -2019,6 +2079,10 @@ inline u8 dComIfGs_getKeyNum() {
 inline void dComIfGs_setKeyNum(u8 i_keyNum) {
     g_dComIfG_gameInfo.info.getMemory().getBit().setKeyNum(i_keyNum);
 }
+
+#if TARGET_PC
+u8 dComIfGs_getKeyNum(int i_stageNo);
+#endif
 
 inline void dComIfGs_onDungeonItemMap() {
     g_dComIfG_gameInfo.info.getMemory().getBit().onDungeonItemMap();
@@ -2452,6 +2516,12 @@ inline s8 dComIfGp_getStartStageRoomNo() {
     return g_dComIfG_gameInfo.play.getStartStageRoomNo();
 }
 
+#if TARGET_PC
+inline s8 dComIfGp_getLayerNo() {
+    return g_dComIfG_gameInfo.play.getLayerNo(0);
+}
+#endif
+
 inline s8 dComIfGp_getStartStageLayer() {
     return g_dComIfG_gameInfo.play.getStartStageLayer();
 }
@@ -2495,6 +2565,12 @@ inline BOOL dComIfGp_isEnableNextStage() {
 inline void dComIfGp_offEnableNextStage() {
     g_dComIfG_gameInfo.play.offEnableNextStage();
 }
+
+#if TARGET_PC
+inline void dComIfGp_setEnableNextStage() {
+    g_dComIfG_gameInfo.play.setEnableNextStage();
+}
+#endif
 
 inline s8 dComIfGp_getNextStageWipe() {
     return g_dComIfG_gameInfo.play.getNextStageWipe();
@@ -4837,27 +4913,23 @@ inline void dComIfGd_drawXluListDark() {
     g_dComIfG_gameInfo.drawlist.drawXluListDark();
 }
 
+#if TARGET_PC
+void dComIfGd_drawXluListInvisible();
+#else
 inline void dComIfGd_drawXluListInvisible() {
     ZoneScoped;
-#ifdef TARGET_PC
-    if (!dusk::getSettings().game.disableWaterRefraction) {
-#endif
-        g_dComIfG_gameInfo.drawlist.drawXluListInvisible();
-#ifdef TARGET_PC
-    }
-#endif
+    g_dComIfG_gameInfo.drawlist.drawXluListInvisible();
 }
+#endif
 
+#if TARGET_PC
+void dComIfGd_drawOpaListInvisible();
+#else
 inline void dComIfGd_drawOpaListInvisible() {
     ZoneScoped;
-#ifdef TARGET_PC
-    if (!dusk::getSettings().game.disableWaterRefraction) {
-#endif
-        g_dComIfG_gameInfo.drawlist.drawOpaListInvisible();
-#ifdef TARGET_PC
-        }
-#endif
+    g_dComIfG_gameInfo.drawlist.drawOpaListInvisible();
 }
+#endif
 
 inline void dComIfGd_drawXluListZxlu() {
     ZoneScoped;

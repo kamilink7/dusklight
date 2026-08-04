@@ -11,6 +11,13 @@
 #include "d/d_msg_object.h"
 #include <cstring>
 
+
+
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 enum Ins_RES_File_ID {
     /* BCK */
     /* 0x06 */ BCK_INS_F_HAPPY = 0x6,
@@ -288,9 +295,13 @@ static DUSK_CONSTEXPR char DUSK_CONST* l_evtNames[1] = {
 
 static DUSK_CONSTEXPR char DUSK_CONST* l_myName = "ins";
 
-daNpcIns_c::eventFunc daNpcIns_c::mEvtSeqList[1] = {
+DUSK_GAME_DATA daNpcIns_c::eventFunc daNpcIns_c::mEvtSeqList[1] = {
     NULL,
 };
+
+#if TARGET_PC
+u8 daNpcIns_c::mGivenInsectId = 0xFF;
+#endif
 
 static insect_param_data const l_insectParams[24] = {
     {0x0191, 0x709, 0, 0},
@@ -319,7 +330,7 @@ static insect_param_data const l_insectParams[24] = {
     {0x01A8, 0x714, 0, 0},
 };
 
-daNpcIns_HIOParam const daNpcIns_Param_c::m = {
+DUSK_GAME_DATA daNpcIns_HIOParam const daNpcIns_Param_c::m = {
     35.0f,
     -3.0f,
     1.0f,
@@ -1259,6 +1270,9 @@ int daNpcIns_c::waitPresent(void* param_1) {
                     daPy_py_c* player = daPy_getPlayerActorClass();
                     player->changeOriginalDemo();
                     player->changeDemoMode(0x25, 2, type, 0);
+#if TARGET_PC
+                    mGivenInsectId = type;
+#endif
                 } else {
                     mInsectMsgNo = 0x719;
                 }
@@ -1487,6 +1501,14 @@ int daNpcIns_c::talk(void* param_1) {
                         OS_REPORT("会話終了時 イベントID=%d アイテムNo=%d\n", eventID, itemNo);
 
                         if (eventID == 1) {
+#if TARGET_PC
+                            // In rando, get the randomzied bug reward
+                            if (randomizer_IsActive()) {
+                                itemNo = randomizer_GetContext().mBugRewardOverrides[mGivenInsectId];
+                                itemNo = static_cast<int>(verifyProgressiveItem(itemNo));
+                                mGivenInsectId = 0xFF;
+                            }
+#endif
                             mItemID = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
 
                             if (mItemID != fpcM_ERROR_PROCESS_ID_e) {

@@ -11,6 +11,10 @@
 #include "d/d_meter2_info.h"
 #include "d/d_timer.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 enum Event {
     EVT_NONE,
     EVT_GAME_START,
@@ -26,7 +30,7 @@ static s16 const sLoadResPat_Normal[6] = {0, 1, 2, 4, 5, -1};
 
 static s16 const sLoadResPat_Tw[3] = {0, 3, -1};
 
-daNpcChin_HIOParam const daNpcChin_Param_c::m = {
+DUSK_GAME_DATA daNpcChin_HIOParam const daNpcChin_Param_c::m = {
     40.0f, -3.0f, 1.0f, 400.0f, 255.0f, 130.0f, 35.0f, 30.0f,
     0.0f, 0.0f, 10.0f, -10.0f, 30.0f, -10.0f, 45.0f, -45.0f,
     0.6f, 12.0f,
@@ -130,7 +134,7 @@ static DUSK_CONSTEXPR char DUSK_CONST* l_evtNames[8] = {
 
 static u8 lit_3861[12];
 
-daNpcChin_c::eventFunc daNpcChin_c::mEvtSeqList[8] = {
+DUSK_GAME_DATA daNpcChin_c::eventFunc daNpcChin_c::mEvtSeqList[8] = {
     NULL,
     &daNpcChin_c::_Evt_GameStart,
     &daNpcChin_c::_Evt_GameFailed,
@@ -1804,6 +1808,17 @@ int daNpcChin_c::_Evt_GameSucceed_CutMain(const int& param_0) {
                 itemId1 = 0;
             }
 
+#if TARGET_PC
+            if (randomizer_IsActive()) {
+                if (itemId1 == dItemNo_ARROW_LV2_e) {
+                    itemId1 = randomizer_getItemAtLocation("STAR Prize 1");
+                    randomizer_setTempFlagForLocation("STAR Prize 1");
+                } else if (itemId1 == dItemNo_ARROW_LV3_e) {
+                    itemId1 = randomizer_getItemAtLocation("STAR Prize 2");
+                    randomizer_setTempFlagForLocation("STAR Prize 2");
+                }
+            }
+#endif
             fpc_ProcID itemId2 = fopAcM_createItemForPresentDemo(&current.pos, itemId1, 0, -1, -1,
                                                                  0, 0);
             if (itemId2 != -1) {

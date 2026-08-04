@@ -7,6 +7,10 @@
 
 #include "d/actor/d_a_npc_prayer.h"
 #include "d/d_com_inf_game.h"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
 
 static NPC_PRAY_HIO_CLASS l_HIO;
 
@@ -42,12 +46,12 @@ static DUSK_CONSTEXPR char DUSK_CONST* l_evtNames[2] = {
 
 static DUSK_CONSTEXPR char DUSK_CONST* l_myName = "Prayer";
 
-daNpcPray_c::EvtSeq DUSK_CONST daNpcPray_c::mEvtSeqList[] = {
+DUSK_GAME_DATA daNpcPray_c::EvtSeq DUSK_CONST daNpcPray_c::mEvtSeqList[] = {
     NULL,
     &daNpcPray_c::_Evt_GetHeart,
 };
 
-const daNpcPray_HIOParam daNpcPray_Param_c::m = {
+DUSK_GAME_DATA const daNpcPray_HIOParam daNpcPray_Param_c::m = {
     55.0f,
     -3.0f,
     1.0f,
@@ -720,6 +724,12 @@ fpc_ProcID daNpcPray_c::createHeart() {
     mDoMtx_stack_c::ZXYrotS(rot);
     mDoMtx_stack_c::multVec(&offset, &offset);
     pos += offset;
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        u8 itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Charlo Donation Blessing"));
+        return fopAcM_createItemForBoss(&pos, itemId, fopAcM_GetRoomNo(this), &rot, &size, 0.0f, 0.0f, 0);
+    }
+#endif
     return fopAcM_createItemForBoss(&pos, dItemNo_KAKERA_HEART_e, fopAcM_GetRoomNo(this), &rot, &size, 0.0f, 0.0f, 0);
 }
 

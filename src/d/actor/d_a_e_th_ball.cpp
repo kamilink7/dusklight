@@ -10,7 +10,10 @@
 #include "d/d_com_inf_game.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_s_play.h"
-
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
 enum daE_TH_ACTION {
     ACTION_STOP,
     ACTION_SPIN,
@@ -931,6 +934,12 @@ static void get_demo(e_th_ball_class* i_this) {
     case 0:
         break;
     case 1:
+#if TARGET_PC
+        if (randomizer_IsActive()) {
+            u8 itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Snowpeak Ruins Ball and Chain"));
+            demo_id = fopAcM_createItemForTrBoxDemo(&i_this->current.pos, itemId, -1, fopAcM_GetRoomNo(i_this), NULL, NULL);
+        } else
+#endif
         demo_id = fopAcM_createItemForTrBoxDemo(&i_this->current.pos, dItemNo_IRONBALL_e, -1, fopAcM_GetRoomNo(i_this), NULL, NULL);
         JUT_ASSERT(1670, demo_id != fpcM_ERROR_PROCESS_ID_e);
         i_this->mDemoMode = 2;

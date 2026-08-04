@@ -30,12 +30,27 @@
 #include "m_Do/m_Do_lib.h"
 
 #if TARGET_PC
+#include "d/d_item.h"
+#include "dusk/randomizer/game/custom_flow_ids.hpp"
+#include "dusk/randomizer/game/messages.hpp"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/stages.h"
+#include "dusk/randomizer/game/tools.h"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#include "dusk/version.hpp"
 #include "dusk/menu_pointer.h"
 #include "dusk/settings.h"
 #include "dusk/version.hpp"
 #include <vector>
 #include <array>
 #include <algorithm>
+#endif
+
+// Macro to call our custom function for getting attributes
+#if TARGET_PC
+#define ENTRIES(i) getEntry(i)
+#else
+#define ENTRIES(i) entries[i]
 #endif
 
 static void dMsgObject_addFundRaising(s16 param_0);
@@ -314,6 +329,13 @@ dMsgObject_HIO_c::dMsgObject_HIO_c() {
 }
 
 int dMsgObject_c::_create(msg_class* param_1) {
+#if TARGET_PC
+    if (dusk::version::isRegionJpn())
+        g_MsgObject_HIO_c.mBoxTalkScaleX = 1.1f;
+    else
+        g_MsgObject_HIO_c.mBoxTalkScaleX = 1.2f;
+#endif
+
     field_0x124 = NULL;
     field_0x100 = param_1;
     field_0x16c = -1;
@@ -425,7 +447,7 @@ static void dummyStrings() {
     DEAD_STRING("");
 }
 
-dMsgObject_HIO_c g_MsgObject_HIO_c;
+DUSK_GAME_DATA dMsgObject_HIO_c g_MsgObject_HIO_c;
 
 int dMsgObject_c::_execute() {
     field_0x4c7 = 0;
@@ -644,8 +666,21 @@ static const MirrorMsgOverride mirrorMsgOverrides[] = {
     {0x17e2, 0x3ef2},
     {0x1dae, 0x44be},
     {0x14ca, 0x3bda},
-    {0x470, 0x493}, 
+    {0x470, 0x493},
     {0x473, 0x492},
+    {0x1f41, 0x4651},
+    {0x1f42, 0x4652},
+    {0x0847, 0x0870},
+    {0x0d5c, 0x0d65},
+    {0x0a97, 0x0a98},
+    {0x0327, 0x12ba},
+    {0x0328, 0x12bb},
+    {0x1534, 0x3c44},
+    {0x1536, 0x3c46},
+    {0x1557, 0x3c67},
+    {0x1b88, 0x4298},
+    {0x14c8, 0x3bd8},
+    {0x151b, 0x3c2b},
 };
 
 static u32 getMirrorMsgOverride(u32 msgId) {
@@ -681,7 +716,7 @@ void dMsgObject_c::setMessageIndex(u32 revoIndex, u32 param_2, bool param_3) {
     JMSMesgInfo_c* pMsg = (JMSMesgInfo_c*)((char*)mpMsgDt + 0x20);
     u8* iVar2 = (u8*)pMsg + pMsg->header.size;
     u32 msg_id = getMessageIndex(revoIndex);
-    dComIfGp_setMesgCameraAttrInfo(pMsg->entries[msg_id].camera_id);
+    dComIfGp_setMesgCameraAttrInfo(pMsg->ENTRIES(msg_id).camera_id);
     if (field_0x15c == 1000) {
         mpRefer->setSelMsgPtr(NULL);
     } else {
@@ -690,6 +725,20 @@ void dMsgObject_c::setMessageIndex(u32 revoIndex, u32 param_2, bool param_3) {
             mpRefer->setSelMsgPtr(NULL);
         } else {
             char* my_ptr = (char*) (iVar2 + pMsg->entries[msgIndex].string_offset + 8);
+#if TARGET_PC
+            // This is where the game sets the pointer to the string for message choices.
+            // If any of our custom messages are for message choices, override them here
+            if (randomizer_IsActive()) {
+                // Change to custom group if we have a custom message index
+                if (msgIndex >= BASE_CUSTOM_MSG_AND_FLOW_ID) {
+                    groupID = CUSTOM_BMG_GROUP;
+                }
+                auto override = GetTextOverride(groupID, field_0x15c);
+                if (override != NULL) {
+                    my_ptr = override;
+                }
+            }
+#endif
             mpRefer->setSelMsgPtr(my_ptr);
         }
     }
@@ -720,7 +769,7 @@ void dMsgObject_c::setMessageIndexDemo(u32 revoMsgIndex, bool param_2) {
     JMSMesgInfo_c* info_header_p = (JMSMesgInfo_c*)((char*)mpMsgDt + 0x20);
     JMSMesgInfo_c* reg_25 = (JMSMesgInfo_c*)((char*) info_header_p + info_header_p->header.size);
     int ind = getMessageIndex(revoMsgIndex);
-    dComIfGp_setMesgCameraAttrInfo(info_header_p->entries[ind].camera_id);
+    dComIfGp_setMesgCameraAttrInfo(info_header_p->ENTRIES(ind).camera_id);
     mpRefer->setSelMsgPtr(NULL);
     if (param_2) {
         mpCtrl->setMessageID(mMessageID, 0, NULL);
@@ -728,6 +777,13 @@ void dMsgObject_c::setMessageIndexDemo(u32 revoMsgIndex, bool param_2) {
 }
 
 u32 dMsgObject_c::getMessageIndex(u32 param_0) {
+#if TARGET_PC
+    // Directly return our index if it's above the custom id base
+    if (randomizer_IsActive() && param_0 >= BASE_CUSTOM_MSG_AND_FLOW_ID) {
+        return param_0;
+    }
+#endif
+
     u32 i = 0;
     JMSMesgInfo_c* pMsg = (JMSMesgInfo_c*)((char*)mpMsgDt + 0x20);
     u32 msgIndexCount = *((BE(u16)*)((char*)mpMsgDt + 0x28));
@@ -746,7 +802,40 @@ u32 dMsgObject_c::getMessageIndex(u32 param_0) {
 }
 
 u32 dMsgObject_c::getRevoMessageIndex(u32 param_1) {
-#if TARGET_PC 
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        // Directly return our index if it's custom
+        if (param_1 >= BASE_CUSTOM_MSG_AND_FLOW_ID) {
+            return param_1;
+        }
+
+        // Special case for Ilia Memory Reward Text (param_1 is msgId)
+        // If we're in the sanctuary cutscene where we get the reward, override the text.
+        // Otherwise, the regular item text for the horse call would be overridden if we find it
+        if (param_1 == 233 && playerIsInRoomStage(0, "R_SP109") && dComIfGp_getLayerNo() == 9) {
+            u8 itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Ilia Memory Reward"));
+            param_1 = getItemMessageID(itemId);
+            // Store this itemId so that we can give the item when the textbox closes
+            g_randomizerState.mFlowMessageItemId = itemId;
+            // Set flag for tracker/AP
+            randomizer_setTempFlagForLocation("Ilia Memory Reward");
+        } else {
+            // Else override the text if we have an override
+            u32 key = (dMsgObject_getGroupID() << 16) | param_1;
+            auto& flowItemOverrides = randomizer_GetContext().mFlowItemMessageOverrides;
+            if (flowItemOverrides.contains(key)) {
+                u8 itemId = verifyProgressiveItem(flowItemOverrides[key].itemId);
+                param_1 = getItemMessageID(itemId);
+                // Store this itemId so that we can give the item when the textbox closes
+                g_randomizerState.mFlowMessageItemId = itemId;
+                // Set flag for tracker/AP
+                randomizer_setTempFlagForFLWOverride(key);
+            }
+        }
+    }
+#endif
+
+#if TARGET_PC
     if (!dusk::getSettings().game.enableMirrorMode) { 
         if (!g_MsgObject_HIO_c.mMessageDisplay) { return param_1; } } 
     if (param_1 == getMirrorMsgOverride(param_1)) { return param_1; } 
@@ -848,6 +937,14 @@ void dMsgObject_c::waitProc() {
             }
         }
     }
+#if TARGET_PC
+    // If we have a randomizer item to give because of a flow message override
+    // then give it if the textbox has been fully closed.
+    if (randomizer_IsActive() && g_randomizerState.mFlowMessageItemId != 0 && mpScrnDraw == NULL) {
+        execItemGet(g_randomizerState.mFlowMessageItemId);
+        g_randomizerState.mFlowMessageItemId = 0;
+    }
+#endif
 }
 
 void dMsgObject_c::openProc() {

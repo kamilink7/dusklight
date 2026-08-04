@@ -13,6 +13,11 @@
 #include "f_op/f_op_camera_mng.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#endif
+
 const static dCcD_SrcCyl l_cyl_src = {
     {
         {0x0, {{0x0, 0x0, 0x0}, {0xffffffff, 0x11}, 0x59}}, // mObj
@@ -156,8 +161,16 @@ int daKey_c::create() {
     }
 
     m_itemNo = dItemNo_SMALL_KEY_e;
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        u8 stage = getStageID();
+        u8 flag = getSaveBitNo();
+        u16 key = (stage << 8) | flag;
+        m_itemNo = randomizer_GetContext().mFreestandingItemOverrides[key];
+    }
+#endif
 
-    if (strcmp(dComIfGp_getStartStageName(), "F_SP118") == 0) {
+    if (strcmp(dComIfGp_getStartStageName(), "F_SP118") == 0 IF_DUSK(&& !randomizer_IsActive())) {
         OS_REPORT(" SMKEY 0\n");
         if (dComIfGs_isTbox(getSaveBitNo())) {
             OS_REPORT(" SMKEY 1\n");

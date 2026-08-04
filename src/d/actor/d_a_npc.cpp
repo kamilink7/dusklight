@@ -14,6 +14,12 @@
 #include "m_Do/m_Do_lib.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/stages.h"
+#include "dusk/randomizer/game/tools.h"
+#endif
+
 #if DEBUG
 void daNpcT_cmnListenPropertyEvent(char* param_0, int* param_1, daNpcT_HIOParam* param_2) {
     sprintf(&param_0[*param_1], "%.3ff,\t//  注目オフセット\n", param_2->attention_offset);
@@ -1219,7 +1225,7 @@ void daNpcT_DmgStagger_c::calc(BOOL param_0) {
     }
 }
 
-dCcD_SrcCyl daNpcT_c::mCcDCyl = {
+DUSK_GAME_DATA dCcD_SrcCyl daNpcT_c::mCcDCyl = {
     daNpcT_c::mCcDObjData,
     {
         {
@@ -1230,7 +1236,7 @@ dCcD_SrcCyl daNpcT_c::mCcDCyl = {
     }
 };
 
-dCcD_SrcSph daNpcT_c::mCcDSph = {
+DUSK_GAME_DATA dCcD_SrcSph daNpcT_c::mCcDSph = {
     daNpcT_c::mCcDObjData,
     {
         {{0.0f, 0.0f, 0.0f}, 0.0f}  // mSph
@@ -1252,13 +1258,13 @@ void daNpcT_c::tgHitCallBack(fopAc_ac_c* i_actor1, dCcD_GObjInf* i_obj1, fopAc_a
     static_cast<daNpcT_c*>(actor1)->setCutType(cut_type);
 }
 
-fopAc_ac_c* daNpcT_c::mFindActorPtrs[50];
+DUSK_GAME_DATA fopAc_ac_c* daNpcT_c::mFindActorPtrs[50];
 
-char l_fileNameBuf[0x15];
+DUSK_GAME_DATA char l_fileNameBuf[0x15];
 
-s16 daNpcT_c::mSrchName;
+DUSK_GAME_DATA s16 daNpcT_c::mSrchName;
 
-int daNpcT_c::mFindCount;
+DUSK_GAME_DATA int daNpcT_c::mFindCount;
 
 void* daNpcT_c::srchActor(void* i_actor1, void* i_actor2) {
     fopAc_ac_c* actor2 = (fopAc_ac_c*)i_actor2;
@@ -2886,6 +2892,29 @@ void daNpcT_offEvtBit(u32 i_no) {
 }
 
 BOOL daNpcT_chkEvtBit(u32 i_no) {
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        switch (i_no) {
+        case 0x153: // Checking if the player has Ending Blow
+        {
+            if (getStageID() == Hidden_Skill) {
+                return true;
+            }
+            break;
+        }
+
+        case 0x40: // Checking if the player has completed Goron Mines
+        {
+            if (getStageID() == Kakariko_Village_Interiors) {
+                return true; // Return true so Barnes will sell bombs no matter what
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+#endif
     return dComIfGs_isEventBit(dSv_event_flag_c::saveBitLabels[i_no]);
 }
 
@@ -2901,7 +2930,7 @@ BOOL daNpcT_chkTmpBit(u32 i_no) {
     return dComIfGs_isTmpBit((u16)dSv_event_tmp_flag_c::tempBitLabels[i_no]);
 }
 
-const dCcD_SrcGObjInf daNpcT_c::mCcDObjData = {
+DUSK_GAME_DATA const dCcD_SrcGObjInf daNpcT_c::mCcDObjData = {
     {0, {{0, 0, 0}, {0, 0x00}, {0x79}}},
     {dCcD_SE_NONE, 0, 0, 0, 0},
     {dCcD_SE_NONE, 0, 0, 0, 0},

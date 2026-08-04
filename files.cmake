@@ -1411,68 +1411,105 @@ set(DOLPHIN_FILES
 )
 
 set(DUSK_FILES
-        include/dusk/action_bindings.h
-        include/dusk/endian_gx.hpp
-        include/dusk/config.hpp
-        include/dusk/dvd_asset.hpp
-        include/dusk/scope_guard.hpp
-        src/dusk/dvd_asset.cpp
+        include/helpers/batch.hpp
+        include/helpers/endian_gx.hpp
         src/d/actor/d_a_alink_dusk.cpp
-        src/dusk/android_frame_rate.hpp
+        src/dusk/OSContext.cpp
+        src/dusk/OSMutex.cpp
+        src/dusk/OSReport.cpp
+        src/dusk/OSThread.cpp
+        src/dusk/achievements.cpp
+        src/dusk/action_bindings.cpp
+        src/dusk/action_bindings.h
         src/dusk/android_frame_rate.cpp
+        src/dusk/android_frame_rate.hpp
         src/dusk/asserts.cpp
-        src/dusk/batch.cpp
-        src/dusk/batch.hpp
+        src/dusk/autosave.cpp
         src/dusk/config.cpp
+        src/dusk/config.hpp
         src/dusk/crash_handler.cpp
         src/dusk/crash_reporting.cpp
         src/dusk/data.cpp
         src/dusk/data.hpp
-        src/dusk/endian.cpp
+        src/dusk/discord.cpp
+        src/dusk/discord.hpp
+        src/dusk/discord_presence.cpp
+        src/dusk/dvd_asset.cpp
+        src/dusk/dvd_asset.hpp
         src/dusk/extras.c
         src/dusk/file_select.cpp
         src/dusk/file_select.hpp
         src/dusk/frame_interpolation.cpp
         src/dusk/game_clock.cpp
+        src/dusk/gamepad_color.cpp
         src/dusk/globals.cpp
         src/dusk/gyro.cpp
-        include/dusk/menu_pointer.h
-        src/dusk/menu_pointer.cpp
-        src/dusk/mouse.cpp
-		src/dusk/gamepad_color.cpp
-		src/dusk/autosave.cpp
         src/dusk/http/http.hpp
-        src/dusk/io.cpp
-        src/dusk/layout.cpp
-        src/dusk/logging.cpp
-        src/dusk/settings.cpp
-        src/dusk/speedrun.cpp
-        src/dusk/string.cpp
-        src/dusk/stubs.cpp
-        include/dusk/texture_replacements.hpp
-        src/dusk/texture_replacements.cpp
-        src/dusk/touch_camera.cpp
-        src/dusk/update_check.cpp
-        src/dusk/update_check.hpp
-        #src/dusk/m_Do_ext_dusk.cpp
-        src/dusk/imgui/ImGuiConfig.hpp
-        src/dusk/imgui/ImGuiConsole.hpp
-        src/dusk/imgui/ImGuiConsole.cpp
-        src/dusk/imgui/ImGuiEngine.cpp
-        src/dusk/imgui/ImGuiEngine.hpp
+        src/dusk/imgui/ImGuiActorSpawner.cpp
         src/dusk/imgui/ImGuiBloomWindow.cpp
         src/dusk/imgui/ImGuiBloomWindow.hpp
+        src/dusk/imgui/ImGuiCameraOverlay.cpp
+        src/dusk/imgui/ImGuiConfig.hpp
+        src/dusk/imgui/ImGuiConsole.cpp
+        src/dusk/imgui/ImGuiConsole.hpp
+        src/dusk/imgui/ImGuiControllerOverlay.cpp
+        src/dusk/imgui/ImGuiEngine.cpp
+        src/dusk/imgui/ImGuiEngine.hpp
+        src/dusk/imgui/ImGuiHeapOverlay.cpp
         src/dusk/imgui/ImGuiMenuTools.cpp
         src/dusk/imgui/ImGuiMenuTools.hpp
-        src/dusk/imgui/ImGuiActorSpawner.cpp
+        src/dusk/imgui/ImGuiMenuRandomizer.cpp
+        src/dusk/imgui/ImGuiMenuRandomizer.hpp
         src/dusk/imgui/ImGuiProcessOverlay.cpp
-        src/dusk/imgui/ImGuiCameraOverlay.cpp
-        src/dusk/imgui/ImGuiHeapOverlay.cpp
-        src/dusk/imgui/ImGuiControllerOverlay.cpp
-        src/dusk/imgui/ImGuiStubLog.cpp
         src/dusk/imgui/ImGuiSaveEditor.cpp
-        src/dusk/imgui/ImGuiStateShare.hpp
         src/dusk/imgui/ImGuiStateShare.cpp
+        src/dusk/imgui/ImGuiStateShare.hpp
+        src/dusk/imgui/ImGuiStubLog.cpp
+        src/dusk/io.cpp
+        src/dusk/iso_validate.cpp
+        src/dusk/layout.cpp
+        src/dusk/livesplit.cpp
+        src/dusk/logging.cpp
+        src/dusk/menu_pointer.cpp
+        src/dusk/menu_pointer.h
+        src/dusk/mods/loader/bundle_disk.cpp
+        src/dusk/mods/loader/bundle_zip.cpp
+        src/dusk/mods/loader/context.cpp
+        src/dusk/mods/loader/depgraph.cpp
+        src/dusk/mods/loader/depgraph.hpp
+        src/dusk/mods/loader/loader.cpp
+        src/dusk/mods/loader/loader.hpp
+        src/dusk/mods/loader/native_module.cpp
+        src/dusk/mods/loader/native_module.hpp
+        src/dusk/mods/loader/prepatch.cpp
+        src/dusk/mods/loader/prepatch.hpp
+        src/dusk/mods/log_buffer.cpp
+        src/dusk/mods/log_buffer.hpp
+        src/dusk/mods/manifest.cpp
+        src/dusk/mods/manifest.hpp
+        src/dusk/mods/svc/camera.cpp
+        src/dusk/mods/svc/config.cpp
+        src/dusk/mods/svc/config.hpp
+        src/dusk/mods/svc/game.cpp
+        src/dusk/mods/svc/gfx.cpp
+        src/dusk/mods/svc/hook.cpp
+        src/dusk/mods/svc/host.cpp
+        src/dusk/mods/svc/log.cpp
+        src/dusk/mods/svc/overlay.cpp
+        src/dusk/mods/svc/registry.cpp
+        src/dusk/mods/svc/registry.hpp
+        src/dusk/mods/svc/resource.cpp
+        src/dusk/mods/svc/texture.cpp
+        src/dusk/mods/svc/ui.cpp
+        src/dusk/mods/svc/ui.hpp
+        src/dusk/mouse.cpp
+        src/dusk/scope_guard.hpp
+        src/dusk/settings.cpp
+        src/dusk/speedrun.cpp
+        src/dusk/stubs.cpp
+        src/dusk/texture_replacements.cpp
+        src/dusk/texture_replacements.hpp
+        src/dusk/touch_camera.cpp
         src/dusk/ui/achievements.cpp
         src/dusk/ui/achievements.hpp
         src/dusk/ui/bool_button.cpp
@@ -1481,9 +1518,11 @@ set(DUSK_FILES
         src/dusk/ui/button.hpp
         src/dusk/ui/component.cpp
         src/dusk/ui/component.hpp
-        src/dusk/ui/controls.hpp
         src/dusk/ui/controller_config.cpp
         src/dusk/ui/controller_config.hpp
+        src/dusk/ui/cosmetics.hpp
+        src/dusk/ui/cosmetics.cpp
+        src/dusk/ui/controls.hpp
         src/dusk/ui/document.cpp
         src/dusk/ui/document.hpp
         src/dusk/ui/editor.cpp
@@ -1492,18 +1531,22 @@ set(DUSK_FILES
         src/dusk/ui/event.hpp
         src/dusk/ui/graphics_tuner.cpp
         src/dusk/ui/graphics_tuner.hpp
-        src/dusk/ui/input.cpp
-        src/dusk/ui/input.hpp
         src/dusk/ui/icon_provider.cpp
         src/dusk/ui/icon_provider.hpp
+        src/dusk/ui/input.cpp
+        src/dusk/ui/input.hpp
         src/dusk/ui/logs_window.cpp
         src/dusk/ui/logs_window.hpp
+        src/dusk/ui/menu_bar.cpp
+        src/dusk/ui/menu_bar.hpp
         src/dusk/ui/mod_texture_provider.cpp
         src/dusk/ui/mod_texture_provider.hpp
         src/dusk/ui/mod_window.cpp
         src/dusk/ui/mod_window.hpp
         src/dusk/ui/modal.cpp
         src/dusk/ui/modal.hpp
+        src/dusk/ui/mods_window.cpp
+        src/dusk/ui/mods_window.hpp
         src/dusk/ui/nav_types.hpp
         src/dusk/ui/number_button.cpp
         src/dusk/ui/number_button.hpp
@@ -1511,10 +1554,6 @@ set(DUSK_FILES
         src/dusk/ui/overlay.hpp
         src/dusk/ui/pane.cpp
         src/dusk/ui/pane.hpp
-        src/dusk/ui/menu_bar.cpp
-        src/dusk/ui/menu_bar.hpp
-        src/dusk/ui/mods_window.cpp
-        src/dusk/ui/mods_window.hpp
         src/dusk/ui/prelaunch.cpp
         src/dusk/ui/prelaunch.hpp
         src/dusk/ui/preset.cpp
@@ -1529,10 +1568,10 @@ set(DUSK_FILES
         src/dusk/ui/string_button.hpp
         src/dusk/ui/tab_bar.cpp
         src/dusk/ui/tab_bar.hpp
-        src/dusk/ui/touch_controls_common.cpp
-        src/dusk/ui/touch_controls_common.hpp
         src/dusk/ui/touch_controls.cpp
         src/dusk/ui/touch_controls.hpp
+        src/dusk/ui/touch_controls_common.cpp
+        src/dusk/ui/touch_controls_common.hpp
         src/dusk/ui/touch_controls_editor.cpp
         src/dusk/ui/touch_controls_editor.hpp
         src/dusk/ui/ui.cpp
@@ -1541,10 +1580,13 @@ set(DUSK_FILES
         src/dusk/ui/warp.hpp
         src/dusk/ui/window.cpp
         src/dusk/ui/window.hpp
+        src/dusk/ui/rando_config.cpp
+        src/dusk/ui/rando_config.hpp
+        src/dusk/ui/rando_seed_generation.cpp
+        src/dusk/ui/rando_seed_generation.hpp
         src/dusk/achievements.cpp
         src/dusk/iso_validate.cpp
         src/dusk/livesplit.cpp
-        src/dusk/offset_ptr.cpp
         src/dusk/OSContext.cpp
         src/dusk/OSReport.cpp
         src/dusk/OSThread.cpp
@@ -1562,9 +1604,11 @@ set(DUSK_FILES
         src/dusk/mods/loader/loader.hpp
         src/dusk/mods/loader/native_module.cpp
         src/dusk/mods/loader/native_module.hpp
+        src/dusk/mods/svc/camera.cpp
         src/dusk/mods/svc/config.cpp
         src/dusk/mods/svc/config.hpp
         src/dusk/mods/svc/game.cpp
+        src/dusk/mods/svc/gfx.cpp
         src/dusk/mods/svc/hook.cpp
         src/dusk/mods/svc/host.cpp
         src/dusk/mods/svc/log.cpp
@@ -1580,6 +1624,108 @@ set(DUSK_FILES
         src/dusk/discord_presence.cpp
         src/dusk/version.cpp
         src/dusk/action_bindings.cpp
+        src/dusk/update_check.cpp
+        src/dusk/update_check.hpp
+        src/dusk/version.cpp
+        src/dusk/cosmetics/color_utils.hpp
+        src/dusk/cosmetics/color_utils.cpp
+        src/dusk/cosmetics/midna_hair_color.hpp
+        src/dusk/cosmetics/midna_hair_color.cpp
+        src/dusk/cosmetics/texture_utils.hpp
+        src/dusk/cosmetics/texture_utils.cpp
+        # Randomizer files
+        src/dusk/randomizer/game/custom_flow_ids.hpp
+        src/dusk/randomizer/game/flags.cpp
+        src/dusk/randomizer/game/flags.h
+        src/dusk/randomizer/game/messages.cpp
+        src/dusk/randomizer/game/messages.hpp
+        src/dusk/randomizer/game/stages.cpp
+        src/dusk/randomizer/game/stages.h
+        src/dusk/randomizer/game/tools.cpp
+        src/dusk/randomizer/game/tools.h
+        src/dusk/randomizer/game/verify_item_functions.cpp
+        src/dusk/randomizer/game/verify_item_functions.h
+        src/dusk/randomizer/game/randomizer_context.cpp
+        src/dusk/randomizer/game/randomizer_context.hpp
+        src/dusk/randomizer/generator/logic/area.cpp
+        src/dusk/randomizer/generator/logic/area.hpp
+        src/dusk/randomizer/generator/logic/dungeon.cpp
+        src/dusk/randomizer/generator/logic/dungeon.hpp
+        src/dusk/randomizer/generator/logic/entrance.cpp
+        src/dusk/randomizer/generator/logic/entrance.hpp
+        src/dusk/randomizer/generator/logic/entrance_shuffle.cpp
+        src/dusk/randomizer/generator/logic/entrance_shuffle.hpp
+        src/dusk/randomizer/generator/logic/fill.cpp
+        src/dusk/randomizer/generator/logic/fill.hpp
+        src/dusk/randomizer/generator/logic/flatten/bits.cpp
+        src/dusk/randomizer/generator/logic/flatten/bits.hpp
+        src/dusk/randomizer/generator/logic/flatten/flatten.cpp
+        src/dusk/randomizer/generator/logic/flatten/flatten.hpp
+        src/dusk/randomizer/generator/logic/flatten/simplify_algebraic.cpp
+        src/dusk/randomizer/generator/logic/flatten/simplify_algebraic.hpp
+        src/dusk/randomizer/generator/logic/hints.cpp
+        src/dusk/randomizer/generator/logic/hints.hpp
+        src/dusk/randomizer/generator/logic/item.cpp
+        src/dusk/randomizer/generator/logic/item.hpp
+        src/dusk/randomizer/generator/logic/item_pool.cpp
+        src/dusk/randomizer/generator/logic/item_pool.hpp
+        src/dusk/randomizer/generator/logic/location.cpp
+        src/dusk/randomizer/generator/logic/location.hpp
+        src/dusk/randomizer/generator/logic/plandomizer.cpp
+        src/dusk/randomizer/generator/logic/plandomizer.hpp
+        src/dusk/randomizer/generator/logic/requirement.cpp
+        src/dusk/randomizer/generator/logic/requirement.hpp
+        src/dusk/randomizer/generator/logic/search.cpp
+        src/dusk/randomizer/generator/logic/search.hpp
+        src/dusk/randomizer/generator/logic/spoiler_log.cpp
+        src/dusk/randomizer/generator/logic/spoiler_log.hpp
+        src/dusk/randomizer/generator/logic/world.cpp
+        src/dusk/randomizer/generator/logic/world.hpp
+        src/dusk/randomizer/generator/randomizer.cpp
+        src/dusk/randomizer/generator/randomizer.hpp
+        src/dusk/randomizer/generator/seedgen/config.cpp
+        src/dusk/randomizer/generator/seedgen/config.hpp
+        src/dusk/randomizer/generator/seedgen/packed_bits.hpp
+        src/dusk/randomizer/generator/seedgen/seed.cpp
+        src/dusk/randomizer/generator/seedgen/seed.hpp
+        src/dusk/randomizer/generator/seedgen/settings.cpp
+        src/dusk/randomizer/generator/seedgen/settings.hpp
+        src/dusk/randomizer/generator/test/test.cpp
+        src/dusk/randomizer/generator/test/test.hpp
+        src/dusk/randomizer/generator/utility/base64pp.hpp
+        src/dusk/randomizer/generator/utility/color.cpp
+        src/dusk/randomizer/generator/utility/color.hpp
+        src/dusk/randomizer/generator/utility/crc32.hpp
+        src/dusk/randomizer/generator/utility/common.cpp
+        src/dusk/randomizer/generator/utility/common.hpp
+        src/dusk/randomizer/generator/utility/container.hpp
+        src/dusk/randomizer/generator/utility/endian.cpp
+        src/dusk/randomizer/generator/utility/endian.hpp
+        src/dusk/randomizer/generator/utility/exception.hpp
+        src/dusk/randomizer/generator/utility/file.cpp
+        src/dusk/randomizer/generator/utility/file.hpp
+        src/dusk/randomizer/generator/utility/general.hpp
+        src/dusk/randomizer/generator/utility/log.cpp
+        src/dusk/randomizer/generator/utility/log.hpp
+        src/dusk/randomizer/generator/utility/math.hpp
+        src/dusk/randomizer/generator/utility/path.cpp
+        src/dusk/randomizer/generator/utility/path.hpp
+        src/dusk/randomizer/generator/utility/platform.cpp
+        src/dusk/randomizer/generator/utility/platform.hpp
+        src/dusk/randomizer/generator/utility/random.cpp
+        src/dusk/randomizer/generator/utility/random.hpp
+        src/dusk/randomizer/generator/utility/string.cpp
+        src/dusk/randomizer/generator/utility/string.hpp
+        src/dusk/randomizer/generator/utility/text.cpp
+        src/dusk/randomizer/generator/utility/text.hpp
+        src/dusk/randomizer/generator/utility/thread_local.hpp
+        src/dusk/randomizer/generator/utility/time.cpp
+        src/dusk/randomizer/generator/utility/time.hpp
+        src/dusk/randomizer/generator/utility/yaml.hpp
+        src/helpers/batch.cpp
+        src/helpers/endian.cpp
+        src/helpers/offset_ptr.cpp
+        src/helpers/string.cpp
 )
 
 set(DUSK_HTTP_BACKEND_FILES

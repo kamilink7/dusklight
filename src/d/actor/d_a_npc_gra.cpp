@@ -14,7 +14,12 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
-const daNpc_grA_HIOParam daNpc_grA_Param_c::m = {
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
+DUSK_GAME_DATA const daNpc_grA_HIOParam daNpc_grA_Param_c::m = {
     {90.0f,  -4.0f,  1.0f,   850.0f,  255.0f, 280.0f, 40.0f, 100.0f, 0.0f, 0.0f, 20.0f,
      -20.0f, 40.0f,  -30.0f, 40.0f,   -40.0f, 0.4f,   12.0f, 4,      6,    6,    6,
      60.0f,  500.0f, 300.0f, -300.0f, 0x3c,   8,      0,     0,      0,    0,    0},
@@ -288,7 +293,7 @@ void daNpc_grA_HIO_c::genMessage(JORMContext* context) {
 }
 #endif
 
-char DUSK_CONST* DUSK_CONST daNpc_grA_c::mEvtCutNameList[12] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_grA_c::mEvtCutNameList[12] = {
     "",
     "TALK_SPA",
     "GRDS_ROLL",
@@ -303,7 +308,7 @@ char DUSK_CONST* DUSK_CONST daNpc_grA_c::mEvtCutNameList[12] = {
     "ROLL_ROCK_CRASH",
 };
 
-daNpc_grA_c::cut_type DUSK_CONST daNpc_grA_c::mEvtCutList[] = {
+DUSK_GAME_DATA daNpc_grA_c::cut_type DUSK_CONST daNpc_grA_c::mEvtCutList[] = {
     NULL, 
     &daNpc_grA_c::ECut_talkSpa,
     &daNpc_grA_c::ECut_grDSRoll,
@@ -4018,6 +4023,14 @@ BOOL daNpc_grA_c::talk(void*) {
         }
         if (r26 && talkProc(NULL, TRUE, NULL)) {
             if (mFlow.getEventId(&sp8) == 1) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    // Give the randomized underwater goron item
+                    if (sp8 == dItemNo_Randomizer_BOMB_IN_BAG_e) {
+                        sp8 = verifyProgressiveItem(randomizer_getItemAtLocation("Zoras Domain Underwater Goron"));
+                    }
+                }
+#endif
                 field_0x1480 =
                     fopAcM_createItemForPresentDemo(&current.pos, sp8, 0, -1, -1, NULL, NULL);
                 if (field_0x1480 != fpcM_ERROR_PROCESS_ID_e) {

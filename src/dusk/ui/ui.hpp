@@ -64,6 +64,11 @@ constexpr u32 kSoundAchievementUnlock = Z2SE_NAVI_FLY;
 // Warning prompt
 constexpr u32 kSoundWarning = Z2SE_SY_COW_GET_IN;
 
+// Randomizer Seed Generation Success
+constexpr u32 kSoundSeedGenerateSuccess = Z2SE_SY_FILE_SAVE_OK;
+// Randomizer Seed Generation Error
+constexpr u32 kSoundSeedGenerateError = Z2SE_SYS_RESULT_WRONG;
+
 struct Insets {
     float top = 0.0f;
     float right = 0.0f;
@@ -96,6 +101,7 @@ Document* top_document() noexcept;
 std::filesystem::path resource_path(const std::filesystem::path& filename) noexcept;
 std::string escape(std::string_view str) noexcept;
 Rml::Element* append(Rml::Element* parent, const Rml::String& tag) noexcept;
+Rml::Element* append_text(Rml::Element* parent, const Rml::String& text) noexcept;
 
 NavCommand map_nav_event(const Rml::Event& event) noexcept;
 Insets safe_area_insets(Rml::Context* context) noexcept;

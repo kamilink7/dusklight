@@ -203,6 +203,9 @@ public:
         DATASELPROC_DATA_SELECT_MOVE_ANIME,
         DATASELPROC_SELECT_DATA_OPEN_MOVE,
         DATASELPROC_SELECT_DATA_NAME_MOVE,
+#if TARGET_PC
+        DATASELPROC_SELECT_DATA_PLAY_MOVE, // Select between vanilla or randomizer play
+#endif
         DATASELPROC_SELECT_DATA_OPENERASE_MOVE,
         DATASELPROC_MENU_SELECT,
         DATASELPROC_MENU_SELECT_MOVE_ANM,
@@ -331,6 +334,9 @@ public:
     void makeRecInfo(u8);
     void selectDataOpenMove();
     void selectDataNameMove();
+#if TARGET_PC
+    void selectDataPlayTypeMove();
+#endif
     void selectDataOpenEraseMove();
     void menuSelect();
     void menuSelectStart();
@@ -732,7 +738,12 @@ public:
     /* 0x2378 */ J2DPicture* mpFadePict;
     #endif
 #ifdef TARGET_PC
-    dDlst_FileSelFade_c mFadeDlst;
+    struct mDusk {
+        dDlst_FileSelFade_c mFadeDlst;
+        bool mStartNameAnm;
+        bool mBackToFileSelect;
+        int mPendingRmlCloseFrames{0};
+    } mDusk;
 #endif
 
     #if PLATFORM_WII || PLATFORM_SHIELD
@@ -743,7 +754,7 @@ public:
 };
 
 #ifdef TARGET_PC
-STATIC_ASSERT(sizeof(dFile_select_c) == 0x237C + sizeof(dDlst_FileSelFade_c));
+STATIC_ASSERT(sizeof(dFile_select_c) == 0x237C + sizeof(dFile_select_c::mDusk));
 #else
 STATIC_ASSERT(sizeof(dFile_select_c) == 0x237C);
 #endif

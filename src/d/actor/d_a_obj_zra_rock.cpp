@@ -10,6 +10,11 @@
 #include "d/d_bg_w.h"
 #include "f_pc/f_pc_name.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/flags.h"
+#endif
+
 static char const* l_arcName = "H_ZraRock";
 
 void daObjZraRock_c::setAttnPos() {
@@ -80,6 +85,12 @@ cPhs_Step daObjZraRock_c::create() {
         int dzb_id = dComIfG_getObjctResName2Index(l_arcName, "H_ZoraRock.dzb");
         step = MoveBGCreate(l_arcName, dzb_id, dBgS_MoveBGProc_Trans, 0x2050, NULL);
         if (dComIfGs_isSwitch((fopAcM_GetParam(this) >> 8) & 0xff, fopAcM_GetRoomNo(this))) {
+#if TARGET_PC
+            // Don't delete the rock when we're following rutela
+            if (randomizer_IsActive() && !dComIfGs_isEventBit(GOT_ZORA_ARMOR_FROM_RUTELA) && dComIfGs_isEventBit(ZORA_ESCORT_CLEARED)) {
+                return step;
+            }
+#endif
             step = cPhs_ERROR_e;
         }
     }

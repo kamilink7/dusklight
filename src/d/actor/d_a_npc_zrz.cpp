@@ -14,9 +14,15 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/flags.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 static NPC_ZRZ_HIO_CLASS l_HIO;
 
-daNpc_zrZ_HIOParam const daNpc_zrZ_Param_c::m = {
+DUSK_GAME_DATA daNpc_zrZ_HIOParam const daNpc_zrZ_Param_c::m = {
     700.0f,   // mAttnOffsetY
     0.0f,     // mGravity
     1.0f,     // mScale
@@ -139,7 +145,7 @@ static DUSK_CONSTEXPR char DUSK_CONST* l_evtNames[8] = {
 
 static DUSK_CONSTEXPR char DUSK_CONST* l_myName = "zrZ";
 
-char DUSK_CONST* DUSK_CONST daNpc_zrZ_c::mEvtCutNameList[8] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_zrZ_c::mEvtCutNameList[8] = {
     "",
     "HELP_PRINCE",
     "COME_HERE",
@@ -150,7 +156,7 @@ char DUSK_CONST* DUSK_CONST daNpc_zrZ_c::mEvtCutNameList[8] = {
     "SR_SKIP",
 };
 
-daNpc_zrZ_c::EventFn DUSK_CONST daNpc_zrZ_c::mEvtCutList[8] = {
+DUSK_GAME_DATA daNpc_zrZ_c::EventFn DUSK_CONST daNpc_zrZ_c::mEvtCutList[8] = {
     NULL,
     &daNpc_zrZ_c::ECut_helpPrince,
     &daNpc_zrZ_c::ECut_comeHere,
@@ -892,7 +898,12 @@ BOOL daNpc_zrZ_c::isDelete() {
     if (((mDemoMode == DEMO_COME_HERE || mDemoMode == DEMO_WAIT)
                     && dComIfGs_isSwitch(mSwitch1, fopAcM_GetRoomNo(this)))
         || (mDemoMode == DEMO_COME_HERE_2 && (!dComIfGs_isSwitch(mSwitch1, fopAcM_GetRoomNo(this))
-                                          || dComIfGs_isSwitch(mSwitch2, fopAcM_GetRoomNo(this)))))
+#if TARGET_PC
+        // Don't delete Rutela in the graveyard until we've picked up Rutelas Blessing in rando
+        || (dComIfGs_isSwitch(mSwitch2, fopAcM_GetRoomNo(this)) && (!randomizer_IsActive() || dComIfGs_isEventBit(GOT_ZORA_ARMOR_FROM_RUTELA))))))
+#else
+        || dComIfGs_isSwitch(mSwitch2, fopAcM_GetRoomNo(this)))))
+#endif
     {
         return true;
     } else {
@@ -1729,6 +1740,12 @@ BOOL daNpc_zrZ_c::ECut_clothesGet(int i_staffID) {
             }
             item_no = 0;
             if (mFlow.getEventId(&item_no) == 1) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    item_no = verifyProgressiveItem(randomizer_getItemAtLocation("Rutelas Blessing"));
+                    randomizer_setTempFlagForLocation("Rutelas Blessing");
+                }
+#endif
                 mItemID = fopAcM_createItemForPresentDemo(&current.pos, item_no,
                                                           0, -1, -1, NULL, NULL);
             }

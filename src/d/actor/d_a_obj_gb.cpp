@@ -12,6 +12,12 @@
 #include "d/d_com_inf_game.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/stages.h"
+#include "dusk/randomizer/game/tools.h"
+#endif
+
 static int daObj_Gb_Draw(obj_gb_class* i_this) {
     g_env_light.settingTevStruct(0x10, &i_this->current.pos, &i_this->tevStr);
     g_env_light.setLightTevColorType_MAJI(i_this->mModel, &i_this->tevStr);
@@ -169,6 +175,13 @@ static int useHeapInit(fopAc_ac_c* actor) {
 static int daObj_Gb_Create(fopAc_ac_c* actor) {
     fopAcM_ct(actor, obj_gb_class);
     obj_gb_class* i_this = (obj_gb_class*)actor;
+#if TARGET_PC
+    // Only spawn the added wall in randomizer if it should exist
+    if (randomizer_IsActive() && getStageID() == StageIDs::Mirror_Chamber &&
+        !randomizer_mirrorChamberWallShouldExist()) {
+        return cPhs_ERROR_e;
+    }
+#endif
     int rv = dComIfG_resLoad(&i_this->mPhase, "Obj_gb");
     
     if (rv == cPhs_COMPLEATE_e) {

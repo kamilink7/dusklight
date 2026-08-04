@@ -10,7 +10,12 @@
 #include "JSystem/J3DGraphBase/J3DMaterial.h"
 #include <cstring>
 
-const daNpcAshB_HIOParam daNpcAshB_Param_c::m = {
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
+DUSK_GAME_DATA const daNpcAshB_HIOParam daNpcAshB_Param_c::m = {
     205.0f,   // attention_offset
     -3.0f,    // gravity
     1.0f,     // scale
@@ -93,7 +98,7 @@ void daNpcAshB_HIO_c::genMessage(JORMContext* ctext) {
 }
 #endif
 
-daNpcAshB_c::EventFn DUSK_CONST daNpcAshB_c::mEvtSeqList[2] = {
+DUSK_GAME_DATA daNpcAshB_c::EventFn DUSK_CONST daNpcAshB_c::mEvtSeqList[2] = {
     NULL,
     &daNpcAshB_c::EvCut_Appear,
 };
@@ -1001,6 +1006,12 @@ BOOL daNpcAshB_c::EvCut_Appear(int i_staffID) {
         case '0008':
             local_30[0] = 0;
             if (mFlow.getEventId(local_30) == 1) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    local_30[0] = verifyProgressiveItem(randomizer_getItemAtLocation("Ashei Sketch"));
+                    randomizer_setTempFlagForLocation("Ashei Sketch");
+                }
+#endif
                 mItemPartnerId =
                     fopAcM_createItemForPresentDemo(&current.pos, local_30[0], 0, -1, -1, 0, 0);
                 dComIfGp_event_setItemPartnerId(mItemPartnerId);

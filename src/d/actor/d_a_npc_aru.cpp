@@ -14,6 +14,11 @@
 #include "d/d_meter2_info.h"
 #include "d/actor/d_a_horse.h"
 #include "Z2AudioLib/Z2Instances.h"
+
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 #if DEBUG
 #include "JSystem/JHostIO/JORFile.h"
 #include "d/d_debug_viewer.h"
@@ -141,7 +146,7 @@ enum Type {
     /* 0x4 */ TYPE_4,
 };
 
-const daNpc_Aru_HIOParam daNpc_Aru_Param_c::m = {
+DUSK_GAME_DATA const daNpc_Aru_HIOParam daNpc_Aru_Param_c::m = {
     220.0f,
     -3.0f,
     1.0f,
@@ -345,7 +350,7 @@ static DUSK_CONSTEXPR daNpcT_MotionSeqMngr_c::sequenceStepData_c l_motionSequenc
     {11, 4, 1}, {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
 };
 
-char DUSK_CONST* DUSK_CONST daNpc_Aru_c::mCutNameList[7] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_Aru_c::mCutNameList[7] = {
     "",
     "RIDEON_HORSE",
     "GOTO_BULLRUNNING_STAGE",
@@ -355,7 +360,7 @@ char DUSK_CONST* DUSK_CONST daNpc_Aru_c::mCutNameList[7] = {
     "NO_ENTRANCE",
 };
 
-daNpc_Aru_c::cutFunc DUSK_CONST daNpc_Aru_c::mCutList[7] = {
+DUSK_GAME_DATA daNpc_Aru_c::cutFunc DUSK_CONST daNpc_Aru_c::mCutList[7] = {
     NULL,
     &daNpc_Aru_c::cutRideOnHorse,
     &daNpc_Aru_c::cutGotoBullRunningStage,
@@ -1744,6 +1749,12 @@ int daNpc_Aru_c::cutSpeakTo(int i_staffID) {
                 switch (eventId) {
                     case 1:
                         if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
+#if TARGET_PC
+                            if (randomizer_IsActive()) {
+                                itemNo = randomizer_getItemAtLocation("Herding Goats Reward");
+                                randomizer_setTempFlagForLocation("Herding Goats Reward");
+                            }
+#endif
                             mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
                         }
 

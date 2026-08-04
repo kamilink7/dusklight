@@ -8,7 +8,7 @@ public:
     static void setItemData(u8* data) { mData = data; }
     static u8* getItemData() { return mData; }
 
-    static u8* mData;
+    static DUSK_GAME_DATA u8* mData;
 };
 
 void execItemGet(u8 item_id);
@@ -32,6 +32,11 @@ void item_func_ARROW_20();
 void item_func_ARROW_30();
 void item_func_ARROW_1();
 void item_func_PACHINKO_SHOT();
+#if TARGET_PC
+void item_func_FOOLISH_ITEM();
+void item_func_ORDON_PORTAL();
+void item_func_SOUTH_FARON_PORTAL();
+#endif
 void item_func_WATER_BOMB_5();
 void item_func_WATER_BOMB_10();
 void item_func_WATER_BOMB_20();
@@ -65,6 +70,12 @@ void item_func_DUNGEON_EXIT_2();
 void item_func_WALLET_LV1();
 void item_func_WALLET_LV2();
 void item_func_WALLET_LV3();
+#if TARGET_PC
+void item_func_UPPER_ZORAS_RIVER_PORTAL();
+void item_func_CASTLE_TOWN_PORTAL();
+void item_func_GERUDO_DESERT_PORTAL();
+void item_func_NORTH_FARON_PORTAL();
+#endif
 void item_func_ZORAS_JEWEL();
 void item_func_HAWK_EYE();
 void item_func_WOOD_STICK();
@@ -81,13 +92,23 @@ void item_func_LIGHT_SWORD();
 void item_func_FISHING_ROD_1();
 void item_func_PACHINKO();
 void item_func_COPY_ROD_2();
+#if TARGET_PC
+void item_func_KAKARIKO_GORGE_PORTAL();
+void item_func_KAKARIKO_VILLAGE_PORTAL();
+#endif
 void item_func_BOMB_BAG_LV2();
 void item_func_BOMB_BAG_LV1();
 void item_func_BOMB_IN_BAG();
+#if TARGET_PC
+void item_func_DEATH_MOUNTAIN_PORTAL();
+#endif
 void item_func_LIGHT_ARROW();
 void item_func_ARROW_LV1();
 void item_func_ARROW_LV2();
 void item_func_ARROW_LV3();
+#if TARGET_PC
+void item_func_ZORAS_DOMAIN_PORTAL();
+#endif
 void item_func_LURE_ROD();
 void item_func_BOMB_ARROW();
 void item_func_HAWK_ARROW();
@@ -133,8 +154,33 @@ void item_func_BILL();
 void item_func_WOOD_STATUE();
 void item_func_IRIAS_PENDANT();
 void item_func_HORSE_FLUTE();
+#if TARGET_PC
+void item_func_FOREST_SMALL_KEY();
+void item_func_MINES_SMALL_KEY();
+void item_func_LAKEBED_SMALL_KEY();
+void item_func_ARBITERS_SMALL_KEY();
+void item_func_SNOWPEAK_SMALL_KEY();
+void item_func_TEMPLE_OF_TIME_SMALL_KEY();
+void item_func_CITY_SMALL_KEY();
+void item_func_PALACE_SMALL_KEY();
+void item_func_HYRULE_SMALL_KEY();
+void item_func_CAMP_SMALL_KEY();
+void item_func_LAKE_HYLIA_PORTAL();
+#endif
 void item_func_RAFRELS_MEMO();
 void item_func_ASHS_SCRIBBLING();
+#if TARGET_PC
+void item_func_FOREST_BOSS_KEY();
+void item_func_LAKEBED_BOSS_KEY();
+void item_func_ARBITERS_BOSS_KEY();
+void item_func_TEMPLE_OF_TIME_BOSS_KEY();
+void item_func_CITY_BOSS_KEY();
+void item_func_PALACE_BOSS_KEY();
+void item_func_HYRULE_BOSS_KEY();
+void item_func_FOREST_COMPASS();
+void item_func_MINES_COMPASS();
+void item_func_LAKEBED_COMPASS();
+#endif
 void item_func_CHUCHU_YELLOW2();
 void item_func_OIL_BOTTLE3();
 void item_func_SHOP_BEE_CHILD();
@@ -147,12 +193,34 @@ void item_func_FILLED_CONTAINER();
 void item_func_MIRROR_PIECE_2();
 void item_func_MIRROR_PIECE_3();
 void item_func_MIRROR_PIECE_4();
+#if TARGET_PC
+void item_func_ARBITERS_COMPASS();
+void item_func_SNOWPEAK_COMPASS();
+void item_func_TEMPLE_OF_TIME_COMPASS();
+void item_func_CITY_COMPASS();
+void item_func_PALACE_COMPASS();
+void item_func_HYRULE_COMPASS();
+void item_func_MIRROR_CHAMBER_PORTAL();
+void item_func_SNOWPEAK_PORTAL();
+#endif
 void item_func_SMELL_YELIA_POUCH();
 void item_func_SMELL_PUMPKIN();
 void item_func_SMELL_POH();
 void item_func_SMELL_FISH();
 void item_func_SMELL_CHILDREN();
 void item_func_SMELL_MEDICINE();
+#if TARGET_PC
+void item_func_FOREST_MAP();
+void item_func_MINES_MAP();
+void item_func_LAKEBED_MAP();
+void item_func_ARBITERS_MAP();
+void item_func_SNOWPEAK_MAP();
+void item_func_TEMPLE_OF_TIME_MAP();
+void item_func_CITY_MAP();
+void item_func_PALACE_MAP();
+void item_func_HYRULE_MAP();
+void item_func_SACRED_GROVE_PORTAL();
+#endif
 void item_func_M_BEETLE();
 void item_func_F_BEETLE();
 void item_func_M_BUTTERFLY();
@@ -177,7 +245,23 @@ void item_func_M_ANT();
 void item_func_F_ANT();
 void item_func_M_MAYFLY();
 void item_func_F_MAYFLY();
+#if TARGET_PC
+void item_func_FUSED_SHADOW_1();
+void item_func_FUSED_SHADOW_2();
+void item_func_FUSED_SHADOW_3();
+void item_func_MIRROR_PIECE_1();
+#endif
 void item_func_POU_SPIRIT();
+#if TARGET_PC
+void item_func_ENDING_BLOW();
+void item_func_SHIELD_ATTACK();
+void item_func_BACK_SLICE();
+void item_func_HELM_SPLITTER();
+void item_func_MORTAL_DRAW();
+void item_func_JUMP_STRIKE();
+void item_func_GREAT_SPIN();
+void item_func_ELDIN_BRIDGE_PORTAL();
+#endif
 void item_func_ANCIENT_DOCUMENT();
 void item_func_AIR_LETTER();
 void item_func_ANCIENT_DOCUMENT2();
@@ -221,6 +305,10 @@ int item_getcheck_func_ARROW_20();
 int item_getcheck_func_ARROW_30();
 int item_getcheck_func_ARROW_1();
 int item_getcheck_func_PACHINKO_SHOT();
+#if TARGET_PC
+int item_getcheck_func_ORDON_PORTAL();
+int item_getcheck_func_SOUTH_FARON_PORTAL();
+#endif
 int item_getcheck_func_WATER_BOMB_5();
 int item_getcheck_func_WATER_BOMB_10();
 int item_getcheck_func_WATER_BOMB_20();
@@ -254,6 +342,12 @@ int item_getcheck_func_DUNGEON_EXIT_2();
 int item_getcheck_func_WALLET_LV1();
 int item_getcheck_func_WALLET_LV2();
 int item_getcheck_func_WALLET_LV3();
+#if TARGET_PC
+int item_getcheck_func_UPPER_ZORAS_RIVER_PORTAL();
+int item_getcheck_func_CASTLE_TOWN_PORTAL();
+int item_getcheck_func_GERUDO_DESERT_PORTAL();
+int item_getcheck_func_NORTH_FARON_PORTAL();
+#endif
 int item_getcheck_func_ZORAS_JEWEL();
 int item_getcheck_func_HAWK_EYE();
 int item_getcheck_func_WOOD_STICK();
@@ -270,13 +364,23 @@ int item_getcheck_func_LIGHT_SWORD();
 int item_getcheck_func_FISHING_ROD_1();
 int item_getcheck_func_PACHINKO();
 int item_getcheck_func_COPY_ROD_2();
+#if TARGET_PC
+int item_getcheck_func_KAKARIKO_GORGE_PORTAL();
+int item_getcheck_func_KAKARIKO_VILLAGE_PORTAL();
+#endif
 int item_getcheck_func_BOMB_BAG_LV2();
 int item_getcheck_func_BOMB_BAG_LV1();
 int item_getcheck_func_BOMB_IN_BAG();
+#if TARGET_PC
+int item_getcheck_func_DEATH_MOUNTAIN_PORTAL();
+#endif
 int item_getcheck_func_LIGHT_ARROW();
 int item_getcheck_func_ARROW_LV1();
 int item_getcheck_func_ARROW_LV2();
 int item_getcheck_func_ARROW_LV3();
+#if TARGET_PC
+int item_getcheck_func_ZORAS_DOMAIN_PORTAL();
+#endif
 int item_getcheck_func_LURE_ROD();
 int item_getcheck_func_BOMB_ARROW();
 int item_getcheck_func_HAWK_ARROW();
@@ -322,6 +426,10 @@ int item_getcheck_func_BILL();
 int item_getcheck_func_WOOD_STATUE();
 int item_getcheck_func_IRIAS_PENDANT();
 int item_getcheck_func_HORSE_FLUTE();
+#if TARGET_PC
+int item_getcheck_func_CAMP_SMALL_KEY();
+int item_getcheck_func_LAKE_HYLIA_PORTAL();
+#endif
 int item_getcheck_func_RAFRELS_MEMO();
 int item_getcheck_func_ASHS_SCRIBBLING();
 int item_getcheck_func_CHUCHU_YELLOW2();
@@ -336,12 +444,19 @@ int item_getcheck_func_FILLED_CONTAINER();
 int item_getcheck_func_MIRROR_PIECE_2();
 int item_getcheck_func_MIRROR_PIECE_3();
 int item_getcheck_func_MIRROR_PIECE_4();
+#if TARGET_PC
+int item_getcheck_func_MIRROR_CHAMBER_PORTAL();
+int item_getcheck_func_SNOWPEAK_PORTAL();
+#endif
 int item_getcheck_func_SMELL_YELIA_POUCH();
 int item_getcheck_func_SMELL_PUMPKIN();
 int item_getcheck_func_SMELL_POH();
 int item_getcheck_func_SMELL_FISH();
 int item_getcheck_func_SMELL_CHILDREN();
 int item_getcheck_func_SMELL_MEDICINE();
+#if TARGET_PC
+int item_getcheck_func_SACRED_GROVE_PORTAL();
+#endif
 int item_getcheck_func_M_BEETLE();
 int item_getcheck_func_F_BEETLE();
 int item_getcheck_func_M_BUTTERFLY();
@@ -366,7 +481,23 @@ int item_getcheck_func_M_ANT();
 int item_getcheck_func_F_ANT();
 int item_getcheck_func_M_MAYFLY();
 int item_getcheck_func_F_MAYFLY();
+#if TARGET_PC
+int item_getcheck_func_FUSED_SHADOW_1();
+int item_getcheck_func_FUSED_SHADOW_2();
+int item_getcheck_func_FUSED_SHADOW_3();
+int item_getcheck_func_MIRROR_PIECE_1();
+#endif
 int item_getcheck_func_POU_SPIRIT();
+#if TARGET_PC
+int item_getcheck_func_ENDING_BLOW();
+int item_getcheck_func_SHIELD_ATTACK();
+int item_getcheck_func_BACK_SLICE();
+int item_getcheck_func_HELM_SPLITTER();
+int item_getcheck_func_MORTAL_DRAW();
+int item_getcheck_func_JUMP_STRIKE();
+int item_getcheck_func_GREAT_SPIN();
+int item_getcheck_func_ELDIN_BRIDGE_PORTAL();
+#endif
 int item_getcheck_func_ANCIENT_DOCUMENT();
 int item_getcheck_func_AIR_LETTER();
 int item_getcheck_func_ANCIENT_DOCUMENT2();
@@ -395,6 +526,9 @@ int checkItemGet(u8, int);
 BOOL isHeart(u8 item_no);
 int isBomb(u8);
 int isArrow(u8);
+#if TARGET_PC
+int isRupee(u8);
+#endif
 int addBombCount(u8, u8);
 BOOL isBottleItem(u8 item_no);
 u8 check_itemno(int i_itemNo);

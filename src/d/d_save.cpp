@@ -12,11 +12,21 @@
 #include "d/d_meter2_info.h"
 #include "d/d_save.h"
 #include "d/d_save_init.h"
+#if TARGET_PC
+#include "d/actor/d_a_alink.h"
+#include "d/d_stage.h"
+#endif
 #include "f_op/f_op_scene_mng.h"
 #include <cstdio>
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/flags.h"
+#include "dusk/randomizer/game/stages.h"
+#include "dusk/randomizer/game/tools.h"
 #include "dusk/version.hpp"
+#endif
 
 #if PLATFORM_WII || PLATFORM_SHIELD
 #include <revolution/sc.h>
@@ -31,8 +41,8 @@
 #include "dusk/settings.h"
 #include <f_ap/f_ap_game.h>
 
-#include "dusk/string.hpp"
-#define strcpy dusk::SafeStringCopy
+#include "helpers/string.hpp"
+#define strcpy SafeStringCopy
 #endif
 
 static u8 dSv_item_rename(u8 i_itemNo) {
@@ -198,6 +208,11 @@ void dSv_player_status_b_c::offDarkClearLV(int i_no) {
 }
 
 BOOL dSv_player_status_b_c::isDarkClearLV(int i_no) const {
+#if TARGET_PC
+    if (i_no == 0 && playerIsInRoomStage(1, allStages[Ordon_Village_Interiors])) {
+        return 0; // Return false so Sera will give us the bottle if we have rescued the cat.
+    }
+#endif
     JUT_ASSERT(311, (i_no >= 0) && (i_no < 8));
     return mDarkClearLevelFlag & (u8)(1 << i_no) ? TRUE : FALSE;
 }
@@ -450,6 +465,16 @@ void dSv_player_item_c::setLineUpItem() {
             slot_idx++;
         }
     }
+
+#if TARGET_PC
+    // Allow rando to use all item slots. Need to check for active randomizer hash instead of
+    // randomizer being active because this gets run on file select
+    if (!randomizer_GetContext().mHash.empty()) {
+        if (mItems[7] != dItemNo_NONE_e) {
+            mItemSlots[slot_idx] = 7;
+        }
+    }
+#endif
 }
 
 u8 dSv_player_item_c::getLineUpItem(int i_slotNo) const {
@@ -548,6 +573,14 @@ BOOL dSv_player_item_c::checkInsectBottle() {
 
 u8 dSv_player_item_c::checkEmptyBottle() {
     u8 bottleNum = 0;
+
+#if TARGET_PC
+    if (randomizer_IsActive() && getStageID() == Cave_of_Ordeals) {
+        // Return 1 to allow the player to collect the item from the floor 50 reward,
+        // as this will make the game think that the player has an empty bottle.
+        return 1;
+    }
+#endif
 
     for (int i = 0; i < BOTTLE_MAX; i++) {
         if (mItems[i + SLOT_11] == dItemNo_EMPTY_BOTTLE_e) {
@@ -1016,7 +1049,12 @@ void dSv_player_info_c::init() {
 }
 
 void dSv_player_config_c::init() {
-#if VERSION == VERSION_GCN_JPN
+#if TARGET_PC
+   if (dusk::version::isRegionJpn())
+       mRuby = 0;
+   else
+       mRuby = 1;
+#elif VERSION == VERSION_GCN_JPN
     mRuby = 0;
 #else
     mRuby = 1;
@@ -1162,6 +1200,55 @@ BOOL dSv_memBit_c::isTbox(int i_no) const {
 }
 
 void dSv_memBit_c::onSwitch(int i_no) {
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        if (this == &dComIfGs_getSaveInfo()->mMemory.mBit) {
+            if (getStageID() == Arbiters_Grounds) {
+                // Poe flame CS trigger
+                if (i_no == 0x26) {
+                    // Open the Poe gate
+                    offSwitch(0x45);
+                    return;
+                }
+            }
+            else if (getStageID() == Lake_Hylia) {
+                // Lanayru Twilight End CS trigger.
+                if (i_no == 0xD) {
+                    if (dComIfGs_isEventBit(TRANSFORMING_UNLOCKED)) {
+                        // Set player to Human as the game will not do so if Shadow Crystal has been obtained.
+                        dComIfGs_setTransformStatus(0);
+                    }
+                }
+            }
+            else if (getStageID() == Kakariko_Village) {
+                // Hawkeye is for sale.
+                if (i_no == 0x3E) {
+                    // Remove the coming soon sign so the hawkeye can be bought.
+                    offSwitch(0xB);
+                }
+            }
+            else if (getStageID() == Hyrule_Field) {
+                // Destroyed North Eldin rocks barrier
+                if (i_no == 0x11) {
+                    // Unlock Eldin Province on map. We do this manually rather than calling `onRegionBit` since that
+                    // function would see that the rocks are not yet broken and would skip enabling the region.
+                    dComIfGs_getSaveInfo()->getSavedata().getPlayer().getPlayerFieldLastStayInfo().mRegion |= 0x08;
+                }
+            }
+        }
+
+        // TODO: Rando
+        if (this == &dComIfGs_getSaveInfo()->getSavedata().mSave[6].mBit) {
+            if (getStageID() == Kakariko_Village_Interiors) {
+                // Repair Castle Town Bridge
+                if (i_no == 0x1B) {
+                    // *reinterpret_cast<uint16_t*>(&savePtr->save_file.mEvent.mEvent[0xF9]) =
+                    //     rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getMaloShopDonationAmount();
+                }
+            }
+        }
+    }
+#endif
     JUT_ASSERT(2786, 0 <= i_no && i_no < 128);
     mSwitch[i_no >> 5] |= 1 << (i_no & 0x1F);
 }
@@ -1172,6 +1259,13 @@ void dSv_memBit_c::offSwitch(int i_no) {
 }
 
 BOOL dSv_memBit_c::isSwitch(int i_no) const {
+#if TARGET_PC
+    if (randomizer_IsActive() && getStageID() == Hidden_Village_Interiors) {
+        if (i_no == 0x61) { // Is Impaz in her house
+            return true;
+        }
+    }
+#endif
     JUT_ASSERT(2814, 0 <= i_no && i_no < 128);
     return (mSwitch[i_no >> 5] & 1 << (i_no & 0x1F)) ? TRUE : FALSE;
 }
@@ -1202,18 +1296,100 @@ BOOL dSv_memBit_c::isItem(int i_no) const {
 
 void dSv_memBit_c::onDungeonItem(int i_no) {
     JUT_ASSERT(2969, 0 <= i_no && i_no < DSV_MEMBIT_ENUM_MAX);
+#if TARGET_PC
+    // Don't use the stage life collection flag for rando
+    if (randomizer_IsActive()) {
+        if (i_no == STAGE_LIFE) {
+            return;
+        }
+    }
+#endif
     mDungeonItem |= (u8)(1 << i_no);
 }
 
 void dSv_memBit_c::offDungeonItem(int i_no) {
     JUT_ASSERT(2983, 0 <= i_no && i_no < DSV_MEMBIT_ENUM_MAX);
+#if TARGET_PC
+    // Don't use the stage life collection flag for rando
+    if (randomizer_IsActive() && i_no == STAGE_LIFE) {
+        return;
+    }
+#endif
     mDungeonItem &= (u8)~(u8)(1 << i_no);
 }
 
 s32 dSv_memBit_c::isDungeonItem(int i_no) const {
     JUT_ASSERT(2998, 0 <= i_no && i_no < DSV_MEMBIT_ENUM_MAX);
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        // Don't use the stage life collection flag for rando
+        if (i_no == STAGE_LIFE) {
+            return FALSE;
+        }
+
+        switch(i_no) {
+            case STAGE_BOSS_ENEMY:
+            {
+                // If we are in a dungeon or fighting a midboss, we don't want the boss being defeated to affect the gameplay.
+                // Note, technically you could go through and patch all of the actors that cause the issues, but that's over
+                // 80 different calls and I don't want to deal with all that research rn - lunar
+                static const char* dungeonStages[] = {
+                    "D_MN05",
+                    "D_MN05B",
+                    "D_MN04",
+                    "D_MN04B",
+                    "D_MN01",
+                    "D_MN01B",
+                    "D_MN10",
+                    "D_MN10B",
+                    "D_MN11",
+                    "D_MN11B",
+                    "D_MN06",
+                    "D_MN06B",
+                    "D_MN07",
+                    "D_MN07B",
+                    "D_MN08",
+                    "D_MN08B",
+                    "D_MN08C"};
+                uint32_t totalDungeonStages = sizeof(dungeonStages) / sizeof(dungeonStages[0]);
+                for (uint32_t i = 0; i < totalDungeonStages; i++)
+                {
+                    if (daAlink_c::checkStageName(dungeonStages[i]))
+                    {
+                        return false;
+                    }
+                }
+                break;
+            }
+            case STAGE_BOSS_ENEMY_2:
+            {
+                // If we are in the early rooms of FT, we don't want Ook being defeated to affect gameplay
+                if (daAlink_c::checkStageName("D_MN05"))
+                {
+                    if (dComIfGp_roomControl_getStayNo() < 4)
+                    {
+                        return false;
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+#endif
     return mDungeonItem & (u8)(1 << i_no) ? TRUE : FALSE;
 }
+
+#if TARGET_PC
+void dSv_memBit_c::onStageBossEnemy() {
+    onDungeonItem(STAGE_BOSS_ENEMY);
+    // Don't turn Ooccoo into the note when defeating a boss
+    if (!randomizer_IsActive()) {
+        onDungeonItem(OOCCOO_NOTE);
+    }
+}
+#endif
 
 void dSv_event_c::init() {
     int i;
@@ -1225,6 +1401,100 @@ void dSv_event_c::init() {
 }
 
 void dSv_event_c::onEventBit(u16 i_no) {
+#if TARGET_PC
+    // Various checks for randomizer
+    if (randomizer_IsActive()) {
+        switch (i_no) {
+            // Case block for Wolf -> Human crash patches/bug fixes. Some cutscenes/events either crash or act weird if
+            // Link is Human but needs to be Wolf and the game no longer attempts to auto-transform Link once the Shadow
+            // Crystal has been obtained.
+            case ENTERED_ORDON_SPRING_DAY_3:
+                if (dComIfGs_isEventBit(TRANSFORMING_UNLOCKED)) {
+                    // Set player to Human as the game will not do so if Shadow Crystal has been obtained.
+                    dComIfGs_setTransformStatus(0);
+                }
+                break;
+
+            case WATCHED_CUTSCENE_AFTER_BEING_CAPTURED_IN_FARON_TWILIGHT:
+                if (dComIfGs_isEventBit(TRANSFORMING_UNLOCKED)) {
+                    // Set player to Wolf as the game will not do so if Shadow Crystal has been obtained.
+                    dComIfGs_setTransformStatus(1);
+                }
+                break;
+
+            case MIDNAS_DESPERATE_HOUR_COMPLETED:
+                dComIfGs_onDarkClearLV(3);
+                break;
+
+            case CLEARED_FARON_TWILIGHT:
+                // If we've already cleared Eldin Twilight, Lanayru Twilight, and MDH
+                if (dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_COMPLETED)) {
+                    // Eldin and Lanayru Twilights cleared
+                    if (dComIfGs_isDarkClearLV(2) && dComIfGs_isDarkClearLV(3)) {
+                        // Set the flag for the last transformed twilight.
+                        // Also puts Midna on the player's back
+                        dComIfGs_onTransformLV(3);
+                        dComIfGs_onDarkClearLV(3);
+                    }
+                }
+                break;
+
+            case CLEARED_ELDIN_TWILIGHT:
+                onEventBit(MAP_WARPING_UNLOCKED); // in glitched Logic, you can skip the gorge bridge.
+                if (dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_COMPLETED)) {
+                    // Faron and Lanayru Twilights cleared
+                    if (dComIfGs_isDarkClearLV(1) && dComIfGs_isDarkClearLV(3)) {
+                        // Set the flag for the last transformed twilight.
+                        // Also puts Midna on the player's back
+                        dComIfGs_onTransformLV(3);
+                        dComIfGs_onDarkClearLV(3);
+                    }
+                }
+                // Set flag for bridge between castle town and eldin field if skip bridge donation
+                // is on and both eldin and lanayru twilight are cleared
+                if (dComIfGs_isEventBit(CLEARED_LANAYRU_TWILIGHT) &&
+                    randomizer_GetContext().mSettings[RandomizerContext::SKIP_BRIDGE_DONATION] == RandomizerContext::ON)
+                {
+                    dComIfGs_onEventBit(BRIDGE_REPAIR_FUNDRAISING_COMPLETED);
+                    dComIfGs_onStageSwitch(6, 0x1B); // Bridge exists
+                }
+                break;
+
+            case CLEARED_LANAYRU_TWILIGHT: // Cleared Lanayru Twilight
+                if (dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_COMPLETED)) {
+                    // Faron and Eldin Twilights Cleared
+                    if (dComIfGs_isDarkClearLV(1) && dComIfGs_isDarkClearLV(2)) {
+                        // Set the flag for the last transformed twilight.
+                        // Also puts Midna on the player's back
+                        dComIfGs_onTransformLV(3);
+                        dComIfGs_onDarkClearLV(3);
+                    }
+                }
+                // Set flag for bridge between castle town and eldin field if skip bridge donation
+                // is on and both eldin and lanayru twilight are cleared
+                if (dComIfGs_isEventBit(CLEARED_ELDIN_TWILIGHT) &&
+                    randomizer_GetContext().mSettings[RandomizerContext::SKIP_BRIDGE_DONATION] == RandomizerContext::ON)
+                {
+                    dComIfGs_onEventBit(BRIDGE_REPAIR_FUNDRAISING_COMPLETED);
+                    dComIfGs_onStageSwitch(6, 0x1B); // Bridge exists
+                }
+                break;
+
+            case REMOVE_SWORD_SHIELD_FROM_WOLF_BACK:
+                if (!dComIfGs_isEventBit(CLEARED_FARON_TWILIGHT)) {
+                    dComIfGs_onTransformLV(0); // Set the last transformed twilight to include Faron
+                }
+                break;
+
+            case GAVE_TELMA_RENADOS_LETTER:
+                offWarashibeItem(dItemNo_Randomizer_LETTER_e);
+                break;
+
+            default:
+                break;
+        }
+    }
+#endif
     mEvent[i_no >> 8] |= u8(i_no);
 }
 
@@ -1233,6 +1503,99 @@ void dSv_event_c::offEventBit(u16 i_no) {
 }
 
 BOOL dSv_event_c::isEventBit(const u16 i_no) const {
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        switch (i_no)
+        {
+            case BO_TALKED_TO_YOU_AFTER_OPENING_IRON_BOOTS_CHEST:
+            {
+                if (daAlink_c::checkStageName(allStages[Ordon_Village_Interiors])) {
+                    if (dComIfGs_isEventBit(HEARD_BO_TEXT_AFTER_SUMO_FIGHT)) {
+                        return true;
+                    }
+                    return false;
+                }
+                break;
+            }
+            case GAVE_ILIA_HER_CHARM:    // Gave Ilia the charm
+            case CITY_OOCCOO_CS_WATCHED: // CiTS Intro CS watched
+            {
+                if (daAlink_c::checkStageName(allStages[Hidden_Village])) {
+                    if (!dComIfGs_isEventBit(GOT_ILIAS_CHARM)) {
+                        // If we haven't gotten the item from Impaz then we need to return false or it
+                        // will break her dialogue.
+                        return false;
+                    }
+                }
+                break;
+            }
+
+            case GORON_MINES_CLEARED:
+            {
+                if (daAlink_c::checkStageName(allStages[Goron_Mines]) || daAlink_c::checkStageName(allStages[Death_Mountain_Interiors])){
+                    return false; // The gorons will not act properly if the flag is set.
+                }
+                break;
+            }
+            case ZORA_ESCORT_CLEARED:
+            {
+                if (daAlink_c::checkStageName(allStages[Castle_Town])){
+                    return true; // If the flag isn't set the player will be thrown into escort when they open the door
+                }
+
+                if (playerIsInRoomStage(0, allStages[Kakariko_Village_Interiors])) {
+                    return true; // Return true to prevent Renado/Ilia crash after ToT
+                }
+                break;
+            }
+            case CITY_IN_THE_SKY_CLEARED: // Would like to find where this is checked and patch it there.
+            {
+                if (!dComIfGs_isEventBit(FIXED_THE_MIRROR_OF_TWILIGHT)) {
+                    if (randomizer_GetContext().mSettings[RandomizerContext::PALACE_OF_TWILIGHT_REQUIREMENTS] != RandomizerContext::VANILLA) {
+                        return false;
+                    }
+                }
+                break;
+            }
+            case HOWLED_AT_SNOWPEAK_STONE:
+            {
+                if (daAlink_c::checkStageName(allStages[Snowpeak]))
+                {
+                    return false; // return false so the player can howl at the stone multiple times to remove map glitch
+                }
+                break;
+            }
+            case WATCHED_CUTSCENE_AFTER_GOATS_2:
+            {
+                if (playerIsInRoomStage(1, allStages[Ordon_Village_Interiors]))
+                {
+                    if (dComIfGs_isEventBit(SERAS_CAT_RETURNED_TO_SHOP))
+                    {
+                        return false; // Return false so sera will give the milk item once they help the cat.
+                    }
+                    else
+                    {
+                        return true; // Return true so the player can always use the shop, even if the cat is not returned.
+                    }
+                }
+                break;
+            }
+            case FIXED_THE_MIRROR_OF_TWILIGHT:
+            {
+                if (daAlink_c::checkStageName(allStages[Palace_of_Twilight]))
+                {
+                    return true; // If the flag is not set, the player cannot leave PoT from the inside.
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+#endif
+
     return mEvent[i_no >> 8] & (i_no & 0xFF) ? TRUE : FALSE;
 }
 
@@ -1538,6 +1901,7 @@ dSv_memory2_c* dSv_save_c::getSave2(int i_stage2No) {
     return &mSave2[i_stage2No];
 }
 
+
 void dSv_info_c::getSave(int i_stageNo) {
     JUT_ASSERT(4133, 0 <= i_stageNo && i_stageNo < dSv_save_c::STAGE_MAX);
     mMemory = mSavedata.getSave(i_stageNo);
@@ -1567,6 +1931,12 @@ u32 dSv_info_c::createZone(int i_roomNo) {
 }
 
 void dSv_info_c::onSwitch(int i_no, int i_roomNo) {
+#if TARGET_PC
+    // Set custom flag for temple of time pedestal strike
+    if (getStageID() == Sacred_Grove && i_no == 0xEE) {
+        onSwitch(0x63, i_roomNo);
+    }
+#endif
     JUT_ASSERT(4210, (0 <= i_no && i_no < (MEMORY_SWITCH+ DAN_SWITCH+ ZONE_SWITCH+ ONEZONE_SWITCH)) || i_no == -1 || i_no == 255);
 
     if (i_no == -1 || i_no == 255) {
@@ -2089,7 +2459,7 @@ const
 #if PLATFORM_SHIELD
 s16
 #else
-u16
+DUSK_GAME_DATA u16
 #endif
 dSv_event_flag_c::saveBitLabels[822] = {
     UNUSED, TEST_001, TEST_002, TEST_003, TEST_004, F_0001, F_0002, F_0003, F_0004, F_0005, F_0006, 
@@ -2166,7 +2536,7 @@ dSv_event_flag_c::saveBitLabels[822] = {
     F_0816, F_0817, F_0818, F_0819, F_0820, KORO2_ALLCLEAR,
 };
 
-u16 const dSv_event_tmp_flag_c::tempBitLabels[185] = {
+DUSK_GAME_DATA u16 const dSv_event_tmp_flag_c::tempBitLabels[185] = {
     UNUSED, UNUSED, T_0002, T_0003, T_0004, T_0005, T_0006, T_0007, T_0001, T_0008, T_0009, T_0010,
     T_0011, T_0012, T_0013, T_0014, T_0015, T_0016, T_0017, T_0018, T_0019, T_0020, T_0021, T_0022,
     T_0023, T_0024, T_0025, T_0026, T_0027, T_0028, T_0029, T_0030, T_0031, T_0032, TREG_000, 

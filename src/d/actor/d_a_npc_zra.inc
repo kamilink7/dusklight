@@ -1,3 +1,7 @@
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 BOOL daNpc_zrA_c::wait(void* param_0) {
     switch (mMode) {
     case 0:
@@ -2609,6 +2613,18 @@ BOOL daNpc_zrA_c::ECut_thanksBlast(int i_staffID) {
         case 31: {
             int item_id = 0;
             if (mFlow.getEventId(&item_id) == 1) {
+#if TARGET_PC
+                if (randomizer_IsActive()) {
+                    if (item_id == dItemNo_Randomizer_BOMB_IN_BAG_e) {
+                        item_id = verifyProgressiveItem(randomizer_getItemAtLocation("Iza Helping Hand"));
+                        randomizer_setTempFlagForLocation("Iza Helping Hand");
+                    } else if (item_id == dItemNo_Randomizer_BOMB_BAG_LV2_e) {
+                        item_id = verifyProgressiveItem(randomizer_getItemAtLocation("Iza Raging Rapids Minigame"));
+                        randomizer_setTempFlagForLocation("Iza Raging Rapids Minigame");
+                    }
+
+                }
+#endif
                 mItemID = fopAcM_createItemForPresentDemo(&current.pos, item_id,
                                                           0, -1, -1, NULL, NULL);
             }

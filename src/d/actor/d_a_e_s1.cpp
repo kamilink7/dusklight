@@ -9,6 +9,10 @@
 #include "SSystem/SComponent/c_math.h"
 #include "Z2AudioLib/Z2Instances.h"
 #include "d/actor/d_a_player.h"
+#if TARGET_PC
+#include "d/actor/d_a_alink.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
 #include "d/d_com_inf_game.h"
 #include "d/d_path.h"
 #include "d/d_s_play.h"
@@ -1687,6 +1691,18 @@ static void demo_camera(e_s1_class* i_this) {
         if (i_this->mDemoTimer == 137) {
             if (!dComIfGs_isSwitch(i_this->mSwBit, fopAcM_GetRoomNo(a_this))) {
                 dComIfGs_onSwitch(i_this->mSwBit, fopAcM_GetRoomNo(a_this));
+#if TARGET_PC
+                if (randomizer_IsActive() && daAlink_c::checkStageName("F_SP126")) {
+                    // We check to see if the flag being set is for the UZR portal as a safety precaution.
+                    if (i_this->mSwBit == 0x15 && g_dComIfG_gameInfo.info.getSavedata().getPlayer().getPlayerStatusA().getTransformStatus())
+                    {
+                        // Set the flag to make Iza 1 available and set the memory bit for having talked to her after opening the portal as human.
+                        dComIfGs_onEventBit(0xB02);
+                        dComIfGs_onSwitch(0x37, fopAcM_GetRoomNo(a_this));
+                    }
+                    // Note for the above stuff. This works for now. Eventually would like to adjust this to a FLW patch since I think we could accomplish similar results by having the conversation continue as normal regardless of form, but I haven't looked into it that much.
+                }
+#endif
                 OS_REPORT("S! BITSW %d\n", i_this->mSwBit);
                 OS_REPORT("S! BITSW %d\n", dComIfGs_isSwitch(i_this->mSwBit, fopAcM_GetRoomNo(a_this)));
             }

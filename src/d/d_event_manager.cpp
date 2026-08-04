@@ -14,8 +14,13 @@
 #include "d/d_s_play.h"
 #include "SSystem/SComponent/c_counter.h"
 #include <cstring>
+#if TARGET_PC
+#include "dusk/randomizer/game/verify_item_functions.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
 
-#include "dusk/string.hpp"
+
+#include "helpers/string.hpp"
 
 #if DEBUG
 static dEvM_HIO_c l_HIO;
@@ -335,6 +340,12 @@ bool dEvent_manager_c::setObjectArchive(DUSK_CONST char* arcname) {
 
     if (arcname != NULL) {
         rt = dComIfG_getObjectRes(arcname, DataFileName);
+#if TARGET_PC
+        // Pretty hacky, but change the itemId for the event of charlo giving us the heart piece
+        if (randomizer_IsActive() && strcmp(arcname, "Prayer") == 0) {
+            static_cast<u8*>(rt)[0x927] = verifyProgressiveItem(randomizer_getItemAtLocation("Charlo Donation Blessing"));
+        }
+#endif
         int base_status = mEventList[BASE_ACTOR].init((char*)rt, -1);
 
         #if DEBUG

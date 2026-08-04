@@ -4,10 +4,14 @@
 #include "JSystem/JMessage/control.h"
 #include "JSystem/JMessage/JMessage.h"
 #include "SSystem/SComponent/c_xyz.h"
-#include "dusk/endian.h"
-#include "dusk/string.hpp"
+#include "helpers/endian.h"
+#include "helpers/string.hpp"
 
-#if REGION_JPN
+#if TARGET_PC
+#define D_MSG_CLASS_PAGE_CNT_MAX 40
+#define D_MSG_CLASS_CHAR_CNT_MAX 0x210
+#define D_MSG_CLASS_LINE_MAX 12
+#elif REGION_JPN
 #define D_MSG_CLASS_PAGE_CNT_MAX 30
 #define D_MSG_CLASS_CHAR_CNT_MAX 0x210
 #define D_MSG_CLASS_LINE_MAX 9
@@ -37,6 +41,26 @@ public:
     /* 0x12 */ BE(u16) unk_0x12;
 };
 
+#if TARGET_PC
+// Default attributes for custom text ids
+static JMSMesgEntry_c defaultJMSMesgEntry{
+    .string_offset = 0,
+    .message_id = 0,
+    .event_label_id = 0,
+    .se_speaker = 0x24,
+    .fuki_kind = 0x00,
+    .output_type = 0x00,
+    .fuki_pos_type = 0x00,
+    .unk_0xc = 0xFF,
+    .unk_0xd = 0x00,
+    .se_mood = 0x00,
+    .camera_id = 0x00,
+    .base_anm_id = 0x02,
+    .face_anm_id = 0x03,
+    .unk_0x12 = 0x0400,
+};
+#endif
+
 class JMSMesgInfo_c {
 public:
     /* 0x00 */ bmg_section_t header;  // section header
@@ -44,6 +68,9 @@ public:
     /* 0x0A */ BE(u16) entry_size;        // size of an entry
     /* 0x0C */ u8 padding[4];         // padding
     /* 0x10 */ JMSMesgEntry_c entries[0];
+#if TARGET_PC
+    JMSMesgEntry_c& getEntry(u16 index);
+#endif
 };
 
 class COutFont_c;

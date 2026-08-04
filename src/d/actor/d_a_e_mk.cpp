@@ -21,6 +21,12 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#include "dusk/version.hpp"
+#endif
+
 class daE_MK_HIO_c : public JORReflexible {
 public:
     virtual ~daE_MK_HIO_c() {}
@@ -612,8 +618,10 @@ static void e_mk_shoot(e_mk_class* i_this) {
                 i_this->sound.startCreatureVoice(Z2SE_EN_MK_V_CATCH_BOOM, -1);
                 i_this->sound.startCreatureSound(Z2SE_EN_MK_CATCH_BOOM, 0, -1);
 
-#if VERSION == VERSION_GCN_JPN
+#if TARGET_PC || VERSION == VERSION_GCN_JPN
+                IF_DUSK_BLOCK(dusk::version::isRegionJpn())
                 return;
+                IF_DUSK_BLOCK_END
 #endif
             }
         }
@@ -1726,6 +1734,11 @@ static void demo_camera_end(e_mk_class* i_this) {
                     work.z = AREG_F(2) + -20.0f;
                     MtxPosition(&work, &pos);
                     pos += i_this->crownPos;
+                    #if TARGET_PC
+                    if (randomizer_IsActive()) {
+                        checkTransformFromWolf(); // If the player is wolf, they will void and lose the boomerang check.
+                    }
+                    #endif
                     fopAcM_createDisappear(actor, &pos, 5, 0, 0xff);
                 }
 

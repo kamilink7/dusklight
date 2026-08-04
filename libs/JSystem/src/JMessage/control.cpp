@@ -7,6 +7,11 @@
 
 #include "JSystem/JMessage/control.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/custom_flow_ids.hpp"
+#include "dusk/randomizer/game/messages.hpp"
+#endif
+
 JMessage::TControl::TControl()
     : pSequenceProcessor_(NULL),
       pRenderingProcessor_(NULL),
@@ -71,6 +76,12 @@ int JMessage::TControl::setMessageID(u32 uMsgID, u32 param_1, bool* pbValid) {
 
     u32 uCode = pProcessor->toMessageCode_messageID(uMsgID, param_1, pbValid);
     if (uCode == 0xFFFFFFFF) {
+#if TARGET_PC
+        // If this is a custom text id
+        if (uMsgID >= BASE_CUSTOM_MSG_AND_FLOW_ID)
+            uCode = CUSTOM_BMG_GROUP << 16 | uMsgID;
+        else // return 0
+#endif
         return 0;
     }
 
@@ -80,6 +91,16 @@ int JMessage::TControl::setMessageID(u32 uMsgID, u32 param_1, bool* pbValid) {
 bool JMessage::TControl::setMessageCode_inSequence_(JMessage::TProcessor const* pProcessor, u16 u16GroupID, u16 u16Index) {
     pEntry_ = pProcessor->getMessageEntry_messageCode(u16GroupID, u16Index);
     if (pEntry_ == NULL) {
+#if TARGET_PC
+        if (HandleCustomText(this, u16Index)) {
+            uMessageGroupID_ = u16GroupID;
+            uMessageID_ = u16Index;
+            pResourceCache_ = pProcessor->getResourceCache();
+            pMessageText_current_ = pMessageText_begin_;
+            oStack_renderingProcessor_.clear();
+            return true;
+        } else
+#endif
         return false;
     }
 
@@ -90,6 +111,10 @@ bool JMessage::TControl::setMessageCode_inSequence_(JMessage::TProcessor const* 
     JUT_ASSERT(155, pResourceCache_!=NULL);
 
     pMessageText_begin_ = pResourceCache_->getMessageText_messageEntry(pEntry_);
+#if TARGET_PC
+    // Feels kinda hacky to have to hijack this deep into JSystem, but works for now
+    HandleTextOverrides(this, pProcessor, uMessageGroupID_, uMessageID_);
+#endif
     pMessageText_current_ = pMessageText_begin_;
     oStack_renderingProcessor_.clear();
     return true;

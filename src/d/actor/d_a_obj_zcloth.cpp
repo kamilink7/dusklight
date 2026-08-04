@@ -11,6 +11,11 @@
 #include "d/d_a_itembase_static.h"
 #include "f_pc/f_pc_name.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 void daObjZCloth_c::initBaseMtx() {
     mpModel->setBaseScale(scale);
     setBaseMtx();
@@ -32,7 +37,34 @@ int daObjZCloth_c::Create() {
 int daObjZCloth_c::create() {
     fopAcM_ct(this, daObjZCloth_c);
     m_itemNo = 0x31;
-    int phase = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(m_itemNo));
+#if TARGET_PC
+    // Override the item id in randomizer
+    if (randomizer_IsActive()) {
+        m_itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Rutelas Blessing"));
+        // Use home.angle.x as a check to see if we've set the foolish item model or not
+        // Otherwise we end up setting it twice
+        if (m_itemNo == dItemNo_Randomizer_FOOLISH_ITEM_e && home.angle.x != 0) {
+            home.angle.z = randomizer_getRandomFoolishItemModelID();
+            home.angle.x = 0;
+        }
+        // TODO: Set rotation/height/scale depending on the item (low prio, can figure this out later)
+        scale.setall(1.5f);
+        switch (M_ITEMNO_MODEL_ITEM_ID) {
+        case dItemNo_Randomizer_WOOD_STICK_e:
+            shape_angle.x = 0x4000;
+            break;
+        case dItemNo_Randomizer_MASTER_SWORD_e:
+        case dItemNo_Randomizer_LIGHT_SWORD_e:
+            shape_angle.x = 0x4000;
+            current.pos.z -= 40.0f;
+            scale.setall(1.0f);
+            break;
+        default:
+            break;
+        }
+    }
+#endif
+    int phase = dComIfG_resLoad(&mPhase, dItem_data::getFieldArc(M_ITEMNO_MODEL_ITEM_ID));
     if (phase == cPhs_COMPLEATE_e) {
         if (!fopAcM_entrySolidHeap(this, (heapCallbackFunc)CheckFieldItemCreateHeap, 0x2fb0)) {
             return cPhs_ERROR_e;

@@ -57,8 +57,12 @@
 #include "dusk/settings.h"
 #include "res/Object/Alink.h"
 #include <cstring>
-#include <dusk/string.hpp>
+#include "dusk/cosmetics/color_utils.hpp"
+#include "dusk/randomizer/game/flags.h"
+#include "dusk/randomizer/game/stages.h"
+#include "dusk/randomizer/game/tools.h"
 #endif
+#include <helpers/string.hpp>
 
 static int daAlink_Create(fopAc_ac_c* i_this);
 static int daAlink_Delete(daAlink_c* i_this);
@@ -217,7 +221,7 @@ static s16 const l_insectNameList[12] = {
 f32 l_jumpTop;
 #endif
 
-daAlink_BckData const daAlink_c::m_mainBckShield[20] = {
+DUSK_GAME_DATA daAlink_BckData const daAlink_c::m_mainBckShield[20] = {
     {dRes_ID_ALANM_BCK_ATRFWS_e, dRes_ID_ALANM_BCK_ATRFWS_e},
     {dRes_ID_ALANM_BCK_ATRFDS_e, dRes_ID_ALANM_BCK_ATRFDS_e},
     {dRes_ID_ALANM_BCK_ATBW_e, dRes_ID_ALANM_BCK_ATLS_e},
@@ -240,7 +244,7 @@ daAlink_BckData const daAlink_c::m_mainBckShield[20] = {
     {dRes_ID_ALANM_BCK_DASHS_e, dRes_ID_ALANM_BCK_ATLS_e},
 };
 
-daAlink_BckData const daAlink_c::m_mainBckSword[5] = {
+DUSK_GAME_DATA daAlink_BckData const daAlink_c::m_mainBckSword[5] = {
     {dRes_ID_ALANM_BCK_ATL_e, dRes_ID_ALANM_BCK_ATL_e},
     {dRes_ID_ALANM_BCK_ATR_e, dRes_ID_ALANM_BCK_ATR_e},
     {dRes_ID_ALANM_BCK_WALKS_e, dRes_ID_ALANM_BCK_WALKS_e},
@@ -248,7 +252,7 @@ daAlink_BckData const daAlink_c::m_mainBckSword[5] = {
     {dRes_ID_ALANM_BCK_SWIMWAIT_e, dRes_ID_ALANM_BCK_SWIMWAITS_e},
 };
 
-daAlink_BckData const daAlink_c::m_mainBckFishing[28] = {
+DUSK_GAME_DATA daAlink_BckData const daAlink_c::m_mainBckFishing[28] = {
     {dRes_ID_ALANM_BCK_ATRFWS_e, dRes_ID_ALANM_BCK_WALKFISHR_e},
     {dRes_ID_ALANM_BCK_ATRFDS_e, dRes_ID_ALANM_BCK_DASHFISHR_e},
     {dRes_ID_ALANM_BCK_ATBW_e, dRes_ID_ALANM_BCK_WALKFISHR_e},
@@ -279,7 +283,7 @@ daAlink_BckData const daAlink_c::m_mainBckFishing[28] = {
     {dRes_ID_ALANM_BCK_WAITBTOA_e, dRes_ID_ALANM_BCK_WALKFISHR_e},
 };
 
-daAlink_AnmData const daAlink_c::m_anmDataTable[daAlink_c::ANM_MAX] = {
+DUSK_GAME_DATA daAlink_AnmData const daAlink_c::m_anmDataTable[daAlink_c::ANM_MAX] = {
     {dRes_ID_ALANM_BCK_ATRFWS_e, dRes_ID_ALANM_BCK_ATRFW_e, 0xFE, 0xFE, FTANM_0, dRes_ID_ALANM_BCK_FAT_e, 0x0},
     {dRes_ID_ALANM_BCK_ATRFDS_e, dRes_ID_ALANM_BCK_ATRFD_e, 0xFE, 0xFE, FTANM_0, dRes_ID_ALANM_BCK_FAT_e, 0x0},
     {dRes_ID_ALANM_BCK_ATBW_e, dRes_ID_ALANM_BCK_ATBW_e, 0xFE, 0xFE, FTANM_0, dRes_ID_ALANM_BCK_FAT_e, 0x0},
@@ -696,7 +700,7 @@ daAlink_AnmData const daAlink_c::m_anmDataTable[daAlink_c::ANM_MAX] = {
     {dRes_ID_ALANM_BCK_ASHIMOTO_e, dRes_ID_ALANM_BCK_ASHIMOTO_e, 0xFE, 0xFE, FTANM_ASHIMOTO, dRes_ID_ALANM_BCK_FASHIMOTO_e, 0x0},
 };
 
-daAlink_WlAnmData const daAlink_c::m_wlAnmDataTable[daAlink_c::WANM_MAX] = {
+DUSK_GAME_DATA daAlink_WlAnmData const daAlink_c::m_wlAnmDataTable[daAlink_c::WANM_MAX] = {
     {dRes_ID_ALANM_BCK_WL_WAITA_e, 0x0, 0x1, 10, 40, -1, -1},
     {dRes_ID_ALANM_BCK_WL_WALKA_e, 0x0, 0x2, 1, 14, -1, -1},
     {dRes_ID_ALANM_BCK_WL_WALKB_e, 0x0, 0x2, 1, 14, -1, -1},
@@ -846,7 +850,7 @@ daAlink_WlAnmData const daAlink_c::m_wlAnmDataTable[daAlink_c::WANM_MAX] = {
     {0x802B, 0xC, 0xC, -1, -1, -1, -1},
 };
 
-daAlink_FaceTexData const daAlink_c::m_faceTexDataTable[] = {
+DUSK_GAME_DATA daAlink_FaceTexData const daAlink_c::m_faceTexDataTable[] = {
     {dRes_ID_ALANM_BTP_FMABA01_e, dRes_ID_ALANM_BTK_FMABA01_e},
     {dRes_ID_ALANM_BTP_FMABA02_e, dRes_ID_ALANM_BTK_FMABA02_e},
     {dRes_ID_ALANM_BTP_FMABA03_e, dRes_ID_ALANM_BTK_FMABA03_e},
@@ -1012,7 +1016,7 @@ daAlink_FaceTexData const daAlink_c::m_faceTexDataTable[] = {
     {dRes_ID_ALANM_BTP_WL_FC_e, dRes_ID_ALANM_BTK_WL_FA_e},
 };
 
-const daAlink_procInitTable daAlink_c::m_procInitTable[] = {
+DUSK_GAME_DATA const daAlink_procInitTable daAlink_c::m_procInitTable[] = {
     { &daAlink_c::procPreActionUnequip, 0x21 },
     { &daAlink_c::procServiceWait, 0x10000085 },
     { &daAlink_c::procTiredWait, 0x10001185 },
@@ -1367,7 +1371,7 @@ const daAlink_procInitTable daAlink_c::m_procInitTable[] = {
     { &daAlink_c::procDemoCommon, 0x1 },
 };
 
-daAlink_procFunc daAlink_c::m_demoInitTable[] = {
+DUSK_GAME_DATA daAlink_procFunc daAlink_c::m_demoInitTable[] = {
     NULL,
     NULL,
     NULL,
@@ -2003,9 +2007,9 @@ daAlinkHIO_cut_c::~daAlinkHIO_cut_c() {}
 
 daAlinkHIO_c::~daAlinkHIO_c() {}
 
-bool daAlink_matAnm_c::m_eye_move_flg;
+DUSK_GAME_DATA bool daAlink_matAnm_c::m_eye_move_flg;
 
-u8 daAlink_matAnm_c::m_morf_frame;
+DUSK_GAME_DATA u8 daAlink_matAnm_c::m_morf_frame;
 
 void daAlink_matAnm_c::init() {
     field_0xf4 = 0.0f;
@@ -4231,6 +4235,25 @@ int daAlink_c::createHeap() {
     if (mpHIO == NULL) {
         return 0;
     }
+#if TARGET_PC
+    const auto& lanternColor = dusk::getSettings().cosmetics.lanternGlowColor.getValue();
+    if (dusk::cosmetics::is_valid_hex_color_str(lanternColor)) {
+        u8 r = std::stoi(lanternColor.substr(0, 2), nullptr, 16);
+        u8 g = std::stoi(lanternColor.substr(2, 2), nullptr, 16);
+        u8 b = std::stoi(lanternColor.substr(4, 2), nullptr, 16);
+        auto& lanternAmbience = mpHIO->mItem.mLanternPL.m;
+        auto& lanternSphere = mpHIO->mItem.mLantern.m;
+        lanternAmbience.mColorR = r;
+        lanternAmbience.mColorG = g;
+        lanternAmbience.mColorB = b;
+        lanternSphere.mColorReg1R = r;
+        lanternSphere.mColorReg1G = g;
+        lanternSphere.mColorReg1B = b;
+        lanternSphere.mColorReg2R = r;
+        lanternSphere.mColorReg2G = g;
+        lanternSphere.mColorReg2B = b;
+    }
+#endif
 
     if (!(mpWlChangeModel = initModel(dRes_ID_ALINK_BMD_WL_CHANGE_e, 0))) {
         return 0;
@@ -10576,9 +10599,16 @@ void daAlink_c::decideDoStatus() {
                                (actor_name == fpcNm_TAG_KMSG_e &&
                                 static_cast<daTag_KMsg_c*>(field_0x27f4)->getType() == 3))
                     {
-                        if (!checkEquipAnime() && checkMasterSwordEquip()) {
+                        // Don't check vanilla condition in randomizer
+                        if (!checkEquipAnime() && checkMasterSwordEquip() IF_DUSK(&& !randomizer_IsActive())) {
                             setDoStatus(BUTTON_STATUS_STRIKE);
                         }
+#if TARGET_PC
+                        // Separate check for striking sword into the pedestal for randomizer
+                        if (!checkEquipAnime() && randomizer_IsActive() && randomizer_checkTempleOfTimeRequirement()) {
+                            setDoStatus(BUTTON_STATUS_STRIKE);
+                        }
+#endif
                     }
                 } else if (mTargetedActor != NULL && checkGoatCatchActor(mTargetedActor) &&
                            mAttention->getActionBtnB() != NULL &&
@@ -11486,6 +11516,14 @@ int daAlink_c::orderTalk(int i_checkZTalk) {
 static void* daAlink_searchBouDoor(fopAc_ac_c* i_actor, void* i_data) {
     UNUSED(i_data);
 
+#if TARGET_PC
+    // In randomizer, we don't want Bo preventing us from entering his house on Day 2
+    if (randomizer_IsActive() && daAlink_c::checkStageName("F_SP103"))
+    {
+        return NULL;
+    }
+#endif
+
     if (fopAcM_GetName(i_actor) == fpcNm_NPC_BOU_e && ((daNpc_Bou_c*)i_actor)->speakTo()) {
         return i_actor;
     }
@@ -12276,6 +12314,14 @@ BOOL daAlink_c::checkGroundSpecialMode() {
     if (mLinkAcch.ChkGroundHit() && !checkModeFlg(MODE_PLAYER_FLY) && !checkMagneBootsOn() &&
         checkEndResetFlg0(ERFLG0_FORCE_WOLF_CHANGE))
     {
+#if TARGET_PC
+        u8 stage = getStageID();
+        // In rando, don't transform in twilight fog unless we have shadow crystal
+        if (randomizer_IsActive() && !dComIfGs_isEventBit(TRANSFORMING_UNLOCKED) &&
+            (stage == Palace_of_Twilight || stage == Phantom_Zant_1 || stage == Phantom_Zant_2)) {
+            return 0;
+        }
+#endif
         return procCoMetamorphoseInit();
     }
 

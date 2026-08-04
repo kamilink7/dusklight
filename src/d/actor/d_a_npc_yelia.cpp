@@ -9,7 +9,11 @@
 #include "d/actor/d_a_demo_item.h"
 #include <cstring>
 
-#include "dusk/string.hpp"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#endif
+#include "helpers/string.hpp"
 
 static DUSK_CONSTEXPR daNpc_GetParam1 l_bmdData[3] = {
     {3, 1},
@@ -192,7 +196,7 @@ static DUSK_CONSTEXPR daNpcT_MotionSeqMngr_c::sequenceStepData_c l_motionSequenc
     {32, -1, 0}, {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
 };
 
-char DUSK_CONST* DUSK_CONST daNpc_Yelia_c::mCutNameList[6] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_Yelia_c::mCutNameList[6] = {
     "",
     "CONVERSATION_ABOUT_LOOPHOLE",
     "TW_RESISTANCE",
@@ -201,7 +205,7 @@ char DUSK_CONST* DUSK_CONST daNpc_Yelia_c::mCutNameList[6] = {
     "THANK_YOU",
 };
 
-BOOL (daNpc_Yelia_c::*daNpc_Yelia_c::mCutList[6])(int) = {
+DUSK_GAME_DATA BOOL (daNpc_Yelia_c::*daNpc_Yelia_c::mCutList[6])(int) = {
     NULL,
     &daNpc_Yelia_c::cutConversationAboutLoopHole,
     &daNpc_Yelia_c::cutTWResistance,
@@ -298,7 +302,7 @@ enum Motion {
     /* 0x21 */ MOTION_KIZUKU_WAIT,
 };
 
-daNpc_Yelia_HIOParam const daNpc_Yelia_Param_c::m = {
+DUSK_GAME_DATA daNpc_Yelia_HIOParam const daNpc_Yelia_Param_c::m = {
     170.0f,   // mAttnOffsetY
     -3.0f,    // mGravity
     1.0f,     // mScale
@@ -1126,6 +1130,11 @@ BOOL daNpc_Yelia_c::cutTakeWoodStatue(int i_staffId) {
             if (prm == 99) {
                 daNpcT_onEvtBit(0x11f);
                 daNpcT_onEvtBit(0x17a);
+                #if TARGET_PC
+                if (randomizer_IsActive()) {
+                    offWarashibeItem(dItemNo_Randomizer_WOOD_STATUE_e); // Unset the statue item so it doesn't appear in the item wheel.
+                } else
+                #endif
                 dComIfGs_setWarashibeItem(0xff);
                 daNpcT_offTmpBit(0xb);
                 daNpcT_offTmpBit(0xc);

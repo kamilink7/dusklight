@@ -10,8 +10,12 @@
 #include "d/actor/d_a_itembase.h"
 #include "d/d_item_data.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 u8 daItemBase_c::getItemNo() {
-    return m_itemNo;
+    return M_ITEMNO_MODEL_ITEM_ID;
 }
 
 static void dummy(dItem_data* data) {
@@ -61,6 +65,26 @@ int CheckFieldItemCreateHeap(fopAc_ac_c* i_this) {
     daItemBase_c* a_this = static_cast<daItemBase_c*>(i_this);
 
     u8 item_no = a_this->getItemNo();
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        switch (item_no)
+        {
+        case dItemNo_Randomizer_EMPTY_BOTTLE_e:
+        case dItemNo_Randomizer_HALF_MILK_BOTTLE_e:
+        case dItemNo_Randomizer_OIL_BOTTLE3_e:
+        case dItemNo_Randomizer_DROP_BOTTLE_e:
+        case dItemNo_Randomizer_LINKS_SAVINGS_e:
+        case dItemNo_Randomizer_POU_SPIRIT_e:
+        {
+            return CheckItemCreateHeap(i_this);
+        }
+        default:
+        {
+            break;
+        }
+        }
+    }
+#endif
     return a_this->CreateItemHeap(
         dItem_data::getFieldArc(item_no), dItem_data::getItemBmdName(item_no),
         dItem_data::getItemBtkName(item_no), dItem_data::getItemBpkName(item_no),
@@ -68,7 +92,7 @@ int CheckFieldItemCreateHeap(fopAc_ac_c* i_this) {
         dItem_data::getItemBrkName(item_no), dItem_data::getItemBtpName(item_no));
 }
 
-const daItemBase_data daItemBase_c::m_data = {
+DUSK_GAME_DATA const daItemBase_data daItemBase_c::m_data = {
     -4.5f,  // mGravity
     0.62f,  // mGroundReflect
     45.0f,  // mLaunchSpeed

@@ -10,6 +10,12 @@
 #include "d/actor/d_a_midna.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/tools.h"
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 void daTbox2_c::initBaseMtx() {
     mpModel->setBaseScale(scale);
     setBaseMtx();
@@ -67,6 +73,24 @@ static dCcD_SrcCyl l_cyl_src = {
 };
 
 int daTbox2_c::Create() {
+#if TARGET_PC
+    // If the flag for this box is set, open it
+    u8 tboxId = getTboxNo();
+    if (tboxId != 0xFF && dComIfGs_isTbox(tboxId)) {
+        // Set the action for not allowing the player to open it
+        init_actionWait();
+        // Set the animation frame to open
+        mpBck->setFrame(mpBck->getEndFrame());
+        // Set collision to open
+        if (mpBgW != NULL) {
+            dComIfG_Bgsp().Release(mpBgW);
+        }
+
+        if (mBoxBgW != NULL) {
+            dComIfG_Bgsp().Regist(mBoxBgW, this);
+        }
+    } else
+#endif
     init_actionOpenWait();
     initBaseMtx();
     fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
@@ -138,6 +162,20 @@ int daTbox2_c::create1st() {
     fopAcM_ct(this, daTbox2_c);
     mModelType = getModelType();
 
+#if TARGET_PC
+    if (randomizer_IsActive()) {
+        // Get the override item for this chest
+        auto stage = getStageID();
+        u8 tboxId = getTboxNo();
+        u16 key = (stage << 8) | tboxId;
+        u8 itemId = randomizer_GetContext().mTreasureChestOverrides[key];
+        // Set the item in the params
+        u32 params = fopAcM_GetParam(this);
+        params &= 0xFFFFFF00;
+        params |= verifyProgressiveItem(itemId);
+        fopAcM_SetParam(this, params);
+    }
+#endif
     int phase_state = dComIfG_resLoad(&mPhase, l_arcName);
     if (phase_state == cPhs_COMPLEATE_e) {
         u32 heap_size;
@@ -375,6 +413,12 @@ int daTbox2_c::setGetDemoItem() {
     if (mReturnRupee) {
         partner_id = fopAcM_createItemForPresentDemo(&current.pos, item_no, 1, -1, -1, NULL, NULL);
     } else {
+#if TARGET_PC
+        u8 tboxId = getTboxNo();
+        if (tboxId != 0xFF) {
+            dComIfGs_onTbox(tboxId);
+        }
+#endif
         partner_id = fopAcM_createItemForTrBoxDemo(&current.pos, item_no, -1, -1, NULL, NULL);
     }
 

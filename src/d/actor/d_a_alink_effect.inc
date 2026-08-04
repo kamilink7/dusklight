@@ -8,9 +8,9 @@
 #include "d/actor/d_a_alink.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_k_wmark.h"
-#include "dusk/gx_helper.h"
+#include "helpers/gx_helper.h"
 
-const EffParamProc daAlink_c::m_fEffParamProc[] = {
+DUSK_GAME_DATA const EffParamProc daAlink_c::m_fEffParamProc[] = {
     &daAlink_c::setEffectFrontRollParam,
     &daAlink_c::setEffectSlipParam,
     &daAlink_c::setEffectSmallLandParam,
@@ -1191,6 +1191,19 @@ void daAlink_c::setLightningSwordEffect() {
             emitter = setEmitter(&field_0x327c[i], effName[i], &current.pos, &shape_angle);
             if (emitter != NULL) {
                 emitter->setGlobalRTMatrix(mSwordModel->getBaseTRMtx());
+#if TARGET_PC
+                // Apply custom light sword glow if applicable
+                const auto& lightSwordGlowColor = dusk::getSettings().cosmetics.lightSwordGlowColor.getValue();
+                if (dusk::cosmetics::is_valid_hex_color_str(lightSwordGlowColor)) {
+                    GXColor color = dusk::cosmetics::hex_color_str_to_gx_color(lightSwordGlowColor);
+                    emitter->setGlobalEnvColor(color.r, color.g, color.b);
+                    emitter->setGlobalPrmColor(color.r, color.g, color.b);
+                } else if (lightSwordGlowColor == "Rainbow") {
+                    GXColor color = dusk::cosmetics::get_rainbow_rgb(127.5f);
+                    emitter->setGlobalEnvColor(color.r, color.g, color.b);
+                    emitter->setGlobalPrmColor(color.r, color.g, color.b);
+                }
+#endif
             }
         }
     } else {

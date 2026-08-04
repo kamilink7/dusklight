@@ -9,6 +9,11 @@
 #include "d/actor/d_a_e_ym.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 static DUSK_CONSTEXPR int l_bmdData[2][2] = {
     {35, 1},
     {18, 2},
@@ -222,13 +227,13 @@ static DUSK_CONSTEXPR daNpcT_MotionSeqMngr_c::sequenceStepData_c l_motionSequenc
     {-1, 0, 0},
 };
 
-char DUSK_CONST* DUSK_CONST daNpc_Kkri_c::mCutNameList[3] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_Kkri_c::mCutNameList[3] = {
     "",
     "CONVERSATION_ABOUT_SOUP",
     "YM_LOOK",
 };
 
-int (daNpc_Kkri_c::* DUSK_CONST daNpc_Kkri_c::mCutList[])(int) = {
+DUSK_GAME_DATA int (daNpc_Kkri_c::* DUSK_CONST daNpc_Kkri_c::mCutList[])(int) = {
     NULL,
     &daNpc_Kkri_c::cutConversationAboutSoup,
     &daNpc_Kkri_c::cutYmLook,
@@ -236,7 +241,7 @@ int (daNpc_Kkri_c::* DUSK_CONST daNpc_Kkri_c::mCutList[])(int) = {
 
 static NPC_KKRI_HIO_CLASS l_HIO;
 
-const daNpc_Kkri_HIOParam daNpc_Kkri_Param_c::m = {
+DUSK_GAME_DATA const daNpc_Kkri_HIOParam daNpc_Kkri_Param_c::m = {
     180.0f,
     -3.0f,
     1.0f,
@@ -1181,6 +1186,16 @@ int daNpc_Kkri_c::talk(void*) {
                     switch (eventId) {
                     case 1:
                         if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
+#if TARGET_PC
+                            if (randomizer_IsActive()) {
+                                if (item_no == dItemNo_OIL_BOTTLE3_e) {
+                                    item_no = verifyProgressiveItem(randomizer_getItemAtLocation("Coro Bottle"));
+                                    randomizer_setTempFlagForLocation("Coro Bottle");
+                                } /*else if (item_no == dItemNo_SMALL_KEY_e) { // Might be Small Key 2
+                                    item_no = verifyProgressiveItem(randomizer_getItemAtLocation("Coro Gate Key"));
+                                }*/
+                            }
+#endif
                             mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, item_no, 0, -1, -1, NULL, NULL);
                         }
 

@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "dusk/string.hpp"
+#include "helpers/string.hpp"
 #include "dusk/version.hpp"
 
 dFile_info_c::dFile_info_c(JKRArchive* i_archive, u8 param_1) {
@@ -46,8 +46,19 @@ void dFile_info_c::screenSet() {
 
     J2DTextBox* info_text[4];
     
-
-    #if (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
+    #if TARGET_PC
+    if (dusk::version::isRegionJpn()) {
+        info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_s_t_01'));
+        info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_p_t_01'));
+        mFileInfo.Scr->search(MULTI_CHAR('f_s_t_02'))->hide();
+        mFileInfo.Scr->search(MULTI_CHAR('f_p_t_02'))->hide();
+    } else {
+        info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_s_t_02'));
+        info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_p_t_02'));
+        mFileInfo.Scr->search(MULTI_CHAR('w_s_t_01'))->hide();
+        mFileInfo.Scr->search(MULTI_CHAR('w_p_t_01'))->hide();
+    }
+    #elif (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
     info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_s_t_01'));
     info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_p_t_01'));
     mFileInfo.Scr->search(MULTI_CHAR('f_s_t_02'))->hide();
@@ -66,7 +77,19 @@ void dFile_info_c::screenSet() {
     dMeter2Info_getString(0x3D0, info_text[0]->getStringPtr(), NULL);  // Save time
     dMeter2Info_getString(0x3D1, info_text[1]->getStringPtr(), NULL);  // Total play time
 
-    #if (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
+    #if TARGET_PC
+    if (dusk::version::isRegionJpn()) {
+        info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_name01'));
+        info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_new_1'));
+        mFileInfo.Scr->search(MULTI_CHAR('f_name01'))->hide();
+        mFileInfo.Scr->search(MULTI_CHAR('f_new_1'))->hide();
+    } else {
+        info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_name01'));
+        info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_new_1'));
+        mFileInfo.Scr->search(MULTI_CHAR('w_name01'))->hide();
+        mFileInfo.Scr->search(MULTI_CHAR('w_new_1'))->hide();
+    }
+    #elif (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
     info_text[0] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_name01'));
     info_text[1] = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('w_new_1'));
     mFileInfo.Scr->search(MULTI_CHAR('f_name01'))->hide();
@@ -116,6 +139,24 @@ int dFile_info_c::setSaveData(dSv_save_c* i_savedata, BOOL i_validChksum, u8 i_d
             SAFE_STRCPY(mPlayerName, player_name);
             setSaveDate(i_savedata);
             setPlayTime(i_savedata);
+#if TARGET_PC
+            // If this is a randomizer file
+            auto curFileSeedHash = dusk::getSettings().randomizer.seedHashes.at(i_dataNo).getValue();
+            if (!curFileSeedHash.empty()) {
+                // Overwrite "Save time" text with "Randomizer"
+                auto saveTimeText = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_s_t_02'));
+                SafeStringCopy(saveTimeText->getStringPtr(), "Randomizer");
+                saveTimeText->setHBinding(J2DTextBoxHBinding::HBIND_LEFT);
+
+                // Overwrite the "Total play time" text with the seed hash
+                auto playTimeText = (J2DTextBox*)mFileInfo.Scr->search(MULTI_CHAR('f_p_t_02'));
+                SafeStringCopy(playTimeText->getStringPtr(), curFileSeedHash.c_str());
+
+                // Give the text double the space on the menu incase the seed hash is long
+                playTimeText->setHBinding(J2DTextBoxHBinding::HBIND_LEFT);
+                playTimeText->resize(playTimeText->getWidth() * 2, playTimeText->getHeight());
+            }
+#endif
             result = 0;
         }
     } else {

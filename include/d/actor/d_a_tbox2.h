@@ -64,6 +64,9 @@ public:
     virtual int Delete();
     virtual BOOL checkSmallTbox() { return true; }
 
+#if TARGET_PC
+    u8 getTboxNo() { return fopAcM_GetParamBit(this, 16, 8);}
+#endif
     u8 getModelType() { return fopAcM_GetParamBit(this, 8, 4); }
     u8 getItemNo() { return fopAcM_GetParamBit(this, 0, 8); }
 

@@ -6889,6 +6889,31 @@ void daAlink_c::setWolfLockDomeModel() {
     } else {
         field_0x0724->setFrame(0.0f);
     }
+#if TARGET_PC
+    // Replace charge ring color
+    const auto& domeRingColorStr = dusk::getSettings().cosmetics.midnaChargeRingColor.getValue();
+    if (dusk::cosmetics::is_valid_hex_color_str(domeRingColorStr)) {
+        auto domeRingColor = dusk::cosmetics::hex_color_str_to_gx_color(domeRingColorStr);
+        const u8 domeWave1RGBA[3] = {domeRingColor.r, domeRingColor.g, domeRingColor.b};
+        const u8 domeWave2RGBA[3] = {domeRingColor.r, domeRingColor.g, domeRingColor.b};
+        u8** chromaRegisterTable = reinterpret_cast<u8**>(daAlink_getAlinkActorClass()->getDomeLockChromaTable());
+
+        for (int i = 0; i < 3; i++)
+        {
+            u8* currentTable = chromaRegisterTable[i];
+            const u8 currentWave1Color = domeWave1RGBA[i];
+            const u8 currentWave2Color = domeWave2RGBA[i];
+            const u8 currentBaseColor = (currentWave1Color + currentWave2Color) / 2;
+
+            currentTable[0x3] = currentBaseColor;  // Set Alpha for the ring base
+            currentTable[0x13] = currentWave1Color; // Set Alpha for ring wave 1
+            currentTable[0x23] = currentWave2Color; // Set Alpha for ring wave 2
+            currentTable[0xB] = currentBaseColor;  // Set Alpha for darkworld ring base
+            currentTable[0x1B] = currentWave1Color; // Set Alpha for darkworld ring wave 1
+            currentTable[0x2B] = currentWave2Color; // Set Alpha for darkworld ring wave 2
+        }
+    }
+#endif
 }
 
 void daAlink_c::setWolfBallModel() {

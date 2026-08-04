@@ -10,6 +10,10 @@
 #include "d/d_com_inf_game.h"
 #include "d/actor/d_a_spinner.h"
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#endif
+
 static int daKytag08_Draw(kytag08_class* i_this) {
     return 1;
 }
@@ -88,8 +92,17 @@ static int daKytag08_Execute(kytag08_class* i_this) {
         }
     }
 
-    if ((daPy_getPlayerActorClass()->checkKandelaarSwing(TRUE) && i_this->mSizeTimer < 100) ||
-        dComIfGs_BossLife_public_Get() == 1)
+#if TARGET_PC
+    bool doFogWipe = false;
+    if (randomizer_IsActive()) {
+        doFogWipe = ((i_this->mSizeTimer < 100) || dComIfGs_BossLife_public_Get() == 1);
+    }else {
+        doFogWipe = (daPy_getPlayerActorClass()->checkKandelaarSwing(TRUE) && i_this->mSizeTimer < 100) || dComIfGs_BossLife_public_Get() == 1;
+    }
+    if (doFogWipe)
+#else
+    if ((daPy_getPlayerActorClass()->checkKandelaarSwing(TRUE) && i_this->mSizeTimer < 100) || dComIfGs_BossLife_public_Get() == 1)
+#endif
     {
         dComIfGs_BossLife_public_Set(0);
         i_this->mTargetAvoidPos = i_this->current.pos;

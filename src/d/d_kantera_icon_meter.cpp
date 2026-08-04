@@ -7,6 +7,11 @@
 #include "d/d_meter_HIO.h"
 #include "d/d_pane_class.h"
 
+#if TARGET_PC
+#include "d/actor/d_a_alink.h"
+#include "dusk/cosmetics/color_utils.hpp"
+#endif
+
 dKantera_icon_c::dKantera_icon_c() {
     initiate();
 }
@@ -50,6 +55,23 @@ void dKantera_icon_c::setScale(f32 h, f32 v) {
 
 void dKantera_icon_c::setNowGauge(u16 h, u16 v) {
     mpGauge->scale((f32)v / (f32)h, 1.0f);
+#if TARGET_PC
+    // Apply custom lantern glow if necessary
+    const auto& lanternColorStr = dusk::getSettings().cosmetics.lanternGlowColor.getValue();
+    if (dusk::cosmetics::is_valid_hex_color_str(lanternColorStr)) {
+        auto color = dusk::cosmetics::hex_color_str_to_gx_color(lanternColorStr);
+        mpGauge->setBlackWhite(JUtility::TColor(color.r, color.g, color.b, 255),
+                                JUtility::TColor(color.r, color.g, color.b, 255));
+    } else if (lanternColorStr == "Rainbow") {
+        auto lv = &daAlink_getAlinkActorClass()->mpHIO->mItem.mLantern.m;
+        mpGauge->setBlackWhite(JUtility::TColor(lv->mColorReg1R, lv->mColorReg1G, lv->mColorReg1B, 255),
+                            JUtility::TColor(lv->mColorReg1R, lv->mColorReg1G, lv->mColorReg1B, 255));
+    } else {
+        // Smaller gauge is just pure yellow
+        mpGauge->setBlackWhite(JUtility::TColor(255, 255, 0, 255),
+                                    JUtility::TColor(255, 255, 0, 255));
+    }
+#endif
 }
 
 void dDlst_KanteraIcon_c::draw() {

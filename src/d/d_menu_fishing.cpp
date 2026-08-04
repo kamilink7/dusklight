@@ -16,16 +16,16 @@
 #include "m_Do/m_Do_graphic.h"
 #include <cstring>
 
-#include "dusk/string.hpp"
+#include "helpers/string.hpp"
 #include "dusk/version.hpp"
 
 typedef void (dMenu_Fishing_c::*initFunc)();
-initFunc map_init_process[] = {
+DUSK_GAME_DATA initFunc map_init_process[] = {
     &dMenu_Fishing_c::wait_init,
 };
 
 typedef void (dMenu_Fishing_c::*moveFunc)();
-moveFunc map_move_process[] = {
+DUSK_GAME_DATA moveFunc map_move_process[] = {
     &dMenu_Fishing_c::wait_move,
 };
 
@@ -305,7 +305,16 @@ void dMenu_Fishing_c::screenSetBase() {
     mpFishInfoParent[0] = JKR_NEW CPaneMgr(mpScreen, MULTI_CHAR('info_blu'), 0, NULL);
     mpFishInfoParent[1] = JKR_NEW CPaneMgr(mpScreen, MULTI_CHAR('info_red'), 0, NULL);
 
-    #if (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
+    #if TARGET_PC
+    J2DTextBox* textBox;
+    if (dusk::version::isRegionJpn()) {
+        textBox = (J2DTextBox*)mpScreen->search(MULTI_CHAR('t_t00'));
+        mpScreen->search(MULTI_CHAR('f_t00'))->hide();
+    } else {
+        textBox = (J2DTextBox*)mpScreen->search(MULTI_CHAR('f_t00'));
+        mpScreen->search(MULTI_CHAR('t_t00'))->hide();
+    }
+    #elif (VERSION == VERSION_GCN_JPN) || (VERSION == VERSION_WII_JPN)
     J2DTextBox* textBox = (J2DTextBox*)mpScreen->search(MULTI_CHAR('t_t00'));
     mpScreen->search(MULTI_CHAR('f_t00'))->hide();
     #else

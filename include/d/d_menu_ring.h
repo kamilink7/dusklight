@@ -75,6 +75,7 @@ public:
     bool dpdMove();
     u8 openExplain(u8);
 #if TARGET_PC
+    void updateSlotImage(u8 slot);
     bool pointerMove();
 #endif
 
@@ -219,6 +220,7 @@ private:
     bool mCursorInterpCurrAngular;
     bool mCursorInterpInit;
     bool mPointerTouchPressHoveredCurrent;
+    J2DPicture* mDpadIcon;
 #endif
 };
 

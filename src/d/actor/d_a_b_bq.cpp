@@ -18,6 +18,11 @@
 #include "c/c_damagereaction.h"
 #include <cmath>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/tools.h"
+#endif
+
 enum B_bq_RES_File_ID {
     /* BCK */
     /* 0x07 */ BCK_BQ_APPEAR = 0x7,
@@ -896,6 +901,11 @@ static void b_bq_end(b_bq_class* i_this) {
         i_this->mMode = 1;
 
         int sw = fopAcM_GetParam(a_this) >> 0x18;
+#if TARGET_PC
+        if (randomizer_IsActive()) {
+            checkTransformFromWolf(); // If the player is wolf, they will softlock after the defeat cutscene is completed.
+        }
+#endif
         dComIfGs_onSwitch(sw, fopAcM_GetRoomNo(a_this));
         // fallthrough
     }

@@ -20,7 +20,11 @@
 #include "m_Do/m_Do_ext.h"
 #include <cstring>
 
-#include "dusk/string.hpp"
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+#include "helpers/string.hpp"
 
 #if DEBUG
 class daNpc_ykW_HIO_c : public mDoHIO_entry_c {
@@ -157,7 +161,7 @@ static DUSK_CONSTEXPR daNpcT_MotionSeqMngr_c::sequenceStepData_c l_motionSequenc
     {23, 0, 1}, {24, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
 };
 
-const char* daNpc_ykW_c::mCutNameList[8] = {
+DUSK_GAME_DATA const char* daNpc_ykW_c::mCutNameList[8] = {
     "",
     "SHOW_DOOR",
     "GO_INTO_BOSSROOM",
@@ -168,7 +172,7 @@ const char* daNpc_ykW_c::mCutNameList[8] = {
     "HUG",
 };
 
-daNpc_ykW_c::cutFunc DUSK_CONST daNpc_ykW_c::mCutList[8] = {
+DUSK_GAME_DATA daNpc_ykW_c::cutFunc DUSK_CONST daNpc_ykW_c::mCutList[8] = {
     NULL,
     &daNpc_ykW_c::cutShowDoor,
     &daNpc_ykW_c::cutGoIntoBossRoom,
@@ -272,7 +276,7 @@ daNpc_ykW_c::~daNpc_ykW_c() {
     daNpcT_offTmpBit(0x55);
 }
 
-const daNpc_ykW_HIOParam daNpc_ykW_Param_c::m = {
+DUSK_GAME_DATA const daNpc_ykW_HIOParam daNpc_ykW_Param_c::m = {
     {
         250.0f, -3.0f, 1.0f, 500.0f, 255.0f, 230.0f, 35.0f, 60.0f,
         0.0f, 0.0f, 20.0f, -20.0f, 15.0f, -15.0f, 20.0f, -20.0f,
@@ -575,6 +579,9 @@ int daNpc_ykW_c::isDelete() {
     case 0:
         return 0;
     case 1:
+#if TARGET_PC
+        if (randomizer_IsActive()) return false;// We don't want Yeta to leave the dungeon, even if the BK is obtained.
+#endif
         return dComIfGs_isDungeonItemBossKey();
     case 2:
         return !dComIfGs_isDungeonItemBossKey() ||
@@ -2213,6 +2220,11 @@ int daNpc_ykW_c::cutEndSnowboardRace(int param_0) {
             switch (eventId) {
             case 1:
                 if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
+#if TARGET_PC
+                    if (randomizer_IsActive()) {
+                        itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Snowboard Racing Prize"));
+                    }
+#endif
                     mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, itemId, 0,
                                                             -1, -1, 0, 0);
                 }
@@ -2911,6 +2923,12 @@ int daNpc_ykW_c::talk(void* param_0) {
                     switch (eventId) {
                     case 1:
                         if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
+#if TARGET_PC
+                            if (randomizer_IsActive()) {
+                                itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Snowpeak Ruins Mansion Map"));
+                                randomizer_setTempFlagForLocation("Snowpeak Ruins Mansion Map");
+                            }
+#endif
                             mItemPartnerId =
                                 fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, 0, 0);
                         }

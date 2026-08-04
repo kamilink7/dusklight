@@ -11,6 +11,11 @@
 #include "JSystem/JHostIO/JORFile.h"
 #include <cstring>
 
+#if TARGET_PC
+#include "dusk/randomizer/game/randomizer_context.hpp"
+#include "dusk/randomizer/game/verify_item_functions.h"
+#endif
+
 enum fairy_RES_File_ID {
     /* BCK */
     /* 0x09 */ BCK_FAIRY_F_SAD = 0x9,
@@ -145,7 +150,7 @@ enum Type {
     /* 0x4 */ TYPE_50F,
 };
 
-const daNpc_Fairy_HIOParam daNpc_Fairy_Param_c::m = {
+DUSK_GAME_DATA const daNpc_Fairy_HIOParam daNpc_Fairy_Param_c::m = {
     190.0f,
     -3.0f,
     1.0f,
@@ -459,7 +464,7 @@ static DUSK_CONSTEXPR daNpcT_evtData_c l_evtList[18] = {
     {"RETURN_CANCEL", 1},
 };
 
-char DUSK_CONST* DUSK_CONST daNpc_Fairy_c::mCutNameList[18] = {
+DUSK_GAME_DATA char DUSK_CONST* DUSK_CONST daNpc_Fairy_c::mCutNameList[18] = {
     "",
     "APPEAR_10F_01",
     "APPEAR_10F_02",
@@ -480,7 +485,7 @@ char DUSK_CONST* DUSK_CONST daNpc_Fairy_c::mCutNameList[18] = {
     "RETURN_CANCEL",
 };
 
-daNpc_Fairy_c::cutFunc DUSK_CONST daNpc_Fairy_c::mCutList[18] = {
+DUSK_GAME_DATA daNpc_Fairy_c::cutFunc DUSK_CONST daNpc_Fairy_c::mCutList[18] = {
     NULL,
     &daNpc_Fairy_c::cutAppear_10F_01,
     &daNpc_Fairy_c::cutAppear_10F_02,
@@ -1269,7 +1274,7 @@ void daNpc_Fairy_c::AppearDemoCall() {
             } else {
                 mEvtNo = EVT_APPEAR_50F_02;
             }
-        } else if (dComIfGs_checkEmptyBottle()) {
+        } else if (dComIfGs_checkEmptyBottle() IF_DUSK(|| randomizer_IsActive())) {
             mEvtNo = EVT_APPEAR_50F_01;
         } else {
             mEvtNo = EVT_APPEAR_50F_04;
@@ -1332,6 +1337,14 @@ void daNpc_Fairy_c::PresentDemoCall() {
     if (mFlow.getEventId(&item_no) != 1) {
         item_no = 0;
     }
+
+#if TARGET_PC
+    // If we haven't visted this great fairy before, give the random item
+    if (randomizer_IsActive() && !daNpcT_chkEvtBit(505)) {
+        item_no = verifyProgressiveItem(randomizer_getItemAtLocation("Cave of Ordeals Great Fairy Reward"));
+        randomizer_setTempFlagForLocation("Cave of Ordeals Great Fairy Reward");
+    }
+#endif
 
     fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item_no, 0, -1, -1, NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) {
