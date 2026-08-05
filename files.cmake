@@ -1502,6 +1502,10 @@ set(DUSK_FILES
         src/dusk/mods/svc/texture.cpp
         src/dusk/mods/svc/ui.cpp
         src/dusk/mods/svc/ui.hpp
+        src/dusk/mods/svc/window.cpp
+        src/dusk/mods/svc/window.hpp
+        src/dusk/mods/svc/save.cpp
+        src/dusk/mods/svc/save.hpp
         src/dusk/mouse.cpp
         src/dusk/scope_guard.hpp
         src/dusk/settings.cpp
@@ -1663,6 +1667,7 @@ set(DUSK_FILES
         src/dusk/randomizer/generator/logic/flatten/flatten.hpp
         src/dusk/randomizer/generator/logic/flatten/simplify_algebraic.cpp
         src/dusk/randomizer/generator/logic/flatten/simplify_algebraic.hpp
+        src/dusk/randomizer/generator/logic/hint_types.hpp
         src/dusk/randomizer/generator/logic/hints.cpp
         src/dusk/randomizer/generator/logic/hints.hpp
         src/dusk/randomizer/generator/logic/item.cpp
@@ -1722,6 +1727,7 @@ set(DUSK_FILES
         src/dusk/randomizer/generator/utility/time.cpp
         src/dusk/randomizer/generator/utility/time.hpp
         src/dusk/randomizer/generator/utility/yaml.hpp
+        src/dusk/utilities.cpp
         src/helpers/batch.cpp
         src/helpers/endian.cpp
         src/helpers/offset_ptr.cpp

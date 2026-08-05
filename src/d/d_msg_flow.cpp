@@ -26,7 +26,7 @@
 
 // Macros for somewhat gracefully handling custom flow ids
 // The game likes to directly index into the flow node table a lot, so this macro keeps
-// reletively the same syntax in all the places that happens
+// relatively the same syntax in all the places that happens
 #if TARGET_PC
 #define M_FLOW_NODE_TBL(index) \
             (*(index >= BASE_CUSTOM_MSG_AND_FLOW_ID && index != 0xFFFF && randomizer_IsActive() ? \
@@ -906,22 +906,6 @@ u16 dMsgFlow_c::query001(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_spea
     const u16 prm0 = i_flowNode_p->param;
     u16 ret = dComIfGs_isEventBit(dSv_event_flag_c::saveBitLabels[prm0]) == false;
 
-#if TARGET_PC
-    if (randomizer_IsActive()) {
-        switch (prm0) {
-        case 0xFA: // MDH Completed
-        {
-            // Check to see if currently in Jovani's house
-            if (playerIsInRoomStage(5, allStages[Castle_Town_Shops])) {
-                return 0; // Return 0 to be able to turn souls into Jovani pre MDH
-            }
-            break;
-        }
-        default:
-            break;
-        }
-    }
-#endif
     if (param_2 != 0) {
         // "Flag Check"
         OS_REPORT("\x1B[44;33mフラグチェック　　　　　　　　　　　\x1B[m|:");
@@ -1286,20 +1270,6 @@ u16 dMsgFlow_c::query022(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_spea
     const u8 prm0 = i_flowNode_p->param;
     u16 ret = checkItemGet(prm0 & 0xFF, 1) ? 0 : 1;
 
-#if TARGET_PC
-    // Check to see if we're currently in one of the Ordon interiors
-    if (randomizer_IsActive() && daAlink_c::checkStageName(allStages[Ordon_Village_Interiors]))
-    {
-        // Check to see if checking for the Iron Boots
-        if (prm0 == dItemNo_Randomizer_HVY_BOOTS_e)
-        {
-            // Return false so that the door in Bo's house can be opened without having the
-            // Iron Boots
-            return 0;
-        }
-    }
-#endif
-
     if (param_2 != 0) {
         // "Get Check"
         OS_REPORT("\x1B[44;33m所持チェック　　　　　　　　　　　　\x1B[m|:");
@@ -1341,16 +1311,6 @@ u16 dMsgFlow_c::query024(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_spea
 u16 dMsgFlow_c::query025(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_speaker_p, int param_2) {
     const u8 prm0 = i_flowNode_p->param;
     u16 ret = dComIfGs_checkEmptyBottle() >= prm0 ? 0 : 1;
-
-#if TARGET_PC
-    // Check to see if currently in one of the Kakariko interiors and if the red potion item is randomized
-    if (randomizer_IsActive() && playerIsInRoomStage(3, allStages[Kakariko_Village_Interiors]) &&
-        randomizer_GetContext().mShopOverrides.contains(0x4461)) // 0x4461 is the key for the red potion item
-    {
-        // Return 0 so the player can buy the red potion item from the shop.
-        return 0;
-    }
-#endif
 
     if (param_2 != 0) {
         // "Empty Bottle Count Check"
@@ -1825,13 +1785,6 @@ u16 dMsgFlow_c::query049(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_spea
         ret = 4;
     }
 
-#if TARGET_PC
-    // Split up getting both rewards in randomizer
-    if (randomizer_IsActive() && ret == 4 && !dComIfGs_isEventBit(GOT_BOTTLE_FROM_JOVANI)) {
-        ret = 3;
-    }
-#endif
-
     if (param_2 != 0) {
         // "Collected Souls count"
         OS_REPORT("\x1B[44;33m:集めた魂の数　　\x1B[m|:");
@@ -1954,7 +1907,7 @@ u16 dMsgFlow_c::query056(mesg_flow_node_branch* i_flowNode_p, fopAc_ac_c* i_spea
 }
 #endif
 
-DUSK_GAME_DATA eventFunc dMsgFlow_c::mEventList[DUSK_IF_ELSE(46, 43)] = {
+DUSK_GAME_DATA eventFunc dMsgFlow_c::mEventList[DUSK_IF_ELSE(48, 43)] = {
     &dMsgFlow_c::event000, &dMsgFlow_c::event001, &dMsgFlow_c::event002, &dMsgFlow_c::event003,
     &dMsgFlow_c::event004, &dMsgFlow_c::event005, &dMsgFlow_c::event006, &dMsgFlow_c::event007,
     &dMsgFlow_c::event008, &dMsgFlow_c::event009, &dMsgFlow_c::event010, &dMsgFlow_c::event011,
@@ -1967,7 +1920,8 @@ DUSK_GAME_DATA eventFunc dMsgFlow_c::mEventList[DUSK_IF_ELSE(46, 43)] = {
     &dMsgFlow_c::event036, &dMsgFlow_c::event037, &dMsgFlow_c::event038, &dMsgFlow_c::event039,
     &dMsgFlow_c::event040, &dMsgFlow_c::event041, &dMsgFlow_c::event042,
 #if TARGET_PC
-    &dMsgFlow_c::event043, &dMsgFlow_c::event044, &dMsgFlow_c::event045
+    &dMsgFlow_c::event043, &dMsgFlow_c::event044, &dMsgFlow_c::event045, &dMsgFlow_c::event046,
+    &dMsgFlow_c::event047,
 #endif
 };
 
@@ -2703,15 +2657,8 @@ int dMsgFlow_c::event035(mesg_flow_node_event* i_flowNode_p, fopAc_ac_c* i_speak
     if (prm0 == dItemNo_TOMATO_PUREE_e || prm0 == dItemNo_TASTE_e) {
         dComIfGs_offItemFirstBit(prm0);
     } else if (prm0 == dItemNo_RAFRELS_MEMO_e || prm0 == dItemNo_ASHS_SCRIBBLING_e) {
-        // Only delete the item in rando if it's Ashei's sketch
-        IF_DUSK(if (!randomizer_IsActive() || prm0 == dItemNo_ASHS_SCRIBBLING_e))
         dComIfGs_setItem(SLOT_19, dItemNo_NONE_e);
     } else if (prm0 == dItemNo_LETTER_e || prm0 == dItemNo_BILL_e || prm0 == dItemNo_WOOD_STATUE_e || prm0 == dItemNo_IRIAS_PENDANT_e) {
-#if TARGET_PC
-        if (randomizer_IsActive())
-            offWarashibeItem(prm0);
-        else
-#endif
         dComIfGs_setWarashibeItem(dItemNo_NONE_e);
     }
 
@@ -2840,6 +2787,24 @@ int dMsgFlow_c::event044(mesg_flow_node_event* i_flowNode_p, fopAc_ac_c* i_speak
 int dMsgFlow_c::event045(mesg_flow_node_event* i_flowNode_p, fopAc_ac_c* i_speaker_p) {
     int prm0 = getParam(i_flowNode_p->params);
     randomizer_returnToSpawn(prm0);
+    return 1;
+}
+
+// Sets a rando temporary flag for tracker purposes
+int dMsgFlow_c::event046(mesg_flow_node_event* i_flowNode_p, fopAc_ac_c* i_speaker_p) {
+    int prm0 = getParam(i_flowNode_p->params);
+    randomizer_setTempFlag({0xFF, (prm0 >> 16) & 0xFF, static_cast<u16>(prm0 & 0xFFFF)});
+    return 1;
+}
+
+// Calls offWarashibeItem for the passed in Ilia quest item
+int dMsgFlow_c::event047(mesg_flow_node_event* i_flowNode_p, fopAc_ac_c* i_speaker_p) {
+    int prm0 = getParam(i_flowNode_p->params);
+
+    if (prm0 == dItemNo_LETTER_e || prm0 == dItemNo_BILL_e || prm0 == dItemNo_WOOD_STATUE_e || prm0 == dItemNo_IRIAS_PENDANT_e) {
+        offWarashibeItem(prm0);
+    }
+
     return 1;
 }
 

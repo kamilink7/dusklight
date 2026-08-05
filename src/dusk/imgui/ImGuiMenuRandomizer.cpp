@@ -8,6 +8,7 @@
 #include "dusk/data.hpp"
 #include "dusk/map_loader_definitions.h"
 #include "dusk/ui/rando_config.hpp"
+#include "dusk/randomizer/generator/randomizer.hpp"
 #include "dusk/randomizer/generator/logic/search.hpp"
 #include "dusk/randomizer/generator/utility/string.hpp"
 #include "dusk/randomizer/game/randomizer_context.hpp"

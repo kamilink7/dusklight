@@ -15,10 +15,6 @@
 #include "d/actor/d_a_horse.h"
 #include "Z2AudioLib/Z2Instances.h"
 
-#if TARGET_PC
-#include "dusk/randomizer/game/randomizer_context.hpp"
-#endif
-
 #if DEBUG
 #include "JSystem/JHostIO/JORFile.h"
 #include "d/d_debug_viewer.h"
@@ -1749,12 +1745,6 @@ int daNpc_Aru_c::cutSpeakTo(int i_staffID) {
                 switch (eventId) {
                     case 1:
                         if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
-#if TARGET_PC
-                            if (randomizer_IsActive()) {
-                                itemNo = randomizer_getItemAtLocation("Herding Goats Reward");
-                                randomizer_setTempFlagForLocation("Herding Goats Reward");
-                            }
-#endif
                             mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
                         }
 

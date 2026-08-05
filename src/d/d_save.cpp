@@ -574,14 +574,6 @@ BOOL dSv_player_item_c::checkInsectBottle() {
 u8 dSv_player_item_c::checkEmptyBottle() {
     u8 bottleNum = 0;
 
-#if TARGET_PC
-    if (randomizer_IsActive() && getStageID() == Cave_of_Ordeals) {
-        // Return 1 to allow the player to collect the item from the floor 50 reward,
-        // as this will make the game think that the player has an empty bottle.
-        return 1;
-    }
-#endif
-
     for (int i = 0; i < BOTTLE_MAX; i++) {
         if (mItems[i + SLOT_11] == dItemNo_EMPTY_BOTTLE_e) {
             bottleNum++;

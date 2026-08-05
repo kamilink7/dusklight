@@ -1321,12 +1321,6 @@ bool daNpcRafrel_c::talk(void* param_0) {
                 OS_REPORT("会話終了時 イベントID=%d アイテムNo=%d\n", eventId, itemNo);
 
                 if (eventId == 1) {
-#if TARGET_PC
-                    if (randomizer_IsActive()) {
-                        itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Auru Gift To Fyer"));
-                        randomizer_setTempFlagForLocation("Auru Gift To Fyer");
-                    }
-#endif
                     field_0xe00 = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
                     if (field_0xe00 != fpcM_ERROR_PROCESS_ID_e) {
                         s16 eventIdx = dComIfGp_getEventManager().getEventIdx(this, "DEFAULT_GETITEM", 0xFF);
@@ -1579,12 +1573,6 @@ int daNpcRafrel_c::EvCut_Appear(int i_staffId) {
             int itemNo = 0;
             u16 eventId = mFlow.getEventId(&itemNo);
             if (eventId == 1) {
-#if TARGET_PC
-                if (randomizer_IsActive()) {
-                    itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Auru Gift To Fyer"));
-                    randomizer_setTempFlagForLocation("Auru Gift To Fyer");
-                }
-#endif
                 field_0xe00 = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, NULL, NULL);
                 dComIfGp_event_setItemPartnerId(field_0xe00);
                 field_0xe00 = fpcM_ERROR_PROCESS_ID_e;

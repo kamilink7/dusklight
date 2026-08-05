@@ -13,7 +13,6 @@
 
 #if TARGET_PC
 #include "dusk/randomizer/game/randomizer_context.hpp"
-#include "dusk/randomizer/game/verify_item_functions.h"
 #endif
 
 enum fairy_RES_File_ID {
@@ -1337,14 +1336,6 @@ void daNpc_Fairy_c::PresentDemoCall() {
     if (mFlow.getEventId(&item_no) != 1) {
         item_no = 0;
     }
-
-#if TARGET_PC
-    // If we haven't visted this great fairy before, give the random item
-    if (randomizer_IsActive() && !daNpcT_chkEvtBit(505)) {
-        item_no = verifyProgressiveItem(randomizer_getItemAtLocation("Cave of Ordeals Great Fairy Reward"));
-        randomizer_setTempFlagForLocation("Cave of Ordeals Great Fairy Reward");
-    }
-#endif
 
     fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item_no, 0, -1, -1, NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) {

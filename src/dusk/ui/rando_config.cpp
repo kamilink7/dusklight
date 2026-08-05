@@ -174,6 +174,59 @@ SelectButton& rando_config_button(
     return button;
 }
 
+SelectButton& rando_config_number_button(
+    Pane& leftPane, Pane& rightPane, std::string settingKey) {
+    auto setting = FindSetting(settingKey);
+
+    // Helper function to call when we want to update the right pane
+    auto updateRightPane = [setting, &rightPane] {
+        rightPane.clear();
+        auto info = setting->GetInfo();
+        // Show all options/descriptions
+        rightPane.add_text(info->GetDescriptions()[0]);
+    };
+
+    // Helper function for changing the setting index based on button presses
+    auto changeOptionIndex = [setting, updateRightPane](int change) {
+        auto newIndex = setting->GetCurrentOptionIndex() + change;
+        if (newIndex < 0) {
+            newIndex = setting->GetInfo()->GetOptions().size() - 1;
+        } else if (newIndex >= setting->GetInfo()->GetOptions().size()) {
+            newIndex = 0;
+        }
+        setting->SetCurrentOption(newIndex);
+        SaveRandomizerConfig();
+        updateRightPane();
+    };
+
+    auto& button = leftPane.add_select_button(ControlledSelectButton::Props{
+        .key = settingKey,
+        .getValue = [setting] { return setting->GetCurrentOption(); }
+    })
+    // Cycle through the options forward when the button is pressed
+    .on_pressed([changeOptionIndex] {
+        changeOptionIndex(1);
+    });
+
+    // Get button component
+    auto& comp = leftPane.register_control(button, rightPane, [updateRightPane](Pane&) {
+        updateRightPane();
+    });
+    // Listen for left/right nav commands to cycle between the available options
+    comp.listen(comp.root(), Rml::EventId::Keydown, [changeOptionIndex](Rml::Event& event) {
+        auto cmd = map_nav_event(event);
+        if (cmd == NavCommand::Left) {
+            changeOptionIndex(-1);
+            event.StopPropagation();
+        } else if (cmd == NavCommand::Right) {
+            changeOptionIndex(1);
+            event.StopPropagation();
+        }
+    });
+
+    return button;
+}
+
 NumberButton* rando_add_optional_setting(std::string optionValue, std::string optionsKeyPrefix,
     Pane& pane) {
     std::string fullOptionalKey = fmt::format("{} {}", optionsKeyPrefix, optionValue);
@@ -1010,6 +1063,32 @@ RandomizerWindow::RandomizerWindow(dFile_select_c* fileSelect /*= nullptr*/) : m
 
         rando_config_button(leftPane, rightPane, "Back Slice as Sword");
         rando_config_button(leftPane, rightPane, "Ball and Chain Webs");
+    });
+
+    add_tab("Hints", [this](Rml::Element* content) {
+        auto& leftPane = add_child<Pane>(content, Pane::Type::Controlled);
+        auto& rightPane = add_child<Pane>(content, Pane::Type::Uncontrolled);
+
+        leftPane.add_section("Path Hints");
+        rando_config_number_button(leftPane, rightPane, "Number of Path Hints");
+        rando_config_button(leftPane, rightPane, "Path Hints on Midna");
+        rando_config_button(leftPane, rightPane, "Path Hints on Hint Signs");
+
+        leftPane.add_section("Barren Hints");
+        rando_config_number_button(leftPane, rightPane, "Number of Barren Hints");
+        rando_config_button(leftPane, rightPane, "Barren Hints on Midna");
+        rando_config_button(leftPane, rightPane, "Barren Hints on Hint Signs");
+
+        leftPane.add_section("Item Hints");
+        rando_config_number_button(leftPane, rightPane, "Number of Item Hints");
+        rando_config_button(leftPane, rightPane, "Item Hints on Midna");
+        rando_config_button(leftPane, rightPane, "Item Hints on Hint Signs");
+
+        leftPane.add_section("Location Hints");
+        rando_config_number_button(leftPane, rightPane, "Number of Location Hints");
+        rando_config_button(leftPane, rightPane, "Location Hints on Midna");
+        rando_config_button(leftPane, rightPane, "Location Hints on Hint Signs");
+        rando_config_button(leftPane, rightPane, "Prioritize Remote Location Hints");
     });
 
     add_tab("Starting Inventory", [this](Rml::Element* content) {

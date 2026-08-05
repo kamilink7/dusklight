@@ -184,6 +184,8 @@ public:
     int event043(mesg_flow_node_event*, fopAc_ac_c*);
     int event044(mesg_flow_node_event*, fopAc_ac_c*);
     int event045(mesg_flow_node_event*, fopAc_ac_c*);
+    int event046(mesg_flow_node_event*, fopAc_ac_c*);
+    int event047(mesg_flow_node_event*, fopAc_ac_c*);
 #endif
 
     void initWord(fopAc_ac_c*, const char*, u8, int, fopAc_ac_c**);
@@ -200,7 +202,7 @@ public:
     bool checkEndFlow() { return (u32)field_0x26 == 1; }
 
     static DUSK_GAME_DATA queryFunc mQueryList[DUSK_IF_ELSE(56, 53)];
-    static DUSK_GAME_DATA eventFunc mEventList[DUSK_IF_ELSE(46, 43)];
+    static DUSK_GAME_DATA eventFunc mEventList[DUSK_IF_ELSE(48, 43)];
 
 #if TARGET_PC
     // patch funcs for rando

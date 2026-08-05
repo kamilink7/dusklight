@@ -11,10 +11,6 @@
 #include "d/d_meter2_info.h"
 #include "d/d_timer.h"
 
-#if TARGET_PC
-#include "dusk/randomizer/game/randomizer_context.hpp"
-#endif
-
 enum Event {
     EVT_NONE,
     EVT_GAME_START,
@@ -1808,17 +1804,6 @@ int daNpcChin_c::_Evt_GameSucceed_CutMain(const int& param_0) {
                 itemId1 = 0;
             }
 
-#if TARGET_PC
-            if (randomizer_IsActive()) {
-                if (itemId1 == dItemNo_ARROW_LV2_e) {
-                    itemId1 = randomizer_getItemAtLocation("STAR Prize 1");
-                    randomizer_setTempFlagForLocation("STAR Prize 1");
-                } else if (itemId1 == dItemNo_ARROW_LV3_e) {
-                    itemId1 = randomizer_getItemAtLocation("STAR Prize 2");
-                    randomizer_setTempFlagForLocation("STAR Prize 2");
-                }
-            }
-#endif
             fpc_ProcID itemId2 = fopAcM_createItemForPresentDemo(&current.pos, itemId1, 0, -1, -1,
                                                                  0, 0);
             if (itemId2 != -1) {

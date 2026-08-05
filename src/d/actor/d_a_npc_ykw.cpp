@@ -2220,11 +2220,6 @@ int daNpc_ykW_c::cutEndSnowboardRace(int param_0) {
             switch (eventId) {
             case 1:
                 if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
-#if TARGET_PC
-                    if (randomizer_IsActive()) {
-                        itemId = verifyProgressiveItem(randomizer_getItemAtLocation("Snowboard Racing Prize"));
-                    }
-#endif
                     mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, itemId, 0,
                                                             -1, -1, 0, 0);
                 }
@@ -2923,12 +2918,6 @@ int daNpc_ykW_c::talk(void* param_0) {
                     switch (eventId) {
                     case 1:
                         if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
-#if TARGET_PC
-                            if (randomizer_IsActive()) {
-                                itemNo = verifyProgressiveItem(randomizer_getItemAtLocation("Snowpeak Ruins Mansion Map"));
-                                randomizer_setTempFlagForLocation("Snowpeak Ruins Mansion Map");
-                            }
-#endif
                             mItemPartnerId =
                                 fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, -1, 0, 0);
                         }

@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <algorithm>
 #include <cstring>
+#include <limits>
+#include <optional>
 
 namespace randomizer::utility::str {
     std::string toUTF8(const std::u16string& str);
@@ -115,4 +117,8 @@ namespace randomizer::utility::str {
     }
 
     std::optional<int> toInt(std::string_view str);
+    std::string Replace(const std::string& originalStr,
+                        const std::string& oldStr,
+                        const std::string& replacementStr,
+                        uint32_t count = std::numeric_limits<uint32_t>::max());
 }

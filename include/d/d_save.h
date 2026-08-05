@@ -10,10 +10,6 @@
 #include "JSystem/JHostIO/JORReflexible.h"
 #include "helpers/endian.h"
 
-#if TARGET_PC
-#include <unordered_map>
-#endif
-
 static const int DEFAULT_SELECT_ITEM_INDEX = 0;
 static const int MAX_SELECT_ITEM = 4;
 static const int SELECT_ITEM_NUM = 3;

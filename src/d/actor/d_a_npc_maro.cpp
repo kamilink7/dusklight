@@ -17,10 +17,7 @@
 #include "d/d_com_static.h"
 #include "d/d_item.h"
 #include "d/d_timer.h"
-#if TARGET_PC
-#include "dusk/randomizer/game/randomizer_context.hpp"
-#include "dusk/randomizer/game/verify_item_functions.h"
-#endif
+
 #if DEBUG
 #include "d/d_debug_viewer.h"
 #include <cstring>
@@ -2397,11 +2394,6 @@ int daNpc_Maro_c::cutArrowTutorial(int arg0) {
                     switch (evt_ret) {
                         case 1: {
                             if (mItemPartnerId == -1) {
-#if TARGET_PC
-                                if (randomizer_IsActive()) {
-                                    evt_id = verifyProgressiveItem(randomizer_getItemAtLocation("Talo Sharpshooting"));
-                                }
-#endif
                                 mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, evt_id, 0, -1, -1, NULL, NULL);
                             }
 

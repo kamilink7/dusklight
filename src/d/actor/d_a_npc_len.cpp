@@ -9,11 +9,6 @@
 #include "d/actor/d_a_tag_push.h"
 #include <cstring>
 
-#if TARGET_PC
-#include "dusk/randomizer/game/randomizer_context.hpp"
-#include "dusk/randomizer/game/verify_item_functions.h"
-#endif
-
 enum Type {
     /* 0x0 */ TYPE_0,
     /* 0x1 */ TYPE_1,
@@ -1241,12 +1236,6 @@ int daNpc_Len_c::talk(void* param_0) {
                     switch (evt_id) {
                     case 1:
                         if (mItemPartnerId == -1) {
-#if TARGET_PC
-                            if (randomizer_IsActive()) {
-                                local_18 = verifyProgressiveItem(randomizer_getItemAtLocation("Renados Letter"));
-                                randomizer_setTempFlagForLocation("Renados Letter");
-                            }
-#endif
                             mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, local_18,
                                                                              0, -1, -1, 0, 0);
                         }

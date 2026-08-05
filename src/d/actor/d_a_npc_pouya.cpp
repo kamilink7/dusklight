@@ -8,12 +8,6 @@
 #include "d/actor/d_a_npc_pouya.h"
 #include <cstring>
 
-#if TARGET_PC
-#include "dusk/randomizer/game/flags.h"
-#include "dusk/randomizer/game/randomizer_context.hpp"
-#include "dusk/randomizer/game/verify_item_functions.h"
-#endif
-
 DUSK_GAME_DATA const daNpc_Pouya_HIOParam daNpc_Pouya_Param_c::m = {
     120.0f,  // attention_offset
     -3.0f,   // gravity
@@ -560,8 +554,7 @@ BOOL daNpc_Pouya_c::checkChangeEvt() {
                     evtChange();
                     return TRUE;
                 }
-                // In randomizer, only get the 60 reward if we've already gotten the 20 reward
-                if (dComIfGs_getPohSpiritNum() >= 60 IF_DUSK(&& randomizer_IsActive() && dComIfGs_isEventBit(GOT_BOTTLE_FROM_JOVANI))) {
+                if (dComIfGs_getPohSpiritNum() >= 60) {
                     /* dSv_event_flag_c::F_0458 - Coversation with Jovani after collecting 60 ghosts
                      */
                     if (!daNpcT_chkEvtBit(0x1CA)) {
@@ -965,17 +958,6 @@ int daNpc_Pouya_c::cutHaveFavorToAsk(int param_0) {
                 switch (evt_id) {
                 case 1:
                     if (mItemPartnerId == fpcM_ERROR_PROCESS_ID_e) {
-#if TARGET_PC
-                        if (randomizer_IsActive()) {
-                            if (local_64 == dItemNo_Randomizer_DROP_BOTTLE_e) {
-                                local_64 = verifyProgressiveItem(randomizer_getItemAtLocation("Jovani 20 Poe Soul Reward"));
-                                randomizer_setTempFlagForLocation("Jovani 20 Poe Soul Reward");
-                            } else if (local_64 == dItemNo_Randomizer_SILVER_RUPEE_e) {
-                                local_64 = verifyProgressiveItem(randomizer_getItemAtLocation("Jovani 60 Poe Soul Reward"));
-                                randomizer_setTempFlagForLocation("Jovani 60 Poe Soul Reward");
-                            }
-                        }
-#endif
                         mItemPartnerId = fopAcM_createItemForPresentDemo(&current.pos, local_64, 0,
                                                                          -1, -1, 0, 0);
                     }
