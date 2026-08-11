@@ -80,7 +80,7 @@ constinit const SymdbDescriptor s_symdbDescriptor{kDescriptorMagic, 0, 0};
 __attribute__((section("__DATA,__symdbh"), used)) constinit const SymdbDescriptor
     s_symdbDescriptor{kDescriptorMagic, 0, 0};
 #else
-__attribute__((section("symdbh"), used)) constinit const SymdbDescriptor s_symdbDescriptor{
+__attribute__((section("symdbh"), used)) constinit const volatile SymdbDescriptor s_symdbDescriptor{
     kDescriptorMagic, 0, 0};
 #endif
 
