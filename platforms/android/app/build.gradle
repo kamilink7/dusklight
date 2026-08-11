@@ -109,7 +109,7 @@ android {
     ndkVersion androidNdkVersion()
 
     defaultConfig {
-        applicationId 'dev.twilitrealm.dusk'
+        applicationId 'dev.kamilink.lazytweaks'
         minSdk 26
         targetSdk 36
         versionCode versionCodeInt
