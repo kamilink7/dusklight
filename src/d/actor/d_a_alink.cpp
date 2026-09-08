@@ -18275,8 +18275,12 @@ int daAlink_c::execute() {
             mParryTimer--;
         }
 
-        if (mSkillCooldown != 0) {
+        if (mSkillCooldown != 0 && !mDoCPd_c::getHoldLockR(PAD_1)) {
             mSkillCooldown--;
+        }
+
+        if (mSkillCooldown >= 450) {
+            mSkillCooldown = 450;
         }
 
         if (checkEquipHeavyBoots()) {

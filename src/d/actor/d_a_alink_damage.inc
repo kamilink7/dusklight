@@ -663,12 +663,14 @@ BOOL daAlink_c::checkDamageAction() {
     
         if (var_r29->ChkTgShieldHit()) {
             setGuardSe(var_r29);
+            mSkillCooldown += 150;
 
             if (mParryTimer > 0 && !(mProcID == PROC_SIDESTEP || mProcID == PROC_FRONT_ROLL || mProcID == PROC_SIDE_ROLL
                 || mProcID == PROC_BACK_JUMP)) {
                 setPlayerSe(Z2SE_MIDNA_JUMP);
                 dComIfGp_getVibration().StartShock(VIBMODE_S_POWER4, 1, cXyz(0.0f, 1.0f, 0.0f));
                 mSwordUpTimer = 65;
+                mSkillCooldown = 0;
                 return checkWolfBarrierHitReverse();
             }
 
@@ -688,7 +690,7 @@ BOOL daAlink_c::checkDamageAction() {
             }
 
             if ((mProcID != PROC_GUARD_ATTACK || (tghit_ac_name != fpcNm_E_TK_BALL_e && tghit_ac_name != fpcNm_KN_BULLET_e)) && !checkModeFlg(0x4000000)) {
-                if (at_spl == 10 || at_spl == 11 || at_spl == 9) {
+                if (at_spl == 10 || at_spl == 11 || at_spl == 9 || mSkillCooldown >= 300) {
                     return procGuardBreakInit();
                 }
 
