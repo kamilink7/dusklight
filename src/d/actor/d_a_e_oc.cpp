@@ -671,13 +671,13 @@ void daE_OC_c::damage_check() {
 
     s16 old_health = health;    // unused.
     if (mAtInfo.mpCollider->ChkAtType(AT_TYPE_UNK)) {
-        field_0x6cc = 0x14;
-    } else {
         field_0x6cc = 10;
+    } else {
+        field_0x6cc = 5;
     }
 
     if (mAtInfo.mAttackPower <= 1) {
-        field_0x6cc = 10 + KREG_S(8);
+        field_0x6cc = 5 + KREG_S(8);
     }
 
     u8 my_val = 2;
@@ -761,7 +761,7 @@ void daE_OC_c::damage_check() {
         my_val = 5;
     }
 
-    if (health <= 1) {
+    if (health <= 0) {
         attention_info.flags = 0;
         if (my_val < 5) {
             my_val = 5;
@@ -785,7 +785,7 @@ void daE_OC_c::damage_check() {
         setActionMode(E_OC_ACTION_BIG_DAMAGE, my_val - 5);
         offTgSph();
     } else {
-        if (daPy_getPlayerActorClass()->mComboCutCount >= 2) {
+        if (daPy_getPlayerActorClass()->mComboCutCount >= 2 || daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_GUARD_ATTACK) {
             setActionMode(E_OC_ACTION_DAMAGE, my_val);
         }
     }
