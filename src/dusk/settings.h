@@ -219,6 +219,7 @@ struct UserSettings {
         ConfigVar<bool> wolfGear;
         ConfigVar<bool> invisibleMidna;
         ConfigVar<LightSwordMode> alwaysLightSword;
+        ConfigVar<bool> swordTrail;
 
         // Graphics
         ConfigVar<BloomMode> bloomMode;

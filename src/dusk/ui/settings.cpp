@@ -1377,6 +1377,8 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 pane.add_rml(
                     "<br/>Retain the Master Sword's glow effect after infusing it with the two Sols.");
             });
+        addOption("More Prominent Sword Trail", getSettings().game.swordTrail,
+                "Makes the sword trail more prominent when swinging.");
         leftPane.add_section("Other Shit");
         config_percent_select(leftPane, rightPane, getSettings().game.zItemScale,
             "Z-Item Scale",

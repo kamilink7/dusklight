@@ -833,7 +833,7 @@ DUSK_GAME_DATA const daAlinkHIO_cut_c1 daAlinkHIO_cut_c0::m = {
 	},
     0,
     1,
-    50,
+    15,
     8,
     10,
     90,

@@ -80,6 +80,7 @@ UserSettings g_userSettings = {
         .wolfGear {"game.wolfGear", false},
         .invisibleMidna {"game.invisibleMidna", false},
         .alwaysLightSword {"game.alwaysLightSword", LightSwordMode::OFF},
+        .swordTrail {"game.swordTrail", false},
 
         // Graphics
         .bloomMode {"game.bloomMode", BloomMode::Dusk},
@@ -407,6 +408,7 @@ void registerSettings() {
     Register(g_userSettings.game.wolfGear);
     Register(g_userSettings.game.invisibleMidna);
     Register(g_userSettings.game.alwaysLightSword);
+    Register(g_userSettings.game.swordTrail);
 
     Register(g_userSettings.backend.isoPath);
     Register(g_userSettings.backend.isoVerification);

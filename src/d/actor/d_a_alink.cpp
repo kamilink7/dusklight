@@ -6257,7 +6257,12 @@ void daAlink_c::decSwordBlur() {
     if (m_swordBlur.field_0x14 < 10) {
         m_swordBlur.field_0x14 = 0;
     } else {
-        m_swordBlur.field_0x14 -= 5;
+        if (dusk::getSettings().game.swordTrail) {
+            m_swordBlur.field_0x14 -= 5;
+        }
+        else {
+            m_swordBlur.field_0x14 -= 10;
+        }
         m_swordBlur.traceBlur(&current.pos, &old.pos, shape_angle.y - mPrevAngleY);
     }
 }
@@ -6557,7 +6562,12 @@ void daAlink_c::setAtCollision() {
             m_swordBlur.field_0x20 = mpHIO->mCut.m.mDashBlurAlpha;
             spC8.set(current.pos.x + (50.0f * cM_ssin(shape_angle.y)), 20.0f + current.pos.y, current.pos.z + (50.0f * cM_scos(shape_angle.y)));
         } else {
-            m_swordBlur.field_0x20 = mpHIO->mCut.m.mBlurAlpha;
+            if (dusk::getSettings().game.swordTrail) {
+                m_swordBlur.field_0x20 = 50;
+            }
+            else {
+                m_swordBlur.field_0x20 = mpHIO->mCut.m.mBlurAlpha;
+            }
             spC8.set(current.pos.x + (50.0f * cM_ssin(shape_angle.y)), field_0x3478, current.pos.z + (50.0f * cM_scos(shape_angle.y)));
         }
 
