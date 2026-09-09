@@ -18275,8 +18275,15 @@ int daAlink_c::execute() {
             mParryTimer--;
         }
 
-        if (mSkillCooldown != 0 && !mDoCPd_c::getHoldLockR(PAD_1)) {
-            mSkillCooldown--;
+        if (mSkillCooldown != 0) {
+            if (dusk::getSettings().game.shieldUsesMeter) {
+                if (!mDoCPd_c::getHoldLockR(PAD_1)) {
+                    mSkillCooldown--;
+                }
+            }
+            else {
+                mSkillCooldown--;
+            }
         }
 
         if (mSkillCooldown >= 450) {

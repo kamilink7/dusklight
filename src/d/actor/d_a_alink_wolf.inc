@@ -6890,7 +6890,9 @@ void daAlink_c::setWolfLockDomeModel() {
         field_0x0724->setFrame(0.0f);
     }
 
-    mSkillCooldown += 300;
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 300;
+    }
 }
 
 void daAlink_c::setWolfBallModel() {

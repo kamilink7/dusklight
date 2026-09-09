@@ -1413,7 +1413,9 @@ int daAlink_c::procCutFinishJumpUpInit() {
     dComIfGp_setPlayerStatus0(0, 0x8000);
     setCutWaterDropEffect();
     field_0x2fd0 = 1;
-    mSkillCooldown += 150;
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 150;
+    }
     return 1;
 }
 
@@ -2287,7 +2289,9 @@ int daAlink_c::procCutHeadInit() {
                     mpHIO->mCut.mCutHead.m.mSwordRadius);
     setCutType(CUT_TYPE_HEAD_JUMP);
 
-    mSkillCooldown += 150;
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 150;
+    }
 
     return 1;
 }

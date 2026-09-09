@@ -663,7 +663,9 @@ BOOL daAlink_c::checkDamageAction() {
     
         if (var_r29->ChkTgShieldHit()) {
             setGuardSe(var_r29);
-            mSkillCooldown += 150;
+            if (dusk::getSettings().game.shieldUsesMeter) {
+                mSkillCooldown += 150;
+            }
 
             if (mParryTimer > 0 && !(mProcID == PROC_SIDESTEP || mProcID == PROC_FRONT_ROLL || mProcID == PROC_SIDE_ROLL
                 || mProcID == PROC_BACK_JUMP)) {

@@ -204,6 +204,8 @@ struct UserSettings {
         ConfigVar<bool> aimingReticle;
         ConfigVar<bool> sturdierWolfLink;
         ConfigVar<bool> progressiveDefense;
+        ConfigVar<bool> enableSkillMeter;
+        ConfigVar<bool> shieldUsesMeter;
 
         // Preferences
         ConfigVar<bool> enableMirrorMode;

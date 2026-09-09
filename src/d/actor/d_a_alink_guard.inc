@@ -454,7 +454,9 @@ int daAlink_c::procGuardAttackInit() {
     mProcVar5.field_0x3012 = 0;
     mProcVar0.field_0x3008 = 0;
 
-    mSkillCooldown += 150;
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 150;
+    }
     mParryTimer = 10;
     return 1;
 }

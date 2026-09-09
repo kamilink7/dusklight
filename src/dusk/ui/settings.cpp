@@ -1329,6 +1329,16 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .key = "Progressive Damage Multiplier",
                 .helpText = "Further multiply the damage Link takes by 2x halfway through the game.",
             });
+        config_bool_select(leftPane, rightPane, getSettings().game.enableSkillMeter,
+            {
+                .key = "Enable Skill Meter",
+                .helpText = "Enables a new skill meter that balances the usage of some Hidden Skills. Affects Shield Attack, Helm Splitter, and Back Slice.",
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.shieldUsesMeter,
+            {
+                .key = "Shield Uses Meter",
+                .helpText = "Blocking attacks will consume the skill meter, and the meter will not regenerate while blocking. Blocking without enough meter will incur a guard break. Parrying fully restores meter.",
+            });
 
         leftPane.add_section("Gamefeel Stuff");
         addOption("No Hitstop", getSettings().game.noHitstop,
