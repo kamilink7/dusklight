@@ -487,7 +487,7 @@ DUSK_GAME_DATA const daAlinkHIO_cutJump_c1 daAlinkHIO_cutJump_c0::m = {
         1.0f,
         2.0f,
         0.0f,
-        9.0f,
+        29.0f,
 	},
     25.0f,
     27.0f,
