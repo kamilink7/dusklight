@@ -177,10 +177,10 @@ daE_FM_HIO_c::daE_FM_HIO_c() {
     base_size = 1.0f;
     field_0xc = 3.0f;
     field_0x10 = 2.5f;
-    field_0x14 = 5.0f;
+    field_0x14 = 15.0f;
     field_0x18 = 4.0f;
     field_0x1c = 20000.0f;
-    field_0x20 = 1500.0f;
+    field_0x20 = 750.0f;
     field_0x24 = 600.0f;
     field_0x28 = 3.0f;
     field_0x2c = 2.5f;
@@ -191,7 +191,7 @@ daE_FM_HIO_c::daE_FM_HIO_c() {
     field_0x38 = 0x18;
 
     field_0x3c = 1.0f;
-    field_0x40 = 120.0f;
+    field_0x40 = 60.0f;
     field_0x44 = 1000.0f;
     chain_size = 2.0f;
     field_0x4c = 35.0f;
@@ -642,7 +642,7 @@ static void e_fm_fight_run(e_fm_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        i_this->mTimers[0] = 20.0f + cM_rndF(10.0f);
+        i_this->mTimers[0] = 2.0f + cM_rndF(2.0f);
         anm_init(i_this, BCK_FM_WAIT01, 30.0f, 2, 1.0f);
         i_this->mTimers[2] = l_HIO.field_0x40 + cM_rndF(0.5f * l_HIO.field_0x40);
         i_this->mMode = 1;
@@ -741,7 +741,7 @@ static void e_fm_n_fight(e_fm_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        anm_init(i_this, BCK_FM_ATTACK02, 10.0f, 0, 1.0f);
+        anm_init(i_this, BCK_FM_ATTACK02, 10.0f, 0, 2.0f);
         i_this->mSound.startCreatureSound(Z2SE_EN_FM_ATTACK02_CHAIN, 0, -1);
         i_this->mMode = 1;
         break;
@@ -832,7 +832,8 @@ static void e_fm_f_fight(e_fm_class* i_this) {
     switch (i_this->mMode) {
     case 0:
         if ((int)i_this->mpFmBtk[0]->getFrame() == 0) {
-            anm_init(i_this, BCK_FM_ATTACK, 10.0f, 0, 1.0f);
+            anm_init(i_this, BCK_FM_ATTACK, 10.0f, 0, 2.0f);
+            i_this->mDamageInvulnerabilityTimer = 120;
             i_this->mSound.startCreatureVoice(Z2SE_EN_FM_V_ATTACK_TAME, -1);
             i_this->mSound.startCreatureSound(Z2SE_EN_FM_ATTACK_TAME, 0, -1);
 
@@ -904,7 +905,7 @@ static void animal_eff_set(e_fm_class* i_this, s16 param_1) {
 static void e_fm_animal(e_fm_class* i_this) {
     switch (i_this->mMode) {
     case 0:
-        anm_init(i_this, BCK_FM_ANIMAL02, 10.0f, 0, 1.0f);
+        anm_init(i_this, BCK_FM_ANIMAL02, 10.0f, 0, 2.0f);
         i_this->mMode = 1;
         break;
     case 1:
@@ -1829,7 +1830,7 @@ static s8 e_fm_down(e_fm_class* i_this) {
                 i_this->mpFmBtk[TEXANM_PUTOUT_WAIT]->setFrame(0.0f);
             }
 
-            if (i_this->mDownCnt >= 3) {
+            if (i_this->mDownCnt >= 4) {
                 enemy->onDownFlg();
             }
 
@@ -1870,7 +1871,7 @@ static s8 e_fm_down(e_fm_class* i_this) {
         }
 
         if (i_this->mTimers[1] == 0) {
-            anm_init(i_this, BCK_FM_UP, 10.0f, 0, 1.0f);
+            anm_init(i_this, BCK_FM_UP, 10.0f, 0, 3.0f);
             i_this->mSound.startCreatureVoice(Z2SE_EN_FM_V_UP, -1);
             i_this->mMode = 3;
             enemy->offDownFlg();
@@ -1884,7 +1885,7 @@ static s8 e_fm_down(e_fm_class* i_this) {
         sp8 = 0;
 
         if (i_this->mpFmModelMorf->isStop()) {
-            anm_init(i_this, BCK_FM_ANIMAL02, 10.0f, 0, 1.0f);
+            anm_init(i_this, BCK_FM_ANIMAL02, 10.0f, 0, 3.0f);
             i_this->mMode = 4;
             i_this->mPlayTexAnmNo = TEXANM_ANIMAL;
             i_this->mpFmBrk[TEXANM_ANIMAL]->setFrame(0.0f);
@@ -1914,7 +1915,7 @@ static s8 e_fm_down(e_fm_class* i_this) {
             i_this->mPlayTexAnmNo = TEXANM_FM;
             i_this->mpFmBrk[TEXANM_FM]->setFrame(0.0f);
             i_this->mpFmBtk[TEXANM_FM]->setFrame(0.0f);
-            i_this->mDamageInvulnerabilityTimer = 2;
+            i_this->mDamageInvulnerabilityTimer = 150;
             i_this->field_0x770 = 1;
         }
         break;
