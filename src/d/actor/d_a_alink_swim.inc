@@ -33,7 +33,7 @@ f32 daAlink_c::getSwimFrontMaxSpeed() const {
     if (checkBootsOrArmorHeavy()) {
         return mpHIO->mSwim.m.mUnderwaterFallMaxSpeed;
     } else if (checkZoraWearAbility()) {
-        return 14.0f;
+        return 17.0f;
     } else if (checkSwimDashMode()) {
         return mpHIO->mSwim.m.mDashMaxSpeed;
     } else {
