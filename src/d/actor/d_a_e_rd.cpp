@@ -227,11 +227,11 @@ enum Joint {
 
 daE_RD_HIO_c::daE_RD_HIO_c() {
     no = -1;
-    model_size = 1.2f;
+    model_size = 1.32f;
     leader_size_ratio = 1.2f;
     movement_speed = 7.0f;
-    dash_speed = 28.0f;
-    battle_init_range = 450.0f;
+    dash_speed = 21.0f;
+    battle_init_range = 350.0f;
     attack_init_range = 400.0f;
     swing_speed = 2.2f;
     command_to_ready_stance = 60;
@@ -1275,7 +1275,7 @@ static void e_rd_fight_run(e_rd_class* i_this) {
             attack_flag = false;
         }
     } else {
-        i_this->attack_timer = 15;
+        i_this->attack_timer = 150;
     }
 
     f32 dash_speed;
@@ -1405,7 +1405,7 @@ static void e_rd_fight_run(e_rd_class* i_this) {
                 i_this->damage_timer = 20;
             } else if (i_this->armament_flag == 0 && i_this->dis < l_HIO.attack_init_range && i_this->timer[2] == 0) {
                 i_this->timer[2] = cM_rndF(20.0f) + 20.0f;
-                f32 rnd = 0.5f;
+                f32 rnd = 0.75f;
                 if (cM_rndF(1.0f) < rnd) {
                     i_this->action = ACTION_FIGHT;
                     i_this->mode = 0;
@@ -4394,11 +4394,11 @@ static void damage_check(e_rd_class* i_this) {
                     }
 
                     if (enemy->health <= 0 || i_this->at_info.mHitStatus != 0 || i_this->ride_mode != RIDE_MODE_OFF) {
-                        if ((pla->getCutType() == daPy_py_c::CUT_TYPE_JUMP && pla->checkCutJumpCancelTurn())
-                            || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT) {
+                        if (enemy->health > 0 && ((pla->getCutType() == daPy_py_c::CUT_TYPE_JUMP && pla->checkCutJumpCancelTurn())
+                            || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT)) {
                             small_damage(i_this, i);
                             if (pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT) {
-                                i_this->damage_timer = 6 + NREG_S(7);
+                                i_this->damage_timer = 15 + NREG_S(7);
                             }
                             else {
                                 i_this->damage_timer = 3 + NREG_S(7);
@@ -5312,7 +5312,7 @@ static void action(e_rd_class* i_this) {
             cMtx_YrotS(*calc_mtx, i_this->field_0x9f4);
             MtxPosition(&mae, &ato);
             enemy->current.pos += ato;
-            cLib_addCalc0(&i_this->field_0x9f0, 1.0f, 7.0f + TREG_F(12));
+            cLib_addCalc0(&i_this->field_0x9f0, 1.0f, 14.0f + TREG_F(12));
         }
     } else {
         enemy->attention_info.distances[fopAc_attn_BATTLE_e] = 34;

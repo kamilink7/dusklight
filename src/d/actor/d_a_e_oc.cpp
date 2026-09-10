@@ -98,8 +98,8 @@ daE_OC_HIO_c::daE_OC_HIO_c() {
     basic_size = 1.5f;
     plyr_srch_max_radius_S = 2400.0f;
     plyr_srch_max_radius_M = 5000.0f;
-    plyr_srch_min_radius = 400.0f;
-    battle_participation_radius = 2400.0f;
+    plyr_srch_min_radius = 1000.0f;
+    battle_participation_radius = 1200.0f;
     teammate_attention_radius = 4000.0f;
     standby_distance = 2800.0f;
     demo_waiting_time = 70.0f;
