@@ -202,7 +202,7 @@ static void e_rdb_wait(e_rdb_class* i_this) {
         i_this->mAction = 2;
         i_this->mMode = 0;
     } else if (i_this->mDistToPlayer < fVar1 && i_this->field_0x6b8[0] == 0) {
-        if (i_this->field_0xfcc >= 2 && strcmp(dComIfGp_getStartStageName(), "D_MN09") == 0) {
+        if (i_this->field_0xfcc >= 2 && strcmp(dComIfGp_getStartStageName(), "D_MN09") == 0 && cM_rndF(1.0f) < 0.5f) {
             i_this->mAction = 4;
         } else {
             i_this->mAction = 3;
@@ -219,7 +219,7 @@ static void e_rdb_fight(e_rdb_class* i_this) {
     case 0:
         anm_init(i_this, e_rdb_class::BCK_RB_WALK, 10.0f, 2, 1.0f);
         i_this->mMode = 1;
-        i_this->field_0x5cc = 1.0f;
+        i_this->field_0x5cc = 2.0f;
         // [[fallthrough]]
     case 1:
         if (i_this->mAnm == e_rdb_class::BCK_RB_WALK) {
@@ -230,7 +230,7 @@ static void e_rdb_fight(e_rdb_class* i_this) {
         } else {
             fVar1 = 10.0f;
             if (i_this->mDistToPlayer < 600.0f) {
-                i_this->field_0x5cc = 3.0f;
+                i_this->field_0x5cc = 6.0f;
                 anm_init(i_this, e_rdb_class::BCK_RB_WALK, 10.0f, 2, i_this->field_0x5cc);
                 fVar1 = 3.0f;
             }
@@ -241,7 +241,7 @@ static void e_rdb_fight(e_rdb_class* i_this) {
     cLib_addCalc2(&i_this->enemy.speedF, fVar1 * i_this->field_0x5cc, 1.0f,
                   i_this->field_0x5cc * 3.0f);
     cLib_addCalc2(&i_this->field_0x5cc, 1.0f, 1.0f, 0.1f);
-    cLib_addCalcAngleS2(&i_this->enemy.current.angle.y, i_this->mAngleToPlayer, 2, 512);
+    cLib_addCalcAngleS2(&i_this->enemy.current.angle.y, i_this->mAngleToPlayer, 2, 768);
     fVar1 = 0.0f;
 
     if (i_this->field_0xfcc >= 2 && strcmp(dComIfGp_getStartStageName(), "D_MN09") == 0) {
@@ -289,16 +289,17 @@ static void e_rdb_attack(e_rdb_class* i_this) {
     switch (i_this->mMode) {
     case 0:
         if (cM_rndF(1.0f) < 0.5f) {
-            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK01, 5.0f, 0, 1.0f);
+            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK01, 5.0f, 0, 3.0f);
             i_this->mMode = 1;
         } else {
-            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK02, 5.0f, 0, 1.0f);
+            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK02, 5.0f, 0, 3.0f);
             i_this->mMode = 2;
         }
         break;
 
     case 1:
         if (frame > 63 && frame < 73) {
+            i_this->mpModelMorf->setPlaySpeed(2.0f);
             i_this->field_0x6c4 = 1;
         }
 
@@ -336,6 +337,7 @@ static void e_rdb_attack(e_rdb_class* i_this) {
 
     case 2:
         if (frame > 61 && frame < 72) {
+            i_this->mpModelMorf->setPlaySpeed(2.0f);
             i_this->field_0x6c4 = 1;
         }
 
@@ -360,7 +362,7 @@ static void e_rdb_spin_attack(e_rdb_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_START, 5.0f, 0, 1.0f);
+        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_START, 5.0f, 0, 2.0f);
         i_this->mSound.startCreatureVoice(Z2SE_EN_RDB_V_ATTACK, -1);
         i_this->mMode = 1;
         break;
@@ -369,7 +371,7 @@ static void e_rdb_spin_attack(e_rdb_class* i_this) {
         if (!p_modelMorf->isStop())
             break;
 
-        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_SPIN, 0.0f, 2, 1.0f);
+        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_SPIN, 0.0f, 2, 2.0f);
         i_this->mMode = 2;
         i_this->field_0x6b8[0] = 102;
         // [[fallthrough]]
@@ -382,7 +384,7 @@ static void e_rdb_spin_attack(e_rdb_class* i_this) {
         i_this->field_0x6e8 = i_this->mAngleToPlayer + (u16)-0x8000;
         iVar1 = 1;
         if (i_this->field_0x6b8[0] == 0) {
-            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_END, 0.0f, 0, 1.0f);
+            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_END, 0.0f, 0, 2.0f);
             i_this->mMode = 3;
         }
         break;
@@ -486,7 +488,7 @@ static void e_rdb_damage(e_rdb_class* i_this) {
     case 10:
         if (i_this->mpModelMorf->isStop()) {
             anm_init(i_this, e_rdb_class::BCK_RB_DOWN_WAIT, 5.0f, 2, 1.0f);
-            i_this->field_0x6b8[0] = 60;
+            i_this->field_0x6b8[0] = 30;
             i_this->mMode = 11;
         }
         break;
@@ -494,23 +496,31 @@ static void e_rdb_damage(e_rdb_class* i_this) {
     case 11:
         if (i_this->field_0x6b8[0] == 0) {
             i_this->field_0x6c0 = 50;
-            if (i_this->field_0xfcc >= 2 && strcmp(dComIfGp_getStartStageName(), "D_MN09") == 0) {
+            if (i_this->field_0xfcc >= 2 && strcmp(dComIfGp_getStartStageName(), "D_MN09") == 0 && cM_rndF(1.0f) < 0.5f) {
                 i_this->mAction = 4;
                 i_this->mMode = 0;
             } else {
-                anm_init(i_this, e_rdb_class::BCK_RB_DOWN_RETURN, 5.0f, 0, 1.0f);
+                anm_init(i_this, e_rdb_class::BCK_RB_DOWN_RETURN, 5.0f, 0, 2.0f);
                 i_this->mMode = 12;
             }
         }
         break;
 
     case 12:
+        if (i_this->mpModelMorf->checkFrame(24.0f)) {
+            i_this->mpModelMorf->setPlaySpeed(1.0f);
+        }
+
         if (frame >= 25 && frame <= 35) {
             cLib_addCalcAngleS2(&i_this->enemy.current.angle.y, i_this->mAngleToPlayer, 2, 0x1000);
         }
 
         if (frame >= 35 && frame <= 42) {
             i_this->field_0x6c4 = 1;
+        }
+
+        if (i_this->mpModelMorf->checkFrame(42.0f)) {
+            i_this->mpModelMorf->setPlaySpeed(2.0f);
         }
 
         if (i_this->mpModelMorf->isStop()) {
@@ -804,7 +814,7 @@ static void damage_check(e_rdb_class* i_this) {
                     if (i_this->field_0xfcc >= iVar1) {
                         bVar2 = 1;
                     } else {
-                        anm_init(i_this, e_rdb_class::BCK_RB_DOWN, 5.0f, 0, 1.0f);
+                        anm_init(i_this, e_rdb_class::BCK_RB_DOWN, 5.0f, 0, 2.0f);
                         i_this->mAction = 6;
                         i_this->mMode = 10;
                         i_this->field_0x6c0 = 20;
