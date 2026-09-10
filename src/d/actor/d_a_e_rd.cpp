@@ -4380,11 +4380,11 @@ static void damage_check(e_rd_class* i_this) {
                     if (i_this->at_info.mpCollider->ChkAtType(AT_TYPE_UNK)) {
                         i_this->damage_timer = 20;
                     } else {
-                        i_this->damage_timer = 10;
+                        i_this->damage_timer = 6;
                     }
 
                     if (i_this->at_info.mAttackPower <= 1) {
-                        i_this->damage_timer = 10 + KREG_S(8);
+                        i_this->damage_timer = 6 + KREG_S(8);
                     }
 
                     i_this->field_0xa20 |= i_this->at_info.mHitBit;
