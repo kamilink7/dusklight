@@ -212,6 +212,12 @@ jobs:
         working-directory: platforms/android
         run: ./gradlew :app:assembleRelease --rerun-tasks
 
+      - name: Sign APK
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore kamikey -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+          platforms/android/app/build/outputs/apk/release/app-${{matrix.abi}}release-unsigned.apk ${{ secrets.KEY_ALIAS }}
+
       - name: Stage artifacts
         run: |
           mkdir -p upload/sdk
