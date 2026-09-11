@@ -212,6 +212,20 @@ jobs:
         working-directory: platforms/android
         run: ./gradlew :app:assembleRelease --rerun-tasks
 
+      - name: Sign Android release
+        uses: r0adkll/sign-android-release@v1
+        # ID used to access action output
+        id: sign_app
+        with:
+          releaseDirectory: platforms/android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEYPASS }}
+          keyPassword: ${{ secrets.KEYPASS }}
+        env:
+          # override default build-tools version (33.0.0) -- optional
+          BUILD_TOOLS_VERSION: "34.0.0"
+
       - name: Stage artifacts
         run: |
           mkdir -p upload/sdk
