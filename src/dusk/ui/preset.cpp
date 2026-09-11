@@ -87,6 +87,7 @@ void applyPresetKamilinkInit() {
 
     s.game.swordMultiplier.setValue(50);
     s.game.damageMultiplier.setValue(2);
+    s.game.noHeartDrops.setValue(true);
     s.game.loseRupees.setValue(true);
     s.game.insulatedZoraArmor.setValue(true);
     s.game.sturdierWolfLink.setValue(true);

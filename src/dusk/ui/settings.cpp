@@ -1264,11 +1264,24 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         };
 
         leftPane.add_section("Presets");
-        leftPane.add_button("Kamilink's Fiore di Battaglia").on_pressed([this] {
+        leftPane.register_control(leftPane.add_button("KAMILINK'S FIORE DI BATTAGLIA").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
             applyPresetKamilink();
             config::save();
-        });
+        }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("The intended difficulty of Lazy Tweaks' complete combat rebalance. Experience a smoother introduction to the combat before difficulty eventually ramps in the second half of the game.");
+            });
+        leftPane.register_control(leftPane.add_button("KAMILINK'S DEATHWISH").on_pressed([this] {
+            mDoAud_seStartMenu(kSoundClick);
+            applyPresetDeathwish();
+            config::save();
+        }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Am I not enough for you?");
+            });
         leftPane.add_section("Combat");
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
@@ -1333,7 +1346,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.progressiveDefense,
             {
                 .key = "Progressive Damage Multiplier",
-                .helpText = "Further multiply the damage Link takes by 2x halfway through the game.",
+                .helpText = "Automatically applies a smoother difficulty curve by placing an additional 2x damage multiplier to the existing value halfway through the game (2x becomes 4x, 4x becomes 6x, etc.).",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.enableSkillMeter,
             {

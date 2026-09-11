@@ -173,7 +173,7 @@ f32 daAlink_c::damageMagnification(BOOL i_checkZoraMag, int param_1) {
     }
 
     if (dusk::getSettings().game.progressiveDefense && dComIfGs_isEventBit(0xD04)) {
-        return 2.0f * base_mag;
+        return 2.0f + base_mag;
     }
 
     return base_mag;
