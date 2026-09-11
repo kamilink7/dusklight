@@ -230,7 +230,7 @@ jobs:
         run: |
           mkdir -p upload/sdk
           cp build/*/stub-android-*.so upload/sdk/
-          cp platforms/android/app/build/outputs/apk/release/app-${{matrix.abi}}-release-unsigned.apk upload/
+          cp platforms/android/app/build/outputs/apk/release/app-${{matrix.abi}}-release-unsigned-signed.apk upload/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
