@@ -1263,6 +1263,12 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             add_speedrun_disabled_option(leftPane, rightPane, value, key, helpText);
         };
 
+        leftPane.add_section("Presets");
+        leftPane.add_button("Kamilink's Fiore di Battaglia").on_pressed([this] {
+            mDoAud_seStartMenu(kSoundClick);
+            applyPresetKamilink();
+            config::save();
+        });
         leftPane.add_section("Combat");
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
@@ -1332,12 +1338,17 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.enableSkillMeter,
             {
                 .key = "Enable Skill Meter",
-                .helpText = "Enables a new skill meter that balances the usage of some Hidden Skills. Affects Shield Attack, Helm Splitter, and Back Slice.",
+                .helpText = "Enables a new skill meter that balances the usage of some attacks. Affects Midna Charge, Shield Attack, Helm Splitter, and Back Slice.",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.shieldUsesMeter,
             {
                 .key = "Shield Uses Meter",
                 .helpText = "Blocking attacks will consume the skill meter, and the meter will not regenerate while blocking. Blocking without enough meter will incur a guard break. Parrying fully restores meter.",
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.meterSpin,
+            {
+                .key = "Great Spin Uses Meter",
+                .helpText = "Ties the Great Spin to the skill meter. Can use Great Spin so long as Link's health is above half and the skill meter is full, rather than only at full health.",
             });
 
         leftPane.add_section("Gamefeel Stuff");

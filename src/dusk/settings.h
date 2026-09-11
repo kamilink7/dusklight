@@ -206,6 +206,7 @@ struct UserSettings {
         ConfigVar<bool> progressiveDefense;
         ConfigVar<bool> enableSkillMeter;
         ConfigVar<bool> shieldUsesMeter;
+        ConfigVar<bool> meterSpin;
 
         // Preferences
         ConfigVar<bool> enableMirrorMode;

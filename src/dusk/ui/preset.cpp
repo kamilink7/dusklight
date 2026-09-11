@@ -57,6 +57,52 @@ void applyPresetDusk() {
     s.game.enableMenuPointer.setValue(true);
 }
 
+void applyPresetKamilinkInit() {
+    auto& s = getSettings();
+    s.game.hideTvSettingsScreen.setValue(true);
+    s.game.disableRupeeCutscenes.setValue(true);
+    s.game.fastClimbing.setValue(true);
+    s.game.fastTears.setValue(true);
+    s.game.biggerWallets.setValue(true);
+    s.game.invertCameraXAxis.setValue(true);
+    s.game.invertFirstPersonYAxis.setValue(true);
+    s.game.no2ndFishForCat.setValue(true);
+    s.game.buttonFishing.setValue(true);
+    s.game.enableAchievementToasts.setValue(true);
+    s.game.enableControllerToasts.setValue(true);
+    s.game.enableQuickTransform.setValue(true);
+    s.game.instantSaves.setValue(true);
+    s.game.midnasLamentNonStop.setValue(true);
+    s.game.enableFrameInterpolation.setValue(FrameInterpMode::Unlimited);
+    s.game.sunsSong.setValue(true);
+    s.game.bloomMode.setValue(BloomMode::Dusk);
+    s.game.depthOfFieldMode.setValue(DepthOfFieldMode::Dusk);
+    s.game.internalResolutionScale.setValue(0);
+    s.game.shadowResolutionMultiplier.setValue(4);
+    s.game.enableGyroAim.setValue(true);
+    s.game.autoSave.setValue(true);
+    s.game.menuScalingMode.setValue(MenuScaling::Dusklight);
+    s.game.enhancedMapMenus.setValue(true);
+    s.game.enableMenuPointer.setValue(true);
+
+    s.game.swordMultiplier.setValue(50);
+    s.game.damageMultiplier.setValue(2);
+    s.game.loseRupees.setValue(true);
+    s.game.insulatedZoraArmor.setValue(true);
+    s.game.sturdierWolfLink.setValue(true);
+    s.game.progressiveDefense.setValue(true);
+    s.game.enableSkillMeter.setValue(true);
+    s.game.shieldUsesMeter.setValue(true);
+    s.game.meterSpin.setValue(true);
+    s.game.noHitstop.setValue(true);
+    s.game.noBattleMusic.setValue(true);
+    s.game.wolfGear.setValue(true);
+    s.game.alwaysLightSword.setValue(LightSwordMode::VISUALS_ONLY);
+    s.game.swordTrail.setValue(true);
+    s.game.fastSpinner.setValue(true);
+    s.game.enableFastIronBoots.setValue(true);
+    s.game.armorRupeeDrain.setValue(MagicArmorMode::ON_DAMAGE);
+}
 }  // namespace
 
 PresetWindow::PresetWindow() : WindowSmall("modal", "modal-dialog") {
@@ -95,6 +141,10 @@ PresetWindow::PresetWindow() : WindowSmall("modal", "modal-dialog") {
          "Graphics & quality of life tweaks, including some from the Wii U version. "
          "Our recommended way to play!",
          applyPresetDusk},
+        {"Lazy Tweaks",
+            "Experience most of what Lazy Tweaks has to offer."
+            "Kamilink's 'definitive' difficulty.",
+            applyPresetKamilinkInit},
     };
 
     for (const auto& preset : kPresets) {

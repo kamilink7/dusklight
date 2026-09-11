@@ -834,6 +834,11 @@ BOOL daAlink_c::checkCutLargeTurnState() const {
     if (dusk::getSettings().game.alwaysGreatspin) {
         return TRUE;
     }
+    if (dusk::getSettings().game.meterSpin && mSkillCooldown <= 0
+        && dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge() / 2
+        && dComIfGs_isEventBit(dSv_event_flag_c::F_0344)) {
+        return TRUE;
+    }
     #endif
 
     return ((dComIfGs_isEventBit(dSv_event_flag_c::F_0344) || checkNoResetFlg3(FLG3_TRANING_CUT_LARGE_TURN))
@@ -1781,6 +1786,13 @@ int daAlink_c::procCutTurnInit(int param_0, int param_1) {
             setCutType(CUT_TYPE_LARGE_TURN_RIGHT);
         } else {
             setCutType(CUT_TYPE_LARGE_TURN_LEFT);
+        }
+
+        if (dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge() / 2) {
+            mSkillCooldown += 300;
+        }
+        else if (dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge()){
+            mSkillCooldown += 150;
         }
     } else {
         atp = 3;
