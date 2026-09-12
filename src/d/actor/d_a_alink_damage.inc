@@ -524,8 +524,13 @@ BOOL daAlink_c::checkDamageAction() {
     }
 
     if (mProcID == PROC_SIDESTEP || mProcID == PROC_FRONT_ROLL || mProcID == PROC_SIDE_ROLL
-        || mProcID == PROC_BACK_JUMP) {
-        mDodgeTimer = 10;
+        || mProcID == PROC_BACK_JUMP || mProcID == PROC_WOLF_SIDESTEP || mProcID == PROC_WOLF_BACKJUMP) {
+        if (checkNowWolf) {
+            mDodgeTimer = 15;
+        }
+        else {
+            mDodgeTimer = 10;
+        }
         if (mDodgeTimer != 0) {
             mCcStts.ClrTg();
             mCcStts.ClrAt();
