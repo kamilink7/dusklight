@@ -4,9 +4,8 @@
 #include <mods/svc/ui.hpp>
 
 #include "../session.hpp"
-#include "../tools.h"
 #include "../paths.hpp"
-#include "../../generator/seedgen/seed.hpp"
+#include "../randomizer_context.hpp"
 #include "../../generator/utility/string.hpp"
 #include "../../generator/utility/text.hpp"
 #include "../../generator/utility/yaml.hpp"
@@ -15,12 +14,10 @@
 #include "config_store.hpp"
 
 #include <algorithm>
-#include <mutex>
 #include <thread>
 #include <map>
 #include <unordered_set>
 
-#include "../randomizer_context.hpp"
 #include "d/d_file_select.h"
 
 namespace randomizer::ui {
@@ -879,7 +876,7 @@ ModResult buildSeedOptionsTab(ModContext* ctx, UiWindowHandle, UiElementHandle l
         });
 
     add_select_setting(leftPane, "Dungeon Rewards Can Be Anywhere");
-    add_select_setting(leftPane, "No Small Keys on Bosses");
+    add_select_setting(leftPane, "Small Keys on Bosses");
     add_select_setting(leftPane, "Unrequired Dungeons Are Barren");
 
     add_section(leftPane, "Timesavers");
@@ -887,7 +884,7 @@ ModResult buildSeedOptionsTab(ModContext* ctx, UiWindowHandle, UiElementHandle l
     add_select_setting(leftPane, "Faron Twilight Cleared");
     add_select_setting(leftPane, "Eldin Twilight Cleared");
     add_select_setting(leftPane, "Lanayru Twilight Cleared");
-    add_select_setting(leftPane, "Skip Midna's Desparate Hour");
+    add_select_setting(leftPane, "Skip Midna's Desperate Hour");
     add_select_setting(leftPane, "Skip Minor Cutscenes");
     add_select_setting(leftPane, "Skip Major Cutscenes");
     add_select_setting(leftPane, "Unlock Map Regions");

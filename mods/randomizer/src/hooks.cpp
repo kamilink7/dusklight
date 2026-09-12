@@ -83,6 +83,8 @@ DEFINE_HOOK(&dSv_player_item_c::setLineUpItem, dSv_player_item_c__setLineUpItem)
 
 DEFINE_HOOK(&dSv_info_c::onSwitch, dSv_info_c__onSwitch);
 
+DEFINE_HOOK(&dScnName_c::changeGameScene, dScnName_c__changeGameScene);
+
 #ifdef _MSVC_LANG
 #define setNextStage_sig "?dComIfGp_setNextStage@@YAXPEBDFCCMIHCFHH@Z"
 #else
@@ -150,8 +152,6 @@ DEFINE_HOOK(&daNpc_ykW_c::isDelete, daNpc_ykW_c__isDelete);
 
 DEFINE_HOOK_SYMBOL("daE_MD_Create", int(fopAc_ac_c*), daE_MD_c__create);
 
-DEFINE_HOOK(&dScnName_c::changeGameScene, dScnName_c__changeGameScene);
-
 DEFINE_HOOK(&daNpc_zrZ_c::isDelete, daNpc_zrZ_c__isDelete);
 
 DEFINE_HOOK(&daTbox2_c::Create, daTbox2_c__Create);
@@ -162,7 +162,7 @@ DEFINE_HOOK(&dGameover_c::_create, dGameover_c___create);
 DEFINE_HOOK(&daObjSwBallC_c::Create, daObjSwBallC_c__Create);
 DEFINE_HOOK(&daObjSwBallC_c::actionWait, daObjSwBallC_c__actionWait);
 
-DEFINE_HOOK_SYMBOL("daDitem_c::execute", int(daDitem_c*), daDitem_c__execute);
+DEFINE_HOOK_SYMBOL("daDitem_Execute", int(daDitem_c*), daDitem_c__execute);
 
 DEFINE_HOOK(&daShopItem_c::CreateInit, daShopItem_c__CreateInit);
 
@@ -716,6 +716,14 @@ HookAction hookPreGetItemFunc(ModContext*, void* args, void*, void*) {
  HookAction hookPreCheckItemGet(ModContext*, void* args, void* retval, void*) {
     *static_cast<int*>(retval) = item::check_item_get(mods::arg<u8>(args, 0), mods::arg<int>(args, 1));
     return HOOK_SKIP_ORIGINAL;
+}
+
+HookAction hookPre_dScnName_c__changeGameScene(ModContext*, void*, void*, void*) {
+    // Don't override our next entrance when starting a file
+    if (!mDoRst::isReset() && !fopOvlpM_IsPeek()) {
+        randomizer_dontOverrideNextEntrance();
+    }
+    return HOOK_CONTINUE;
 }
 
 HookAction hookPreSetNextStage(ModContext*, void* args, void*, void*) {
@@ -2249,12 +2257,6 @@ void hookPostEMdCreate(ModContext*, void* args, void*, void*) {
     hookEMdCreate_prevSkipInfo = 0;
 }
 
-void hookPost_dScnName_c__changeGameScene(ModContext* ctx, void* args, void* retval, void* userdata) {
-    if (!mDoRst::isReset() && !fopOvlpM_IsPeek()) {
-        randomizer::session::registerStartingLocation();
-    }
-}
-
 void hookPostTbox2Create(ModContext*, void* args, void* retval, void*) {
     if (*static_cast<int*>(retval) != 1) {
         return;
@@ -3297,6 +3299,8 @@ ModResult initialize() {
 
     ADD_HOOK_PRE(dSv_info_c__onSwitch, hookPreSaveInfoOnSwitch);
 
+    ADD_HOOK_PRE(dScnName_c__changeGameScene, hookPre_dScnName_c__changeGameScene);
+
     ADD_HOOK_PRE(setNextStage, hookPreSetNextStage);
 
     ADD_HOOK_PRE(ObjGb_Create, hookPreObjGbCreate);
@@ -3356,8 +3360,6 @@ ModResult initialize() {
 
     ADD_HOOK_PRE(daE_MD_c__create, hookPreEMdCreate);
     ADD_HOOK_POST(daE_MD_c__create, hookPostEMdCreate);
-
-    ADD_HOOK_POST(dScnName_c__changeGameScene, hookPost_dScnName_c__changeGameScene);
 
     ADD_HOOK_POST(daNpc_zrZ_c__isDelete, hookPostNpcZrzIsDelete);
 
@@ -3442,6 +3444,9 @@ ModResult uninstall() {
     mods::hook::uninstall<dSv_player_item_c__setLineUpItem>(svc_hook);
 
     mods::hook::uninstall<dSv_info_c__onSwitch>(svc_hook);
+
+    mods::hook::uninstall<dScnName_c__changeGameScene>();
+
     mods::hook::uninstall<setNextStage>();
 
     mods::hook::uninstall<ObjGb_Create>(svc_hook);
@@ -3497,8 +3502,6 @@ ModResult uninstall() {
     mods::hook::uninstall<daNpc_ykW_c__isDelete>(svc_hook);
 
     mods::hook::uninstall<daE_MD_c__create>(svc_hook);
-
-    mods::hook::uninstall<dScnName_c__changeGameScene>();
 
     mods::hook::uninstall<daNpc_zrZ_c__isDelete>(svc_hook);
 
