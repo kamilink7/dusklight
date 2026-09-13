@@ -47,6 +47,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          fetch-tags: true
           submodules: recursive
 
       - name: Install dependencies
@@ -110,6 +111,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          fetch-tags: true
           submodules: recursive
 
       - name: Install dependencies
@@ -172,6 +174,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          fetch-tags: true
           submodules: recursive
 
       - name: Install dependencies
@@ -269,6 +272,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          fetch-tags: true
           submodules: recursive
 
       - name: Enable Visual Studio environment
