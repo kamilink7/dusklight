@@ -233,7 +233,7 @@ public:
     /* 0x0138A */ u8 mPlayEndEf;
     /* 0x0138B */ u8 field_0x138b;
     /* 0x0138C */ u8 mSwNo;
-    /* 0x0138D */ u8 field_0x138d;
+    /* 0x0138D */ u8 mArrowHitCounter; // old: field_0x138d
     /* 0x0138E */ u8 field_0x138e;
     /* 0x0138F */ u8 field_0x138f;
     /* 0x01390 */ u8 field_0x1390;
