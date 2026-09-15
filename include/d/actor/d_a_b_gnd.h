@@ -68,7 +68,8 @@ public:
     /* 0x0C26 */ s16 mSwordBlurType;
     /* 0x0C28 */ s16 field_0xc28;
     /* 0x0C2C */ J3DModel* mpSwordBlurModel[2];
-    /* 0x0C34 */ u8 field_0xC34[0x0C38 - 0x0C34];
+    /* 0x0C34 */ // old: u8 field_0xC34[0x0C38 - 0x0C34];
+    /* 0x0C34 */ s16 mPosture;
     /* 0x0C38 */ f32 mPlayerDistXZ;
     /* 0x0C3C */ s16 mPlayerAngleY;
     /* 0x0C40 */ u32 mShadowID;

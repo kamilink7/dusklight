@@ -1314,7 +1314,7 @@ static void b_gnd_g_wait(b_gnd_class* i_this) {
             anm_init(i_this, B_GND_BCK_EGND_WAIT02, 10.0f, 2, 1.0f);
             i_this->field_0xc44[0] = cM_rndF(50.0f) + 30.0f;
         } else if (i_this->field_0xc44[0] == 1) {
-            if (i_this->mPlayerDistXZ < 800.0f && cM_rndF(1.0f) < 0.3f) {
+            if (i_this->mPlayerDistXZ < 800.0f && i_this->mPosture >= 2500) {
                 i_this->mActionMode = ACTION_ATTACK;
                 i_this->mMoveMode = 10;
             } else {
@@ -1340,7 +1340,7 @@ static void b_gnd_g_wait(b_gnd_class* i_this) {
 
             if (i_this->mPlayerDistXZ > 550.0f) {
                 i_this->mActionMode = ACTION_ATTACK;
-                if (cM_rndF(1.0f) < 0.5f) {
+                if (i_this->mPosture >= 2000) {
                     i_this->mMoveMode = 10;
                 } else {
                     i_this->mMoveMode = 15;
@@ -1419,7 +1419,7 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
     switch (i_this->mMoveMode) {
     case 0:
         i_this->mMoveMode = 1;
-        anm_init(i_this, B_GND_BCK_EGND_ATTACKA, 3.0f, 0, 1.0f);
+        anm_init(i_this, B_GND_BCK_EGND_ATTACKA, 3.0f, 0, 2.0f);
         break;
     case 1:
         if (20 <= anm_frame && anm_frame <= 28) {
@@ -1505,7 +1505,7 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
         anm_init(i_this, B_GND_BCK_EGND_ATTACKF, 5.0f, 0, 1.0f);
         break;
     case 7:
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         if (anm_frame < 35) {
             spC = false;
         }
@@ -1561,10 +1561,10 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
     case 10:
         anm_init(i_this, B_GND_BCK_EGND_ATTACKC_A, 3.0f, 0, 1.0f);
         i_this->mMoveMode = 11;
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         break;
     case 11:
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         angle_step = 0x800;
 
         if (anm_frame >= 15) {
@@ -1582,7 +1582,7 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
         i_this->field_0xc44[0] = 50;
     case 12:
         spC = false;
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         i_this->field_0xc79 = 1;
         mant_p->field_0x395c = 1.0f;
         speed_target = 30.0f;
@@ -1646,11 +1646,11 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
     case 15:
         anm_init(i_this, B_GND_BCK_EGND_ATTACKE_A, speed_step, 0, 1.0f);
         i_this->mMoveMode = 16;
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         i_this->field_0xc44[0] = 11;
         break;
     case 16:
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         spC = false;
         angle_step = 0x800;
         
@@ -1665,11 +1665,11 @@ static BOOL b_gnd_g_attack(b_gnd_class* i_this) {
         if (i_this->field_0xc44[0] != 0)
             break;
 
-        anm_init(i_this, B_GND_BCK_EGND_ATTACKE_B, 1.0f, 0, 1.0f);
+        anm_init(i_this, B_GND_BCK_EGND_ATTACKE_B, 1.0f, 0, 2.0f);
         i_this->mMoveMode = 17;
     case 17:
         spC = false;
-        i_this->mDamageInvulnerabilityTimer = 10;
+        i_this->mDamageInvulnerabilityTimer = 0;
         speed_step = 15.0f;
         angle_step = 0x800;
 
@@ -1758,9 +1758,17 @@ static void b_gnd_g_defence(b_gnd_class* i_this) {
                 if (i_this->mAcch.ChkWallHit()) {
                     i_this->mActionMode = ACTION_JUMP;
                     i_this->mMoveMode = 0;
-                } else if ((i_this->field_0xc7a >= 3 || cM_rndF(0.1f)) && cM_rndF(1.0f) < 0.35f) {
-                    i_this->mActionMode = ACTION_JUMP;
-                    i_this->mMoveMode = 0;
+                } else if (i_this->field_0xc7a >= 3) {
+                    f32 r = cM_rndF(1.0f);
+
+                    if (r < 0.33f) {
+                        i_this->mActionMode = ACTION_SIDE;
+                        i_this->mMoveMode = 0;
+                    }
+                    else if (r < 0.66f) {
+                        i_this->mActionMode = ACTION_JUMP;
+                        i_this->mMoveMode = 0;
+                    }
                 }
             }
         } else if (!daPy_getPlayerActorClass()->getCutAtFlg()) {
@@ -1809,6 +1817,7 @@ static void b_gnd_g_defence(b_gnd_class* i_this) {
         mant_p->field_0x395c = 0.3f;
         i_this->field_0xc7a++;
         i_this->field_0x2698 = 1;
+        i_this->mPosture += 60;
     }
 }
 
@@ -1856,7 +1865,7 @@ static int b_gnd_g_jump(b_gnd_class* i_this) {
             } else {
                 i_this->mActionMode = ACTION_ATTACK;
                 i_this->mMoveMode = 3;
-                anm_init(i_this, B_GND_BCK_EGND_ATTACKB, 3.0f, 0, 1.0f);
+                anm_init(i_this, B_GND_BCK_EGND_ATTACKB, 3.0f, 0, 2.0f);
                 i_this->mpModelMorf->setFrame(10.0f);
             }
 
@@ -2174,6 +2183,7 @@ static void damage_check(b_gnd_class* i_this) {
                     i_this->mActionMode = ACTION_DAMAGE;
                     i_this->mMoveMode = 0;
                     i_this->field_0x2698 = 1;
+                    i_this->mPosture += 150;
 
                     if (i_this->mAtInfo.mHitStatus != 0) {
                         mant_p->field_0x3967 = 3;
@@ -3429,6 +3439,7 @@ static void demo_camera(b_gnd_class* i_this) {
         } else if (i_this->mTubazeriPushAmount >= 48.0f) {
             i_this->mDemoCamMode = 55;
             i_this->mDemoCamTimer = 0;
+            i_this->mPosture /= 4;
 
             anm_init(i_this, B_GND_BCK_EGND_TUBAZERI_LOSE, 3.0f, 0, 1.0f);
             daPy_getPlayerActorClass()->changeDemoMode(89, 3, 0, 0);
@@ -3948,6 +3959,9 @@ static int daB_GND_Execute(b_gnd_class* i_this) {
     cXyz sp118;
     cXyz sp10C;
     cXyz sp100;
+    if (i_this->mPosture > 0) {
+        i_this->mPosture--;
+    }
 
     if (i_this->mDemoCamMode == 0 && !player->checkElecDamage() && dComIfGp_event_runCheck()) {
         return 1;
@@ -4838,6 +4852,7 @@ static int daB_GND_Create(fopAc_ac_c* a_this) {
     int phase_state = dComIfG_resLoad(&i_this->mPhaseReq, "B_gnd");
     int h_phase_state = dComIfG_resLoad(&i_this->mHorsePhaseReq, "B_hg");
     i_this->field_0x5be = fopAcM_GetParam(a_this);
+    i_this->mPosture = 0;
 
     if (h_phase_state != cPhs_COMPLEATE_e) {
         phase_state = h_phase_state;
