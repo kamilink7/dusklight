@@ -1,9 +1,11 @@
 #include "runtime.hpp"
+#include "services/services.hpp"
 
 #include "Luau/Common.h"
 #include "luacode.h"
 #include "mods/runtime.h"
 #include "mods/service.hpp"
+#include "mods/svc/audio_res.h"
 
 #include <algorithm>
 #include <cmath>
@@ -26,9 +28,14 @@ IMPORT_OPTIONAL_SERVICE(ResourceService, svc_resource);
 IMPORT_OPTIONAL_SERVICE(OverlayService, svc_overlay);
 IMPORT_OPTIONAL_SERVICE(TextureService, svc_texture);
 IMPORT_OPTIONAL_SERVICE(UiService, svc_ui);
+IMPORT_OPTIONAL_SERVICE(AudioResService, svc_audio_res);
 
 namespace luau_runtime {
 namespace {
+
+// Just here to provide a globally-unique address to use as a registry index.
+// Index into the Lua registry to store the Vm*.
+int vm_registry_index;
 
 std::unordered_map<ModContext*, std::unique_ptr<Vm>> s_vms;
 
@@ -147,44 +154,84 @@ std::optional<std::string> normalize_module_path(
         }
         normalized.append(part);
     }
-    if (!normalized.ends_with(".luau")) {
-        normalized += ".luau";
-    }
+
     return normalized;
 }
 
-ModuleOpenFn module_factory(std::string_view name) {
-    if (name == "dusklight.log") {
-        return open_log;
+std::optional<std::string> try_load_direct_lua_files(lua_State* state, ModContext* mod, char const* modName, std::string const& fileWithoutExt) {
+    // Try .luau first.
+    auto try_luau = fileWithoutExt + ".luau";
+    std::optional<std::string> found_path;
+    if (svc_resource->file_exists(mod, try_luau.c_str())) {
+        found_path = try_luau;
     }
-    if (name == "dusklight.host") {
-        return open_host;
+
+    // Try .lua, if both it and .luau exist, there's a conflict.
+    auto try_lua = fileWithoutExt + ".lua";
+    if (svc_resource->file_exists(mod, try_lua.c_str())) {
+        if (found_path.has_value()) {
+            luaL_error(state, "Cannot load module '%s' if both '%s' and '%s' exist", modName, try_luau.c_str(), try_lua.c_str());
+        }
+
+        found_path = try_lua;
     }
-    if (name == "dusklight.resource") {
-        return open_resource;
+
+    return found_path;
+}
+
+std::string resolve_module_path(lua_State* state, ModContext* mod, std::string_view currentPath, std::string_view requested) {
+    // For reference: https://github.com/luau-lang/rfcs/blob/79c722717ffd96e5c5b5a9493ff01fda8a5171be/docs/amended-require-resolution.md
+
+    // Normalize to remove ./ and ../ and such. Should be a path relative to res/ after this.
+    auto normalized = normalize_module_path(currentPath, requested);
+    if (!normalized.has_value()) {
+        luaL_error(state, "module paths must be relative and remain inside the mod's res directory");
     }
-    if (name == "dusklight.overlay") {
-        return open_overlay;
+
+    auto has_lua_ext = normalized->ends_with(".lua") || normalized->ends_with(".luau");
+    if (has_lua_ext) {
+        // No fancy logic in this case.
+        if (!svc_resource->file_exists(mod, normalized->c_str())) {
+            luaL_error(state, "Cannot load '%s': file does not exist", normalized->c_str());
+        }
+
+        return std::move(*normalized);
     }
-    if (name == "dusklight.texture") {
-        return open_texture;
+
+    auto found_path = try_load_direct_lua_files(state, mod, normalized->c_str(), *normalized);
+    if (found_path.has_value()) {
+        // If a .lua(u) file *and* a matching directory exist, it's a conflict.
+        if (svc_resource->directory_exists(mod, normalized->c_str())) {
+            luaL_error(state, "Cannot load '%s' because conflicting directory '%s' also exists", found_path->c_str(), normalized->c_str());
+        }
+    } else {
+        // Check for directory/init.lua(u)
+        auto initPath = *normalized + "/init";
+
+        found_path = try_load_direct_lua_files(state, mod, normalized->c_str(), initPath);
     }
-    if (name == "dusklight.config") {
-        return open_config;
+
+    if (!found_path.has_value()) {
+        luaL_error(state, "Cannot load '%s': unable to locate '%s.lua(u)' or '%s/init.lua(u)'",
+            found_path->c_str(), normalized->c_str(), normalized->c_str());
     }
-    if (name == "dusklight.ui") {
-        return open_ui;
-    }
-    return nullptr;
+
+    return std::move(*found_path);
 }
 
 int module_require(lua_State* state);
+int print(lua_State* state);
 
 void install_module_require(lua_State* state, Vm& vm, std::string_view currentPath) {
     lua_pushlightuserdata(state, &vm);
     lua_pushlstring(state, currentPath.data(), currentPath.size());
     lua_pushcclosure(state, module_require, "require", 2);
     lua_setglobal(state, "require");
+}
+
+void install_globals(Vm& vm) {
+    push_vm_closure(vm.state, vm, print, "print");
+    lua_setglobal(vm.state, "print");
 }
 
 bool load_source_module(
@@ -262,19 +309,13 @@ int module_require(lua_State* state) {
     ModuleOpenFn factory = nullptr;
     if (requested.starts_with("dusklight.")) {
         moduleName = requested;
-        factory = module_factory(moduleName);
+        factory = services::module_factory(moduleName);
         if (factory == nullptr) {
             luaL_error(state, "unknown module '%s'", moduleName.c_str());
         }
     } else {
         const char* currentPath = lua_tostring(state, lua_upvalueindex(2));
-        const auto normalized =
-            normalize_module_path(currentPath != nullptr ? currentPath : "main.luau", requested);
-        if (!normalized.has_value()) {
-            luaL_error(
-                state, "module paths must be relative and remain inside the mod's res directory");
-        }
-        moduleName = *normalized;
+        moduleName = resolve_module_path(state, vm.subject, currentPath != nullptr ? currentPath : "main.luau", requested);
     }
 
     if (const auto found = vm.moduleRefs.find(moduleName); found != vm.moduleRefs.end()) {
@@ -299,6 +340,29 @@ int module_require(lua_State* state) {
     return 1;
 }
 
+int print(lua_State* state) {
+    Vm& vm = vm_from_upvalue(state);
+    if (svc_log == nullptr) {
+        service_unavailable(state, "LogService");
+    }
+
+    std::string value;
+    int const numArgs = lua_gettop(state);
+    for (int i = 0; i < numArgs; i += 1) {
+        if (i != 0) {
+            value.push_back('\t');
+        }
+
+        size_t length;
+        char const* str = luaL_tolstring(state, i + 1, &length);
+        value.append(str, length);
+        lua_pop(state, 1);
+    }
+
+    svc_log->info(vm.subject, value.data());
+    return 0;
+}
+
 ModResult runtime_activate(ModContext*, ModContext* subject, ModError* outError) {
     if (subject == nullptr) {
         return set_error(outError, MOD_INVALID_ARGUMENT, "Delegated mod context is null");
@@ -313,7 +377,10 @@ ModResult runtime_activate(ModContext*, ModContext* subject, ModError* outError)
     if (vm->state == nullptr) {
         return set_error(outError, MOD_ERROR, "Failed to create Luau VM");
     }
+    lua_pushlightuserdata(vm->state, vm.get());
+    lua_rawsetp(vm->state, LUA_REGISTRYINDEX, &vm_registry_index);
     lua_callbacks(vm->state)->userdata = vm.get();
+#if NDEBUG  // Annoying for debuggers
     lua_callbacks(vm->state)->interrupt = [](lua_State* state, int gc) {
         auto* current = static_cast<Vm*>(lua_callbacks(state)->userdata);
         if (gc < 0 && current != nullptr && current->deadlineActive &&
@@ -322,7 +389,9 @@ ModResult runtime_activate(ModContext*, ModContext* subject, ModError* outError)
             luaL_error(state, "script execution exceeded its time budget");
         }
     };
+#endif
     luaL_openlibs(vm->state);
+    install_globals(*vm);
     luaL_sandbox(vm->state);
 
     std::string error;
@@ -405,6 +474,16 @@ Vm& vm_from_upvalue(lua_State* state) {
     return *vm;
 }
 
+Vm& vm_from_registry(lua_State* state) {
+    lua_rawgetp(state, LUA_REGISTRYINDEX, &vm_registry_index);
+    auto* vm = static_cast<Vm*>(lua_tolightuserdata(state, -1));
+    if (vm == nullptr) {
+        luaL_error(state, "missing Luau runtime context");
+    }
+    lua_pop(state, 1);
+    return *vm;
+}
+
 void push_vm_closure(lua_State* state, Vm& vm, lua_CFunction function, const char* name) {
     lua_pushlightuserdata(state, &vm);
     lua_pushcclosure(state, function, name, 1);
@@ -441,86 +520,6 @@ void check_result(lua_State* state, ModResult result, const char* operation) {
         break;
     }
     luaL_error(state, "%s failed: %s", operation, resultName);
-}
-
-bool get_optional_bool(lua_State* state, int table, const char* field, bool fallback) {
-    lua_getfield(state, table, field);
-    const bool value = lua_isnil(state, -1) ? fallback : luaL_checkboolean(state, -1) != 0;
-    lua_pop(state, 1);
-    return value;
-}
-
-bool to_int64(lua_State* state, int index, int64_t& outValue) {
-    if (lua_isinteger64(state, index)) {
-        outValue = lua_tointeger64(state, index, nullptr);
-        return true;
-    }
-    if (!lua_isnumber(state, index)) {
-        return false;
-    }
-    const double value = lua_tonumber(state, index);
-    constexpr double kMaxSafeInteger = 9007199254740991.0;
-    if (!std::isfinite(value) || value < -kMaxSafeInteger || value > kMaxSafeInteger ||
-        std::trunc(value) != value)
-    {
-        return false;
-    }
-    outValue = static_cast<int64_t>(value);
-    return true;
-}
-
-int64_t check_int64(lua_State* state, int index) {
-    int64_t value = 0;
-    if (!to_int64(state, index, value)) {
-        luaL_argerror(state, index, "integer value expected");
-    }
-    return value;
-}
-
-int64_t get_optional_int(lua_State* state, int table, const char* field, int64_t fallback) {
-    lua_getfield(state, table, field);
-    const int64_t value = lua_isnil(state, -1) ? fallback : check_int64(state, -1);
-    lua_pop(state, 1);
-    return value;
-}
-
-double get_optional_number(lua_State* state, int table, const char* field, double fallback) {
-    lua_getfield(state, table, field);
-    const double value = lua_isnil(state, -1) ? fallback : luaL_checknumber(state, -1);
-    lua_pop(state, 1);
-    return value;
-}
-
-std::string get_optional_string(
-    lua_State* state, int table, const char* field, std::string fallback) {
-    lua_getfield(state, table, field);
-    if (!lua_isnil(state, -1)) {
-        size_t length = 0;
-        const char* value = luaL_checklstring(state, -1, &length);
-        fallback.assign(value, length);
-    }
-    lua_pop(state, 1);
-    return fallback;
-}
-
-int ref_optional_function(lua_State* state, int table, const char* field) {
-    lua_getfield(state, table, field);
-    if (lua_isnil(state, -1)) {
-        lua_pop(state, 1);
-        return LUA_NOREF;
-    }
-    luaL_argexpected(state, lua_isfunction(state, -1), table, "function field");
-    const int ref = lua_ref(state, -1);
-    lua_pop(state, 1);
-    return ref;
-}
-
-int ref_required_function(lua_State* state, int table, const char* field) {
-    const int ref = ref_optional_function(state, table, field);
-    if (ref == LUA_NOREF) {
-        luaL_error(state, "field '%s' is required", field);
-    }
-    return ref;
 }
 
 Callback& retain_callback(Vm& vm) {

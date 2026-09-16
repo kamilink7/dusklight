@@ -68,6 +68,13 @@ enum class MagicArmorMode : u8 {
     COSMETIC = 4,
 };
 
+enum class AudioOutputMode : u8 {
+    StereoSpeakers = 0,
+    StereoHeadphones = 1,   // spatial audio
+    Surround6ch = 2,        // discrete 5.1
+    Surround8ch = 3,        // discrete 7.1
+};
+
 enum class LightSwordMode : u8 {
     OFF = 0,
     VISUALS_ONLY = 1,
@@ -130,6 +137,12 @@ struct ConfigEnumRange<MagicArmorMode> {
 };
 
 template <>
+struct ConfigEnumRange<AudioOutputMode> {
+    static constexpr auto min = AudioOutputMode::StereoSpeakers;
+    static constexpr auto max = AudioOutputMode::Surround8ch;
+};
+
+template <>
 struct ConfigEnumRange<LightSwordMode> {
     static constexpr auto min = LightSwordMode::OFF;
     static constexpr auto max = LightSwordMode::INCLUDE_DAMAGE;
@@ -162,13 +175,13 @@ struct UserSettings {
 
     struct {
         // Audio
+        ConfigVar<AudioOutputMode> outputMode;
         ConfigVar<int> masterVolume;
         ConfigVar<int> mainMusicVolume;
         ConfigVar<int> subMusicVolume;
         ConfigVar<int> soundEffectsVolume;
         ConfigVar<int> fanfareVolume;
         ConfigVar<bool> enableReverb;
-        ConfigVar<bool> enableHrtf;
         ConfigVar<bool> menuSounds;
     } audio;
 
@@ -298,6 +311,7 @@ struct UserSettings {
         ConfigVar<bool> fastSpinner;
         ConfigVar<MagicArmorMode> armorRupeeDrain;
         ConfigVar<bool> invincibleEnemies;
+        ConfigVar<bool> easyQuickSpin;
         ConfigVar<bool> insulatedZoraArmor;
 
         // Technical
@@ -328,6 +342,7 @@ struct UserSettings {
         ConfigVar<bool> skipPreLaunchUI;
         ConfigVar<bool> wasPresetChosen;
         ConfigVar<bool> checkForUpdates;
+        ConfigVar<bool> checkForModUpdates;
         ConfigVar<int> cardFileType;
         ConfigVar<bool> enableAdvancedSettings;
     } backend;

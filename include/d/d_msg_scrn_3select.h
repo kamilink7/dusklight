@@ -26,10 +26,16 @@ public:
     dMsgScrn3Select_c();
     virtual ~dMsgScrn3Select_c();
     bool isSelect();
+#if TARGET_PC
+    bool isAnimeActive() { return mProcess < PROC_MAX_e; }
+#endif
     void setString(DUSK_CONST char*, DUSK_CONST char*, DUSK_CONST char*);
     void setRubyString(DUSK_CONST char*, DUSK_CONST char*, DUSK_CONST char*);
     void translate(f32, f32);
     void draw(f32, f32);
+#if TARGET_PC
+    void presentAnims();
+#endif
     void selAnimeInit(u8, u8, u8, f32, u8);
     bool selAnimeMove(u8, u8, bool);
     bool selAnimeEnd();
@@ -101,6 +107,9 @@ public:
     /* 0x115 */ u8 mDPDPoint;
     /* 0x116 */ u8 field_0x116;
     /* 0x117 */ u8 field_0x117;
+#if TARGET_PC
+    bool mPresenting;
+#endif
 };  // Size: 0x118
 
 #endif /* MSG_SCRN_D_MSG_SCRN_3SELECT_H */

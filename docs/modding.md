@@ -1371,12 +1371,16 @@ HookshotHit::g_orig(link, atObjInf, target, tgObjInf);  // call through to the o
 
 Class member functions must include `Class*` as the first argument.
 
-Two spellings work on every platform:
+There are three ways to refer to a function by symbol:
 
-- **Display names** (`daAlink_c::posMove`, `fapGm_Before`): the qualified name with no parameter list. They carry no
-  signature, so overload sets (and file-local statics sharing a name) return `MOD_CONFLICT`.
-- **Decorated names** (`_ZN9daAlink_c7posMoveEv` / `?posMove@daAlink_c@@...`): the platform's mangled spelling in
-  dlsym convention (no Mach-O leading underscore). The escape hatch for overloads.
+- **Display names** (`daAlink_c::posMove`, `fapGm_Before`): the qualified name with no parameter list. Since they have
+  no signature, overloads (and file-local statics sharing a name) return `MOD_CONFLICT`.
+- **Decorated names** (`_ZN9daAlink_c7posMoveEv` / `?posMove@daAlink_c@@...`): the platform's mangled name, like you'd
+  pass to dlsym(). Useful for overloads, but must be specified separately for Windows (`#ifdef _MSVC_LANG`) and other
+  platforms.
+- **Translation unit aliases** (`src/d/actor/d_a_b_gnd.cpp#action`): the source path relative to the repository root,
+  followed by `#` and then the function display name without parameters. This allows disambiguating static functions
+  with the same name across different source files.
 
 Installing fails with `MOD_UNAVAILABLE` when it didn't resolve (missing, ambiguous, or no symbol manifest). Unlike
 `DEFINE_HOOK`, the signature is **not** compiler-checked: a mismatched signature will corrupt the

@@ -27,7 +27,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 
 #if TARGET_PC
-#include "dusk/frame_interpolation.h"
+#include "dusk/interp/frame_interpolation.h"
 #endif
 
 class dDlst_MENU_CAPTURE_c : public dDlst_base_c {
@@ -126,7 +126,7 @@ public:
     void setCaptureFlag() {
         mFlag = 1;
     #ifdef TARGET_PC
-        dusk::frame_interp::request_presentation_sync();
+        dusk::interp::request_presentation_sync();
     #endif
     }
 
@@ -1589,10 +1589,18 @@ int dMw_c::_create() {
     field_0x144 = 3;
 
     dMeter2Info_setWindowStatus(0);
+
+    IF_DUSK(base.draw_interp_frame = true);
+
     return cPhs_COMPLEATE_e;
 }
 
 int dMw_c::_execute() {
+#if TARGET_PC
+    if (mpMenuRing != NULL) {
+        mpMenuRing->advanceSelectItem();
+    }
+#endif
     if (field_0x151 != 0) {
         field_0x151--;
     }

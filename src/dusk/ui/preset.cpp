@@ -106,26 +106,20 @@ void applyPresetKamilinkInit() {
 }
 }  // namespace
 
-PresetWindow::PresetWindow() : WindowSmall("modal", "modal-dialog") {
-    mDialog->SetClass("modal-dialog", true);
+PresetWindow::PresetWindow() : WindowSmall("modal") {
+    auto* header = append(mDialog, "modal-header");
 
-    auto* header = append(mDialog, "div");
-    header->SetClass("modal-header", true);
-
-    auto* title = append(header, "div");
-    title->SetClass("modal-title", true);
-    title->SetInnerRML("Welcome to Dusklight");
+    auto* title = append(header, "modal-title");
+    append_text(title, "Welcome to Dusklight");
 
     auto* headIcon = append(header, "icon");
     headIcon->SetClass("celebration", true);
 
-    auto* intro = append(mDialog, "div");
-    intro->SetClass("modal-body", true);
-    intro->SetInnerRML(
+    auto* intro = append(mDialog, "modal-body");
+    append_text(intro,
         "Choose a preset to get started. You can change any setting later from the Settings menu.");
 
-    auto* grid = append(mDialog, "div");
-    grid->SetClass("preset-grid", true);
+    auto* grid = append(mDialog, "preset-grid");
 
     struct PresetInfo {
         const char* name;
@@ -143,14 +137,13 @@ PresetWindow::PresetWindow() : WindowSmall("modal", "modal-dialog") {
          "Our recommended way to play!",
          applyPresetDusk},
         {"Lazy Tweaks",
-            "Experience most of what Lazy Tweaks has to offer."
+            "Experience most of what Lazy Tweaks has to offer. "
             "Kamilink's 'definitive' difficulty.",
             applyPresetKamilinkInit},
     };
 
     for (const auto& preset : kPresets) {
-        auto* col = append(grid, "div");
-        col->SetClass("preset-col", true);
+        auto* col = append(grid, "preset-option");
 
         auto btn = std::make_unique<Button>(col, Rml::String(preset.name));
         btn->on_nav_command([this, apply = preset.apply](Rml::Event&, NavCommand cmd) {
@@ -166,9 +159,8 @@ PresetWindow::PresetWindow() : WindowSmall("modal", "modal-dialog") {
         });
         mButtons.push_back(std::move(btn));
 
-        auto* desc = append(col, "div");
-        desc->SetClass("preset-desc", true);
-        desc->SetInnerRML(preset.desc);
+        auto* desc = append(col, "preset-description");
+        append_text(desc, preset.desc);
     }
 }
 

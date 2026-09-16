@@ -10,7 +10,8 @@
 #include "JSystem/J3DGraphBase/J3DMaterial.h"
 
 #if TARGET_PC
-#include "dusk/frame_interpolation.h"
+#include "dusk/interp/frame_interpolation.h"
+#include "dusk/interp/samples.h"
 #include "dusk/settings.h"
 
 static const int HS_CHAIN_MAX_LINKS = 600;
@@ -55,8 +56,18 @@ void daAlink_c::hsChainShape_c::draw() {
     GXLoadLightObjImm(chainLight->getLightObj(), GX_LIGHT0);
 
     if (alink->checkIronBallEquip()) {
-        cXyz* ppos = alink->getIronBallChainPos();
-        csXyz* pangle = alink->getIronBallChainAngle();
+#if TARGET_PC
+        auto& samples = dusk::interp::get<AlinkInterp>(alink);
+        cXyz chainPositions[IRON_BALL_CHAIN_COUNT];
+        csXyz chainAngles[IRON_BALL_CHAIN_COUNT];
+        for (int i = 0; i < IRON_BALL_CHAIN_COUNT; ++i) {
+            chainPositions[i] = samples.ib_pos.read(i, alink->getIronBallChainPos()[i]);
+            chainAngles[i] = samples.ib_angle.read(i, alink->getIronBallChainAngle()[i]);
+        }
+        cXyz chainHand = samples.ib_hand.read(0, alink->getIronBallChainHandRootPos());
+#endif
+        cXyz* ppos = DUSK_IF_ELSE(chainPositions, alink->getIronBallChainPos());
+        csXyz* pangle = DUSK_IF_ELSE(chainAngles, alink->getIronBallChainAngle());
         ppos++;
         pangle++;
 
@@ -86,19 +97,19 @@ void daAlink_c::hsChainShape_c::draw() {
             s16 spE;
 
             if (i == 0) {
-                sp48 = alink->getIronBallChainPos() + alink->getIronBallHandChainNum();
-                spC8 = alink->getIronBallChainHandRootPos() - *sp48;
+                sp48 = DUSK_IF_ELSE(chainPositions, alink->getIronBallChainPos()) + alink->getIronBallHandChainNum();
+                spC8 = DUSK_IF_ELSE(chainHand, alink->getIronBallChainHandRootPos()) - *sp48;
 
-                sp44 = alink->getIronBallChainAngle() + alink->getIronBallHandChainNum();
+                sp44 = DUSK_IF_ELSE(chainAngles, alink->getIronBallChainAngle()) + alink->getIronBallHandChainNum();
                 spE = 0x3000;
             } else {
-                sp48 = alink->getIronBallChainPos();
-                mDoMtx_stack_c::transS(*(alink->getIronBallChainPos() + 1));
-                mDoMtx_stack_c::ZXYrotM(*(alink->getIronBallChainAngle() + 1));
+                sp48 = DUSK_IF_ELSE(chainPositions, alink->getIronBallChainPos());
+                mDoMtx_stack_c::transS(*(DUSK_IF_ELSE(chainPositions, alink->getIronBallChainPos()) + 1));
+                mDoMtx_stack_c::ZXYrotM(*(DUSK_IF_ELSE(chainAngles, alink->getIronBallChainAngle()) + 1));
                 mDoMtx_stack_c::multVec(&l_ironBallChainVec, &spC8);
                 spC8 -= *sp48;
 
-                sp44 = alink->getIronBallChainAngle() + 1;
+                sp44 = DUSK_IF_ELSE(chainAngles, alink->getIronBallChainAngle()) + 1;
                 spE = -0x3000;
             }
 
@@ -136,19 +147,11 @@ void daAlink_c::hsChainShape_c::draw() {
         }
     } else {
 #if TARGET_PC
-        cXyz hsInterpTop, hsInterpRoot, hsInterpSubRoot, hsInterpSubTop;
-        if (dusk::frame_interp::is_enabled() && alink->mHsChainInterpPrevValid && alink->mHsChainInterpCurrValid) {
-            const f32 alpha = dusk::frame_interp::get_interpolation_step();
-            hsInterpTop    = alink->mHsChainInterpPrevTop    + (alink->mHsChainInterpCurrTop    - alink->mHsChainInterpPrevTop)    * alpha;
-            hsInterpRoot   = alink->mHsChainInterpPrevRoot   + (alink->mHsChainInterpCurrRoot   - alink->mHsChainInterpPrevRoot)   * alpha;
-            hsInterpSubRoot = alink->mHsChainInterpPrevSubRoot + (alink->mHsChainInterpCurrSubRoot - alink->mHsChainInterpPrevSubRoot) * alpha;
-            hsInterpSubTop  = alink->mHsChainInterpPrevSubTop  + (alink->mHsChainInterpCurrSubTop  - alink->mHsChainInterpPrevSubTop)  * alpha;
-        } else {
-            hsInterpTop    = alink->getHsChainTopPos();
-            hsInterpRoot   = alink->getHsChainRootPos();
-            hsInterpSubRoot = alink->getHsSubChainRootPos();
-            hsInterpSubTop  = alink->getHsSubChainTopPos();
-        }
+        auto& samples = dusk::interp::get<AlinkInterp>(alink).hs_chain;
+        cXyz hsInterpTop = samples.read(0, alink->getHsChainTopPos());
+        cXyz hsInterpRoot = samples.read(1, alink->getHsChainRootPos());
+        cXyz hsInterpSubRoot = samples.read(2, alink->getHsSubChainRootPos());
+        cXyz hsInterpSubTop = samples.read(3, alink->getHsSubChainTopPos());
 #endif
         const cXyz& chainRootPos = DUSK_IF_ELSE(hsInterpRoot, alink->getHsChainRootPos());
         const cXyz& chainTopPos = DUSK_IF_ELSE(hsInterpTop, alink->getHsChainTopPos());
@@ -242,31 +245,6 @@ void daAlink_c::hsChainShape_c::draw() {
         }
     }
 }
-
-#if TARGET_PC
-static void ironBallChainInterpCallback(bool isSimFrame, void* pUserWork) {
-    static_cast<daAlink_c*>(pUserWork)->onIronBallChainInterpCallback();
-}
-
-void daAlink_c::onIronBallChainInterpCallback() {
-    if (!mIBChainInterpPrevValid || !mIBChainInterpCurrValid) {
-        return;
-    }
-    if (mIronBallChainPos == NULL || mIronBallChainAngle == NULL) {
-        return;
-    }
-
-    const f32 alpha = dusk::frame_interp::get_interpolation_step();
-
-    for (int i = 0; i < IRON_BALL_CHAIN_COUNT; i++) {
-        mIronBallChainPos[i] = mIBChainInterpPrevPos[i] + (mIBChainInterpCurrPos[i] - mIBChainInterpPrevPos[i]) * alpha;
-        mIronBallChainAngle[i].x = mIBChainInterpPrevAngle[i].x + (s16)((s16)(mIBChainInterpCurrAngle[i].x - mIBChainInterpPrevAngle[i].x) * alpha);
-        mIronBallChainAngle[i].y = mIBChainInterpPrevAngle[i].y + (s16)((s16)(mIBChainInterpCurrAngle[i].y - mIBChainInterpPrevAngle[i].y) * alpha);
-        mIronBallChainAngle[i].z = mIBChainInterpPrevAngle[i].z + (s16)((s16)(mIBChainInterpCurrAngle[i].z - mIBChainInterpPrevAngle[i].z) * alpha);
-    }
-    mHookshotTopPos = mIBChainInterpPrevHandRoot + (mIBChainInterpCurrHandRoot - mIBChainInterpPrevHandRoot) * alpha;
-}
-#endif
 
 void daAlink_c::hookshotAtHitCallBack(dCcD_GObjInf* i_atObjInf, fopAc_ac_c* i_tgActor,
                                       dCcD_GObjInf* i_tgObjInf) {

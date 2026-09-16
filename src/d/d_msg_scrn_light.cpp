@@ -8,7 +8,7 @@
 #include "d/d_pane_class.h"
 
 #if TARGET_PC
-#include "dusk/frame_interpolation.h"
+#include "dusk/interp/user_interface.h"
 #endif
 
 class dMsgScrnLight_HIO_c {
@@ -206,15 +206,14 @@ void dMsgScrnLight_c::draw(f32* i_anmFrame, f32 i_posX, f32 i_posY, f32 i_scaleX
     }
 
     if (mPlayAnim) {
-#ifdef TARGET_PC
-        if (dusk::frame_interp::get_ui_tick_pending())
-#endif
-        {
-            *i_anmFrame += 1.0f;
-            if (*i_anmFrame >= mpBck->getFrameMax()) {
-                *i_anmFrame = 0.0f;
-            }
+#if TARGET_PC
+        dusk::vdt::advance_looping_frame(*i_anmFrame, 1.0f, mpBck->getFrameMax());
+#else
+        *i_anmFrame += 1.0f;
+        if (*i_anmFrame >= mpBck->getFrameMax()) {
+            *i_anmFrame = 0.0f;
         }
+#endif
 
         mBckFrame = *i_anmFrame;
         mBpkFrame = *i_anmFrame;
@@ -229,16 +228,14 @@ void dMsgScrnLight_c::draw(f32* i_anmFrame, f32 i_posX, f32 i_posY, f32 i_scaleX
     mpParent_c->setBlackWhite(i_black, i_white);
 
     if (mPlayAnim) {
-#ifdef TARGET_PC
-        if (dusk::frame_interp::get_ui_tick_pending())
-#endif
-        {
-            *i_anmFrame += i_anmRate;
-
-            if (*i_anmFrame >= mpBck->getFrameMax()) {
-                *i_anmFrame = 0.0f;
-            }
+#if TARGET_PC
+        dusk::vdt::advance_looping_frame(*i_anmFrame, i_anmRate, mpBck->getFrameMax());
+#else
+        *i_anmFrame += i_anmRate;
+        if (*i_anmFrame >= mpBck->getFrameMax()) {
+            *i_anmFrame = 0.0f;
         }
+#endif
 
         mBckFrame = *i_anmFrame;
         mBpkFrame = *i_anmFrame;

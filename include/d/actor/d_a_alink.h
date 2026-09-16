@@ -124,7 +124,11 @@ public:
     BOOL create();
     void update();
     virtual void draw();
+#if TARGET_PC
+    virtual ~daAlink_lockCursor_c();
+#else
     virtual ~daAlink_lockCursor_c() {}
+#endif
 
     void initFrame() {
         field_0x4 = 0;
@@ -4565,29 +4569,6 @@ public:
     void handleQuickTransform();
     bool checkAimContext();
     bool checkAimInputContext();
-
-    void onIronBallChainInterpCallback();
-
-    static const int IRON_BALL_CHAIN_COUNT = 102;
-    cXyz mIBChainInterpPrevPos[IRON_BALL_CHAIN_COUNT];
-    cXyz mIBChainInterpCurrPos[IRON_BALL_CHAIN_COUNT];
-    csXyz mIBChainInterpPrevAngle[IRON_BALL_CHAIN_COUNT];
-    csXyz mIBChainInterpCurrAngle[IRON_BALL_CHAIN_COUNT];
-    cXyz mIBChainInterpPrevHandRoot;
-    cXyz mIBChainInterpCurrHandRoot;
-    bool mIBChainInterpPrevValid;
-    bool mIBChainInterpCurrValid;
-
-    cXyz mHsChainInterpPrevTop;
-    cXyz mHsChainInterpCurrTop;
-    cXyz mHsChainInterpPrevRoot;
-    cXyz mHsChainInterpCurrRoot;
-    cXyz mHsChainInterpPrevSubRoot;
-    cXyz mHsChainInterpCurrSubRoot;
-    cXyz mHsChainInterpPrevSubTop;
-    cXyz mHsChainInterpCurrSubTop;
-    bool mHsChainInterpPrevValid;
-    bool mHsChainInterpCurrValid;
 
     bool mIsRollstab = false;
     void* mAnmBuffers[3] = {};

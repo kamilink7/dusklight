@@ -27,6 +27,10 @@
 namespace dusk::mods {
 namespace {
 
+// Oops! We forgot the FIFO thread exists. The design of this service isn't thread safe.
+// Encounter said he'd fix it, this is the temporary workaround.
+#define OH_FUCK_SYNC AuroraGXSync();
+
 constexpr borealis::Log Log{"dusk::mods::gfx"};
 
 enum class GfxSlotKind : uint8_t {
@@ -1082,6 +1086,8 @@ ModResult gfx_get_device_info(ModContext* context, GfxDeviceInfo* outInfo) {
 }
 
 ModResult gfx_get_scene_target_layout(ModContext* context, GfxRenderTargetLayout* outLayout) {
+    OH_FUCK_SYNC
+
     if (outLayout == nullptr || outLayout->struct_size < sizeof(GfxRenderTargetLayout) ||
         mod_from_context(context) == nullptr)
     {
@@ -1172,6 +1178,8 @@ ModResult gfx_register_window_present_target_impl(ModContext* context, WindowHan
 
 ModResult gfx_resize_present_target_impl(
     ModContext* context, GfxPresentTargetHandle handle, uint32_t width, uint32_t height) {
+    OH_FUCK_SYNC
+
     auto* mod = mod_from_context(context);
     if (mod == nullptr || handle == 0 || width == 0 || height == 0) {
         return MOD_INVALID_ARGUMENT;
@@ -1189,6 +1197,8 @@ ModResult gfx_unregister_present_target_impl(ModContext* context, GfxPresentTarg
 
 ModResult gfx_push_present_impl(
     ModContext* context, GfxPresentTargetHandle handle, const void* payload, size_t payloadSize) {
+    OH_FUCK_SYNC
+
     auto* mod = mod_from_context(context);
     if (mod == nullptr || handle == 0 || payloadSize > GFX_INLINE_DRAW_PAYLOAD_SIZE ||
         (payloadSize > 0 && payload == nullptr))
@@ -1229,6 +1239,8 @@ ModResult gfx_unregister_draw_type_impl(ModContext* context, GfxDrawTypeHandle h
 
 ModResult gfx_push_draw_impl(
     ModContext* context, GfxDrawTypeHandle handle, const void* payload, size_t payloadSize) {
+    OH_FUCK_SYNC
+
     auto* mod = mod_from_context(context);
     if (mod == nullptr || handle == 0 || payloadSize > GFX_INLINE_DRAW_PAYLOAD_SIZE ||
         (payloadSize > 0 && payload == nullptr))
@@ -1252,21 +1264,29 @@ ModResult gfx_push_stream_impl(ModContext* context, GfxStreamBuffer buffer, cons
 
 ModResult gfx_push_verts_impl(
     ModContext* context, const void* data, size_t size, size_t alignment, GfxRange* outRange) {
+    OH_FUCK_SYNC
+
     return gfx_push_stream_impl(context, GfxStreamBuffer::Verts, data, size, alignment, outRange);
 }
 
 ModResult gfx_push_indices_impl(
     ModContext* context, const void* data, size_t size, size_t alignment, GfxRange* outRange) {
+    OH_FUCK_SYNC
+
     return gfx_push_stream_impl(context, GfxStreamBuffer::Indices, data, size, alignment, outRange);
 }
 
 ModResult gfx_push_uniform_impl(
     ModContext* context, const void* data, size_t size, GfxRange* outRange) {
+    OH_FUCK_SYNC
+
     return gfx_push_stream_impl(context, GfxStreamBuffer::Uniform, data, size, 0, outRange);
 }
 
 ModResult gfx_push_storage_impl(
     ModContext* context, const void* data, size_t size, GfxRange* outRange) {
+    OH_FUCK_SYNC
+
     return gfx_push_stream_impl(context, GfxStreamBuffer::Storage, data, size, 0, outRange);
 }
 
@@ -1307,6 +1327,8 @@ ModResult gfx_unregister_stage_hook_impl(ModContext* context, GfxStageHookHandle
 
 ModResult gfx_resolve_pass_impl(
     ModContext* context, const GfxResolveDesc* desc, GfxResolvedTargets* outTargets) {
+    OH_FUCK_SYNC
+
     if (outTargets != nullptr && outTargets->struct_size >= sizeof(GfxResolvedTargets)) {
         *outTargets = GfxResolvedTargets{.struct_size = sizeof(GfxResolvedTargets)};
     }
@@ -1321,6 +1343,8 @@ ModResult gfx_resolve_pass_impl(
 }
 
 ModResult gfx_create_pass_impl(ModContext* context, uint32_t width, uint32_t height) {
+    OH_FUCK_SYNC
+
     auto* mod = mod_from_context(context);
     if (mod == nullptr || width == 0 || height == 0) {
         return MOD_INVALID_ARGUMENT;
@@ -1359,6 +1383,8 @@ ModResult gfx_unregister_compute_type_impl(ModContext* context, GfxComputeTypeHa
 
 ModResult gfx_push_compute_impl(
     ModContext* context, GfxComputeTypeHandle handle, const void* payload, size_t payloadSize) {
+    OH_FUCK_SYNC
+
     auto* mod = mod_from_context(context);
     if (mod == nullptr || handle == 0 || payloadSize > GFX_INLINE_DRAW_PAYLOAD_SIZE ||
         (payloadSize > 0 && payload == nullptr))

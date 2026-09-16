@@ -53,11 +53,24 @@
 
 #if TARGET_PC
 #include "dusk/action_bindings.h"
-#include "dusk/frame_interpolation.h"
+#include "dusk/interp/frame_interpolation.h"
+#include "dusk/interp/sight.h"
 #include "dusk/settings.h"
 #include "res/Object/Alink.h"
 #include <cstring>
 #include <helpers/string.hpp>
+
+static const int IRON_BALL_CHAIN_COUNT = 102;
+static const int HS_CHAIN_ANCHOR_COUNT = 4;
+
+namespace {
+struct AlinkInterp {
+    dusk::interp::Samples<cXyz> ib_pos;
+    dusk::interp::Samples<csXyz> ib_angle;
+    dusk::interp::Samples<cXyz> ib_hand;
+    dusk::interp::Samples<cXyz> hs_chain;
+};
+}  // namespace
 #endif
 
 static int daAlink_Create(fopAc_ac_c* i_this);
@@ -4313,9 +4326,7 @@ int daAlink_c::createHeap() {
         return 0;
     }
 
-    IF_DUSK(mFaceBckHeap.reserveBuffer(dRes_ID_ALANM_BCK_FAT_e);)
-    JKRReadIdxResource(mFaceBckHeap.getBuffer(), DUSK_IF_ELSE(mFaceBckHeap.getBufferSize(), 0xC00),
-                       dRes_ID_ALANM_BCK_FAT_e, dComIfGp_getAnmArchive());
+    JKRReadIdxResource(mFaceBckHeap.getBuffer(), 0xC00, dRes_ID_ALANM_BCK_FAT_e, dComIfGp_getAnmArchive());
     J3DAnmTransform* bck = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(mFaceBckHeap.getBuffer());
     if (!mFaceBck.init(bck, FALSE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false)) {
         return 0;
@@ -5993,7 +6004,7 @@ void daAlink_c::setItemMatrix(int param_0) {
 
         mDoMtx_stack_c::XrotS(-0x8000);
 #ifdef TARGET_PC
-        if (dusk::frame_interp::is_enabled()) {
+        if (dusk::interp::is_enabled()) {
             Mtx boot_mtx;
             mDoMtx_concat(mpLinkModel->getAnmMtx(0x18), mDoMtx_stack_c::get(), boot_mtx);
             mpLinkBootModels[1]->setAnmMtx(1, boot_mtx);
@@ -14839,10 +14850,13 @@ void daAlink_c::deleteEquipItem(BOOL i_isPlaySound, BOOL i_isDeleteKantera) {
     mIronBallChainAngle = NULL;
     field_0x3848 = NULL;
 #if TARGET_PC
-    mIBChainInterpPrevValid = false;
-    mIBChainInterpCurrValid = false;
-    mHsChainInterpPrevValid = false;
-    mHsChainInterpCurrValid = false;
+    {
+        auto& interp = dusk::interp::get<AlinkInterp>(this);
+        interp.ib_pos.reset();
+        interp.ib_angle.reset();
+        interp.ib_hand.reset();
+        interp.hs_chain.reset();
+    }
 #endif
     field_0x0774 = NULL;
     field_0x0778 = NULL;
@@ -19863,36 +19877,21 @@ int daAlink_c::draw() {
                 dComIfGd_getOpaListDark()->entryImm(mpHookChain, 0);
 
 #if TARGET_PC
-                if (dusk::frame_interp::is_enabled()) {
+                if (dusk::interp::should_capture()) {
+                    auto& interp = dusk::interp::get<AlinkInterp>(this);
                     if (mEquipItem == dItemNo_IRONBALL_e &&
                         mIronBallChainPos != NULL && mIronBallChainAngle != NULL)
                     {
-                        if (mIBChainInterpCurrValid) {
-                            memcpy(mIBChainInterpPrevPos, mIBChainInterpCurrPos, IRON_BALL_CHAIN_COUNT * sizeof(cXyz));
-                            memcpy(mIBChainInterpPrevAngle, mIBChainInterpCurrAngle, IRON_BALL_CHAIN_COUNT * sizeof(csXyz));
-                            mIBChainInterpPrevHandRoot = mIBChainInterpCurrHandRoot;
-                            mIBChainInterpPrevValid = true;
-                        }
-
-                        memcpy(mIBChainInterpCurrPos, mIronBallChainPos, IRON_BALL_CHAIN_COUNT * sizeof(cXyz));
-                        memcpy(mIBChainInterpCurrAngle, mIronBallChainAngle, IRON_BALL_CHAIN_COUNT * sizeof(csXyz));
-                        mIBChainInterpCurrHandRoot = mHookshotTopPos;
-                        mIBChainInterpCurrValid = true;
-
-                        dusk::frame_interp::add_interpolation_callback(&ironBallChainInterpCallback, this);
+                        interp.ib_pos.capture(mIronBallChainPos, IRON_BALL_CHAIN_COUNT);
+                        interp.ib_angle.capture(mIronBallChainAngle, IRON_BALL_CHAIN_COUNT);
+                        interp.ib_hand.capture(&mHookshotTopPos, 1);
                     } else {
-                        if (mHsChainInterpCurrValid) {
-                            mHsChainInterpPrevTop = mHsChainInterpCurrTop;
-                            mHsChainInterpPrevRoot = mHsChainInterpCurrRoot;
-                            mHsChainInterpPrevSubRoot = mHsChainInterpCurrSubRoot;
-                            mHsChainInterpPrevSubTop = mHsChainInterpCurrSubTop;
-                            mHsChainInterpPrevValid = true;
-                        }
-                        mHsChainInterpCurrTop = mHookshotTopPos;
-                        mHsChainInterpCurrRoot = mHeldItemRootPos;
-                        mHsChainInterpCurrSubRoot = field_0x3810;
-                        mHsChainInterpCurrSubTop = mIronBallBgChkPos;
-                        mHsChainInterpCurrValid = true;
+                        cXyz hsAnchors[HS_CHAIN_ANCHOR_COUNT];
+                        hsAnchors[0] = mHookshotTopPos;
+                        hsAnchors[1] = mHeldItemRootPos;
+                        hsAnchors[2] = field_0x3810;
+                        hsAnchors[3] = mIronBallBgChkPos;
+                        interp.hs_chain.capture(hsAnchors, HS_CHAIN_ANCHOR_COUNT);
                     }
                 }
 #endif

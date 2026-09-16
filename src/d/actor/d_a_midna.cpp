@@ -16,7 +16,7 @@
 #include "d/d_debug_viewer.h"
 
 #if TARGET_PC
-#include "dusk/frame_interpolation.h"
+#include "dusk/interp/frame_interpolation.h"
 #endif
 
 static f32 dummy_lit_3777(int idx, u8 foo) {
@@ -499,7 +499,6 @@ int daMidna_c::createHeap() {
         }
     }
 
-    IF_DUSK(mBckHeap[0].reserveBuffer(0x1DC);)
     JKRReadIdxResource(mBckHeap[0].getBuffer(), mBckHeap[0].getBufferSize(), 0x1DC, dComIfGp_getAnmArchive());
     J3DAnmTransform* md_anm = (J3DAnmTransform*)J3DAnmLoaderDataBase::load(mBckHeap[0].getBuffer());
     modelData = (J3DModelData*)dComIfG_getObjectRes(l_arcName, 14);
@@ -1110,10 +1109,10 @@ void daMidna_c::setBodyPartMatrix() {
             mpModel->setAnmMtx(i, mpShadowModel->getAnmMtx(i));
         }
         mpModel->calcWeightEnvelopeMtx();
-#ifdef TARGET_PC
+#if TARGET_PC
         // FRAME INTERP NOTE: Record weight envelopes for Midna here, as they are otherwise missed causing distortion
         for (u16 i = 0; i < mpModel->getModelData()->getWEvlpMtxNum(); i++) {
-            dusk::frame_interp::record_final_mtx(mpModel->getWeightAnmMtx(i));
+            dusk::interp::record_final_mtx(mpModel->getWeightAnmMtx(i));
         }
 #endif
     }
@@ -2168,6 +2167,13 @@ void daMidna_c::setAnm() {
         }
 
         if (anm == ANM_S_APPEAR || anm == ANM_S_APPEARBL) {
+#if TARGET_PC
+            mpShadowModel->forgetMtx();
+            mpShadowMaskBmd->forgetMtx();
+            mpShadowHandsBmd->forgetMtx();
+            mpShadowHairhandBmd->forgetMtx();
+            mpGokouBmd->forgetMtx();
+#endif
             mSound.startCreatureSound(Z2SE_MIDNA_APPEAR, 0, -1);
         } else if (anm == ANM_S_RETURN || anm == ANM_RETURN) {
             mSound.startCreatureSound(Z2SE_MIDNA_DISAPPEAR, 0, -1);

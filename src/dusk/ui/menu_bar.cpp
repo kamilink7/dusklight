@@ -2,6 +2,7 @@
 
 #include "achievements.hpp"
 #include "editor.hpp"
+#include "mod_updates.hpp"
 #include "modal.hpp"
 #include "mods_window.hpp"
 #include "prelaunch.hpp"
@@ -33,6 +34,8 @@ namespace {
 const Rml::String kDocumentSource = R"RML(
 <rml>
 <head>
+    <link type="text/rcss" href="res/rml/theme.rcss" />
+    <link type="text/rcss" href="res/rml/mod_common.rcss" />
     <link type="text/rcss" href="res/rml/tabbing.rcss" />
     <link type="text/rcss" href="res/rml/popup.rcss" />
 </head>
@@ -41,7 +44,6 @@ const Rml::String kDocumentSource = R"RML(
 </body>
 </rml>
 )RML";
-
 }
 
 MenuBar::MenuBar()
@@ -77,11 +79,12 @@ void MenuBar::build_tabs() {
     }
 
     // Only allow us to access achievements if we are playing on a game mode that uses them
-    if (dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::gamemode::kVanillaGameModeId)
-        || dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::speedrun::kSpeedrunGameModeId)) {
+    if (gamemode::getGameModeManager().isCurrentGameMode(gamemode::kVanillaGameModeId) ||
+        gamemode::getGameModeManager().isCurrentGameMode(speedrun::kSpeedrunGameModeId))
+    {
         mTabBar->add_tab("Achievements", [this] { push(std::make_unique<AchievementsWindow>()); });
     }
-    mTabBar->add_tab("Mods", [this] { push(std::make_unique<ModsWindow>()); });
+    mModsButton = &mTabBar->add_tab("Mods", [this] { push(std::make_unique<ModsWindow>()); });
     for (auto& tab : mods::svc::ui_mod_menu_tabs()) {
         mTabBar->add_tab(tab.label, std::move(tab.onSelected));
     }
@@ -92,7 +95,7 @@ void MenuBar::build_tabs() {
         push(std::make_unique<Modal>(Modal::Props{
             .title = "Reset Game",
             .bodyRml = "Unsaved progress will be lost.<br/>"
-                       "<span class=\"tip\">Tip: You can also reset by holding Start+X+B</span>",
+                       "<modal-tip>Tip: You can also reset by holding Start+X+B</modal-tip>",
             .actions =
                 {
                     ModalAction{
@@ -113,7 +116,8 @@ void MenuBar::build_tabs() {
                                     return;
                                 }
                                 dismiss(modal);
-                                if (gamemode::getGameModeManager().getRegisteredGameModes().size() > 1) {
+                                if (gamemode::getGameModeManager().getRegisteredGameModes().size() >
+                                    1) {
                                     // If game modes are registered, return to prelaunch on reset.
                                     prelaunch_state().returnToPrelaunchOnReset = true;
                                 }
@@ -131,7 +135,7 @@ void MenuBar::build_tabs() {
         const auto dismiss = [](Modal& modal) { modal.pop(); };
         push(std::make_unique<Modal>(Modal::Props{
             .title = "Quit Dusklight",
-            .bodyRml = "Unsaved progress will be lost.",
+            .bodyText = "Unsaved progress will be lost.",
             .actions =
                 {
                     ModalAction{
@@ -157,12 +161,12 @@ void MenuBar::build_tabs() {
         }));
     });
 
-    if (dusk::speedrun::isActive()) {
+    if (speedrun::isActive()) {
         mTabBar->add_tab("Reset Run", [this] {
             mTabBar->set_active_tab(-1);
             mDoAud_seStartMenu(kSoundClick);
-            dusk::speedrun::g_speedrunInfo.reset();
-            dusk::speedrun::reset();
+            speedrun::g_speedrunInfo.reset();
+            speedrun::reset();
             JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
             hide(false);
         });
@@ -187,6 +191,9 @@ void MenuBar::hide(bool close) {
 }
 
 void MenuBar::update() {
+    if (mModsButton) {
+        set_mod_update_badge(*mModsButton);
+    }
     update_safe_area();
     Document::update();
 }

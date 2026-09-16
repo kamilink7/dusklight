@@ -30,9 +30,7 @@
 #include "m_Do/m_Do_lib.h"
 
 #if TARGET_PC
-#include <algorithm>
-#include <array>
-#include <vector>
+#include "dusk/interp/user_interface.h"
 #include "dusk/language.hpp"
 #include "dusk/logging.h"
 #include "dusk/menu_pointer.h"
@@ -40,6 +38,10 @@
 #include "dusk/mods/svc/flow.hpp"
 #include "dusk/settings.h"
 #include "dusk/version.hpp"
+
+#include <algorithm>
+#include <array>
+#include <vector>
 #endif
 
 static void dMsgObject_addFundRaising(s16 param_0);
@@ -569,6 +571,97 @@ int dMsgObject_c::_draw() {
     return 1;
 }
 
+#if TARGET_PC
+void dMsgObject_c::presentAnims() {
+    if (mpScrnDraw == NULL || mpOutFont == NULL) {
+        return;
+    }
+
+    const u16 status = getStatusLocal();
+    f32 target = 0.0f;
+    if (status == 2) {
+        if (isPlaceMessage() || isStaffMessage()) {
+            target = g_MsgObject_HIO_c.mStageTitleFadeIn;
+        } else if (isBossMessage()) {
+            target = g_MsgObject_HIO_c.mBossNameFadeIn;
+        } else if (isBookMessage()) {
+            target = g_MsgObject_HIO_c.mBoxAppearFrame + g_MsgObject_HIO_c.mWaitFrame +
+                     g_MsgObject_HIO_c.mLightAppearFrame;
+        } else {
+            target = g_MsgObject_HIO_c.mBoxAppearFrame;
+        }
+        dusk::vdt::advance_toward_frame(field_0x16a, target, 1.0f);
+        if (isKanbanMessage() || isPlaceMessage() || isStaffMessage() || isBossMessage()) {
+            f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
+            mpScrnDraw->fukiScale(ratio);
+            mpScrnDraw->fukiAlpha(ratio);
+            mpOutFont->setAlphaRatio(ratio);
+        } else if (isBookMessage()) {
+            if (field_0x16a <= g_MsgObject_HIO_c.mBoxAppearFrame) {
+                f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, g_MsgObject_HIO_c.mBoxAppearFrame);
+                mpScrnDraw->fukiAlpha(ratio);
+                mpOutFont->setAlphaRatio(ratio);
+            } else {
+                mpScrnDraw->fukiAlpha(1.0f);
+                mpOutFont->setAlphaRatio(1.0f);
+            }
+            s16 waitEnd = g_MsgObject_HIO_c.mBoxAppearFrame + g_MsgObject_HIO_c.mWaitFrame;
+            if (field_0x16a >= waitEnd &&
+                field_0x16a <= waitEnd + g_MsgObject_HIO_c.mLightAppearFrame)
+            {
+                f32 scale = dusk::vdt::clamped_fraction(field_0x16a - waitEnd, g_MsgObject_HIO_c.mLightAppearFrame);
+                mpScrnDraw->fukiScale(scale);
+            }
+        } else {
+            f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
+            mpScrnDraw->fukiScale(1.0f);
+            mpScrnDraw->fukiAlpha(ratio);
+            mpOutFont->setAlphaRatio(ratio);
+        }
+    } else if (status == 17) {
+        if (isKanbanMessage() || isBookMessage()) {
+            target = g_MsgObject_HIO_c.field_0x304;
+        } else if (isPlaceMessage() || isStaffMessage()) {
+            target = g_MsgObject_HIO_c.mStageTitleFadeOut;
+        } else if (isBossMessage()) {
+            target = g_MsgObject_HIO_c.mBossNameFadeOut;
+        } else {
+            target = 5.0f;
+        }
+        dusk::vdt::advance_toward_frame(field_0x16a, target, 1.0f);
+        f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
+        mpScrnDraw->fukiAlpha(1.0f - ratio);
+        if (isBookMessage()) {
+            mpScrnDraw->fukiScale(1.0f - ratio);
+        }
+        mpOutFont->setAlphaRatio(1.0f - ratio);
+    } else if (status == 6) {
+        if (isBookMessage() && field_0x16a > 0) {
+            dusk::vdt::advance_toward_frame(field_0x16a, 0.0f, 1.0f);
+            f32 alpha = (10 - field_0x16a) / 10.0f;
+            mpScrnDraw->fontAlpha(alpha);
+            mpOutFont->setAlphaRatio(alpha);
+        }
+        jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference();
+        if (pRef->getCharAllAlphaRate() < 1.0f) {
+            pRef->addCharAllAlphaRate();
+            f32 alpha = pRef->getCharAllAlphaRate();
+            mpScrnDraw->setCharAlphaRate(alpha);
+            mpOutFont->setAlphaRatio(alpha);
+        }
+    } else if (status == 5 && isBookMessage() &&
+               (isSend() || field_0x16a > 0))
+    {
+        dusk::vdt::advance_toward_frame(field_0x16a, 10.0f, 1.0f);
+        if (field_0x16a <= 10) {
+            f32 alpha = (10 - field_0x16a) / 10.0f;
+            mpScrnDraw->fontAlpha(alpha);
+            mpOutFont->setAlphaRatio(alpha);
+        }
+    }
+}
+#endif
+
 int dMsgObject_c::_delete() {
     mpResCont->destroyResource_all();
     if (mpScrnDraw != NULL) {
@@ -961,7 +1054,7 @@ void dMsgObject_c::waitProc() {
 void dMsgObject_c::openProc() {
     if (isMidonaMessage()) {
         bool uVar12 = 0;
-        if (field_0x16a == 0) {
+        if (DUSK_IF_ELSE(!mpScrnDraw->isSelectAnimeActive(), field_0x16a == 0)) {
             jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference();
             field_0x1a3 = 0;
             if (mpRefer->getMsgID() == 0x7fa) {
@@ -995,7 +1088,7 @@ void dMsgObject_c::openProc() {
             }
         }
     }
-    field_0x16a++;
+    IF_NOT_DUSK(field_0x16a++);
     s16 sVar7;
     if (isKanbanMessage()) {
         sVar7 = g_MsgObject_HIO_c.mBoxAppearFrame;
@@ -1062,12 +1155,12 @@ void dMsgObject_c::openProc() {
 
 void dMsgObject_c::outnowProc() {
     mpRefer->shiftCharCountBuffer();
-    if (isBookMessage() && field_0x16a > 0) {
-        field_0x16a--;
+    if (isBookMessage() && field_0x16a DUSK_IF_ELSE(>, !=) 0) {
+        IF_NOT_DUSK(field_0x16a--);
         f32 alpha = (10 - field_0x16a) / 10.0f;
         mpScrnDraw->fontAlpha(alpha);
         mpOutFont->setAlphaRatio(alpha);
-        if (field_0x16a > 0) {
+        if (field_0x16a DUSK_IF_ELSE(>, !=) 0) {
             return;
         }
     }
@@ -1077,7 +1170,7 @@ void dMsgObject_c::outnowProc() {
         if (mDoCPd_c::getTrigA(0)) {
             pRef->setCharAllAlphaRate(1.0f);
         } else {
-            pRef->addCharAllAlphaRate();
+            IF_NOT_DUSK(pRef->addCharAllAlphaRate());
         }
         f32 alpha = pRef->getCharAllAlphaRate();
         mpScrnDraw->setCharAlphaRate(alpha);
@@ -1131,8 +1224,8 @@ void dMsgObject_c::outwaitProc() {
         (jmessage_tReference*)mpRenProc->getReference();
     mpScrnDraw->arwAnimeMove();
     if (isBookMessage()) {
-        if (isSend() || field_0x16a > 0) {
-            field_0x16a++;
+        if (isSend() || field_0x16a DUSK_IF_ELSE(>, !=) 0) {
+            IF_NOT_DUSK(field_0x16a++);
             if (field_0x16a <= 10) {
                 f32 alpha = (10 - field_0x16a) / 10.0f;
                 mpScrnDraw->fontAlpha(alpha);
@@ -1413,7 +1506,7 @@ void dMsgObject_c::finishProc() {
 }
 
 void dMsgObject_c::endProc() {
-    field_0x16a++;
+    IF_NOT_DUSK(field_0x16a++);
     s16 sVar4 = 5;
     if (isKanbanMessage() || isBookMessage()) {
         sVar4 = g_MsgObject_HIO_c.field_0x304;
