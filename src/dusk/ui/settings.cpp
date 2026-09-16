@@ -1409,7 +1409,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         add_speedrun_disabled_option(leftPane, rightPane, getSettings().game.muteBGM,
             "Mute All Music",
-            "Disables all background music.");
+            "Disables all background music. Mostly for recording footage while keeping a the HUD.");
         addOption("Always Show Gear As Wolf", getSettings().game.wolfGear,
             "Makes the sword and shield always visible on Wolf Link.");
         addOption("Invisible Midna", getSettings().game.invisibleMidna,
@@ -1448,6 +1448,8 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         addOption("More Prominent Sword Trail", getSettings().game.swordTrail,
                 "Makes the sword trail more prominent when swinging.");
+        addOption("Suppress Button Prompts", getSettings().game.suppressButtonPrompts,
+                "Suppresses many button prompts that become redundant for experienced players.");
         leftPane.add_section("Other Shit");
         config_percent_select(leftPane, rightPane, getSettings().game.zItemScale,
             "Z-Item Scale",

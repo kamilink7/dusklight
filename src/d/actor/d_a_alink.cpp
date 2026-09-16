@@ -10375,7 +10375,12 @@ void daAlink_c::decideCommonDoStatus() {
             } else if (checkCutHeadState() && mSkillCooldown <= 150) {
                 setDoStatusEmphasys(BUTTON_STATUS_HELM_SPLITTER);
             } else if (checkWolfSideStep()) {
-                setDoStatusEmphasys(BUTTON_STATUS_JUMP);
+                if (!dusk::getSettings().game.suppressButtonPrompts) {
+                    setDoStatusEmphasys(BUTTON_STATUS_JUMP);
+                }
+                else if (doTrigger()) {
+                    procWolfSideStepInit(0);
+                }
             } else {
                 if (mTargetedActor != NULL) {
                     if (fopAcM_GetName(mTargetedActor) == fpcNm_Tag_Wljump_e) {
@@ -10425,7 +10430,7 @@ void daAlink_c::decideCommonDoStatus() {
                         setDoStatusEmphasys(BUTTON_STATUS_FINISH);
                     } else if (mEquipItem == 0x103 && checkCutHeadState() && mSkillCooldown <= 150) {
                         setDoStatusEmphasys(BUTTON_STATUS_HELM_SPLITTER);
-                    } else {
+                    } else if (!dusk::getSettings().game.suppressButtonPrompts) {
                         setDoStatusEmphasys(BUTTON_STATUS_JUMP);
                     }
                 } else if (!checkSmallUpperGuardAnime() && (mEquipItem == 0x103 || mEquipItem == 0x102)) {
@@ -11926,7 +11931,8 @@ BOOL daAlink_c::checkItemAction() {
             // If R is held,
             if (mDoCPd_c::getHoldLockR(PAD_1) && mSkillCooldown <= 150) {
                 // Let B display the shield attack prompt
-                setBStatus(BUTTON_STATUS_SHIELD_ATTACK);
+                if (!dusk::getSettings().game.suppressButtonPrompts)
+                    setBStatus(BUTTON_STATUS_SHIELD_ATTACK);
                 if (mDoCPd_c::getTrigB(PAD_1) && mSkillCooldown <= 150)
                     return procGuardAttackInit();
             }
@@ -11940,9 +11946,14 @@ BOOL daAlink_c::checkRAction() {
     return false;
 }
 
+BOOL daAlink_c::checkDodgeInput() {
+    return checkAttentionLock() && checkInputOnR() && getDirectionFromShapeAngle() != DIR_FORWARD;
+}
+
 BOOL daAlink_c::checkMoveDoAction() {
     if (doTrigger()) {
-        if (dComIfGp_getDoStatus() == BUTTON_STATUS_JUMP) {
+        if (dComIfGp_getDoStatus() == BUTTON_STATUS_JUMP || checkDodgeInput()) {
+
             if (checkWolf()) {
                 return procWolfSideStepInit(0);
             }

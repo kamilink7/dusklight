@@ -1653,6 +1653,7 @@ public:
     bool checkReadyItem();
     BOOL checkItemAction();
     BOOL checkRAction();
+    BOOL checkDodgeInput();
     BOOL checkMoveDoAction();
     BOOL checkSideRollAction(int);
     BOOL checkNoUpperAnime() const;

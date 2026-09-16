@@ -236,6 +236,7 @@ struct UserSettings {
         ConfigVar<bool> invisibleMidna;
         ConfigVar<LightSwordMode> alwaysLightSword;
         ConfigVar<bool> swordTrail;
+        ConfigVar<bool> suppressButtonPrompts;
 
         // Graphics
         ConfigVar<BloomMode> bloomMode;
