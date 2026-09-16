@@ -1264,7 +1264,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         };
 
         leftPane.add_section("Presets");
-        leftPane.register_control(leftPane.add_button("KAMILINK'S FIORE DI BATTAGLIA").on_pressed([this] {
+        leftPane.register_control(leftPane.add_button("KAMILINK'S FIOR DI BATTAGLIA").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
             applyPresetKamilink();
             config::save();
