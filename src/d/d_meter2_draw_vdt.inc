@@ -77,7 +77,7 @@ enum FadeRowId {
 FadeRow s_fade_rows[kFadeRowCount];
 FollowA s_follow_a;
 FollowB s_follow_b;
-FollowXY s_follow_xy[2];
+FollowXY s_follow_xy[3];
 MidonaChase s_midona;
 GaugeFill s_kantera_fill;
 GaugeFill s_oxygen_fill;
@@ -361,7 +361,7 @@ void follow_button_b(bool live, bool dim, bool dim_txt, bool light_on, bool item
 }
 
 void follow_button_xy(int i_no, bool live, bool dim, bool fishing, bool item_visible) {
-    if (i_no < 0 || i_no > 1) {
+    if (i_no < 0 || i_no > 2) {
         return;
     }
     s_follow_xy[i_no] = {live, dim, fishing, item_visible};
@@ -463,6 +463,7 @@ void dMeter2Draw_c::present() {
     apply_button_b(this);
     setButtonIconAlpha(0, 0, 0, false);
     setButtonIconAlpha(1, 0, 0, false);
+    setButtonIconAlpha(2, 0, 0, false);
     if (s_fade_rows[kFadeRowButtonParent].used) {
         this->setAlphaButtonChange(false);
     }
@@ -488,7 +489,7 @@ void dMeter2Draw_c::present() {
         this->mButtonZAlpha = 0.0f;
     }
     dusk::vdt::present_addCalc2(&this->field_0x724, s_midona.xy_target, 0.4f, 0.5f, 0.1f);
-    this->mpButtonXY[2]->setAlpha((u8)(255.0f * this->field_0x724 * parent_rate));
+    this->mpButtonXY[3]->setAlpha((u8)(255.0f * this->field_0x724 * parent_rate));
 }
 
 void dMeter2Draw_c::presentVessel(f32 i_posX, f32 i_posY, f32 i_scale) {
@@ -574,6 +575,7 @@ void dMeter2Draw_c::resetRows() {
     s_follow_b = FollowB{};
     s_follow_xy[0] = FollowXY{};
     s_follow_xy[1] = FollowXY{};
+    s_follow_xy[2] = FollowXY{};
     s_midona = MidonaChase{};
     s_kantera_fill = GaugeFill{};
     s_oxygen_fill = GaugeFill{};

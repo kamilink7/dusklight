@@ -3714,8 +3714,8 @@ void dMeter2Draw_c::setButtonIconAlpha(int i_no, u8 unused0, u32 unused1, bool u
             } else if (i_no == 2) {
                 // Check if X and Y buttons are usable instead of Midna to dim Z
                 const bool isXYUsable = dMeter2Info_isUseButton(4) || dMeter2Info_isUseButton(8);
-                if (!isXYUsable) {
-                    if (getFishingType()) {
+                if (DUSK_IF_ELSE(s_follow_xy[i_no].dim, !isXYUsable)) {
+                    if (DUSK_IF_ELSE(s_follow_xy[i_no].fishing, getFishingType())) {
                         var_r28 = 0;
                     } else {
                         var_r28 = g_drawHIO.mButtonXYItemDimAlpha;

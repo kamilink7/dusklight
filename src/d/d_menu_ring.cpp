@@ -1301,9 +1301,6 @@ void dMenu_Ring_c::setJumpItem(bool i_useVibrationM) {
             field_0x6b8[2] != dComIfGs_getMixItemIndex(2))
         {
             field_0x674[2] = 1;
-#if TARGET_PC
-            mSelectItemSlideElapsed[2] = 0.0f;
-#endif
         }
     }
 
