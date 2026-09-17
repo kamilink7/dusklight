@@ -914,7 +914,7 @@ void jmessage_tReference::addCharAlpha() {
 }
 
 void jmessage_tReference::addCharAllAlphaRate() {
-    dusk::vdt::advance_toward_frame(mCharAllAlphaRate, 1.0f, mAddCharAllAlphaRate);
+    mCharAllAlphaRate = std::min(mCharAllAlphaRate + mAddCharAllAlphaRate, 1.0f);
 }
 #endif
 

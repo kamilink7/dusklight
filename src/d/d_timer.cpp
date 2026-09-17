@@ -26,6 +26,21 @@
 #if TARGET_PC
 #include "dusk/interp/user_interface.h"
 #include "dusk/version.hpp"
+
+#include <absl/container/flat_hash_map.h>
+
+namespace {
+struct TimerAnimation {
+    dusk::vdt::FrameAnimation close;
+    bool presenting = false;
+    bool opening = false;
+    bool closing = false;
+    bool slide = false;
+};
+
+absl::flat_hash_map<const dDlst_TimerScrnDraw_c*, TimerAnimation> sTimerAnimations;
+
+}  // namespace
 #endif
 
 static int dTimer_createStart2D(s32 param_0, u16 param_1);
@@ -216,7 +231,7 @@ int dTimer_c::_execute() {
 
             if (m_timer_mode == 3 || m_timer_mode == 4 || m_timer_mode == 6 || m_timer_mode == 5) {
 #if TARGET_PC
-                mp_tm_scrn->mPresentTimerSlide = true;
+                sTimerAnimations[mp_tm_scrn].slide = true;
 #else
                 f32 pos_y = mp_tm_scrn->getTimerTransY();
                 if (pos_y < 145.0f) {
@@ -296,6 +311,11 @@ static f32 dummyLiteralOrder2() {
 
 int dTimer_c::_draw() {
     if (dComIfGp_isPauseFlag() || dMsgObject_isTalkNowCheck()) {
+#if TARGET_PC
+        if (m_mode == 8 && dusk::game_clock::is_presentation_frame()) {
+            mp_tm_scrn->presentAnims();
+        }
+#endif
         return 1;
     }
 
@@ -483,6 +503,7 @@ bool dTimer_c::isStart() {
 }
 
 dDlst_TimerScrnDraw_c::dDlst_TimerScrnDraw_c() {
+    IF_DUSK(sTimerAnimations.erase(this));
     field_0x3e2 = 0;
     mHIOType = 0;
     field_0x3D8 = 0;
@@ -1121,8 +1142,9 @@ void dDlst_TimerScrnDraw_c::setShowType(u8 i_type) {
 
 void dDlst_TimerScrnDraw_c::anime() {
 #if TARGET_PC
-    if (!mPresentStep) {
-        mPresentOpening = true;
+    auto& animations = sTimerAnimations[this];
+    if (!animations.presenting) {
+        animations.opening = true;
         return;
     }
     const f32 previousFrame = field_0x3D8;
@@ -1196,18 +1218,22 @@ void dDlst_TimerScrnDraw_c::anime() {
 }
 
 BOOL dDlst_TimerScrnDraw_c::closeAnime() {
-#if TARGET_PC
-    if (!mPresentStep) {
-        mPresentClosing = true;
-        return field_0x3D8 >= 7.0f;
-    }
-#endif
     BOOL var_r31 = false;
-    DUSK_IF_ELSE(dusk::vdt::advance_toward_frame(field_0x3D8, 7.0f, 1.0f), field_0x3D8++);
+#if TARGET_PC
+    auto& animations = sTimerAnimations[this];
+    if (!animations.presenting) {
+        animations.closing = true;
+        field_0x3D8 = std::min(field_0x3D8 + 1.0f, 7.0f);
+        animations.close.approach(field_0x3D8 - 1.0f, 7.0f);
+    }
+    const f32 frame = animations.presenting ? animations.close.advance(field_0x3D8) : field_0x3D8;
+#else
+    field_0x3D8++;
+#endif
 
-    if (field_0x3D8 <= 7) {
-        f32 temp_f31 = acc(7, field_0x3D8, 0);
-        f32 temp_f30 = acc(7, 7 - field_0x3D8, 0);
+    if (DUSK_IF_ELSE(frame, field_0x3D8) <= 7) {
+        f32 temp_f31 = acc(7, DUSK_IF_ELSE(frame, field_0x3D8), 0);
+        f32 temp_f30 = acc(7, 7 - DUSK_IF_ELSE(frame, field_0x3D8), 0);
         f32 temp_f1 = temp_f31 * -50.0f;
 
         if (mpTimeParent != NULL) {
@@ -1355,8 +1381,9 @@ s32 dDlst_TimerScrnDraw_c::createStart(u16 i_messageID) {
 
 #if TARGET_PC
 void dDlst_TimerScrnDraw_c::presentAnims() {
-    mPresentStep = true;
-    if (mPresentTimerSlide) {
+    auto& animations = sTimerAnimations[this];
+    animations.presenting = true;
+    if (animations.slide) {
         dusk::vdt::advance_toward_frame(mTimerTransY, 145.0f, 25.0f);
         if (field_0x3e2 != 0 && mHIOType == 0) {
             setTimerPos(g_drawHIO.mMiniGame.mTimerPosX_4x3,
@@ -1366,10 +1393,10 @@ void dDlst_TimerScrnDraw_c::presentAnims() {
                         g_drawHIO.mMiniGame.mTimerPosY[mHIOType]);
         }
     }
-    if (mPresentClosing) {
+    if (animations.closing) {
         closeAnime();
     } else {
-        if (mPresentOpening) {
+        if (animations.opening) {
             anime();
         }
         const bool event = dComIfGp_event_getMode() == 1;
@@ -1381,8 +1408,8 @@ void dDlst_TimerScrnDraw_c::presentAnims() {
             const f32 previous = frame;
             dusk::vdt::advance_toward_frame(frame, hidden ? 5.0f : 0.0f, 1.0f);
             if (ready || frame != previous) {
-                const f32 rate = timer ? acc(5.0f, 5.0f - frame, 0.0f) :
-                                        1.0f - acc(5.0f, frame, 0.0f);
+                const f32 rate = timer ? acc(5.0f, 5.0f - frame, 0.0f)
+                                       : 1.0f - acc(5.0f, frame, 0.0f);
                 pane->setAlphaRate(mParentAlpha * alpha * rate);
             }
             pane->alphaAnimeStart(frame);
@@ -1395,7 +1422,7 @@ void dDlst_TimerScrnDraw_c::presentAnims() {
         fade(mpImageParent, hideCounter, field_0x3E0 != 0,
              g_drawHIO.mMiniGame.mIconAlpha[mHIOType], false);
     }
-    mPresentStep = false;
+    animations.presenting = false;
 }
 #endif
 
@@ -1725,7 +1752,9 @@ u8 dTimer_isReadyFlag() {
     return 0;
 }
 
-dDlst_TimerScrnDraw_c::~dDlst_TimerScrnDraw_c() {}
+dDlst_TimerScrnDraw_c::~dDlst_TimerScrnDraw_c() {
+    IF_DUSK(sTimerAnimations.erase(this));
+}
 
 int dTimer_c::createGetIn(cXyz i_pos) {
     return mp_tm_scrn->createGetIn(i_pos);

@@ -33,7 +33,8 @@ float sample_interpolation_step();
 bool is_sim_frame();
 bool is_presentation_frame();
 
-float consume_interval(const void* consumer);
+double sample_time();
+float consume_interval(double& lastSample);
 
 // Sets the effective simulation rate through the game clock time scale.
 void set_sim_rate(float hz);

@@ -24,10 +24,9 @@
 #include "f_op/f_op_msg_mng.h"
 #include <cstdio>
 #include <cstring>
-
-#include "JSystem/JKernel/JKRExpHeap.h"
 #include "m_Do/m_Do_controller_pad.h"
 #include "m_Do/m_Do_lib.h"
+#include "JSystem/JKernel/JKRExpHeap.h"
 
 #if TARGET_PC
 #include "dusk/interp/user_interface.h"
@@ -39,9 +38,20 @@
 #include "dusk/settings.h"
 #include "dusk/version.hpp"
 
+#include <absl/container/flat_hash_map.h>
+
 #include <algorithm>
 #include <array>
 #include <vector>
+
+namespace {
+struct MessageAnimation {
+    int phase = -1;
+    dusk::vdt::FrameAnimation frame, alpha;
+};
+
+absl::flat_hash_map<const dMsgObject_c*, MessageAnimation> sMessageAnimations;
+}  // namespace
 #endif
 
 static void dMsgObject_addFundRaising(s16 param_0);
@@ -321,6 +331,7 @@ dMsgObject_HIO_c::dMsgObject_HIO_c() {
 
 int dMsgObject_c::_create(msg_class* param_1) {
 #if TARGET_PC
+    sMessageAnimations.erase(this);
     if (dusk::version::isRegionJpn())
         g_MsgObject_HIO_c.mBoxTalkScaleX = 1.1f;
     else
@@ -572,12 +583,33 @@ int dMsgObject_c::_draw() {
 }
 
 #if TARGET_PC
+static void startAnimation(dMsgObject_c& message, int phase, f32 from, f32 target) {
+    auto& animations = sMessageAnimations[&message];
+    auto& animation = animations.frame;
+    if (animations.phase != phase) {
+        animation.start(from, target);
+    } else {
+        animation.approach(from, target);
+    }
+    animations.phase = phase;
+}
+
 void dMsgObject_c::presentAnims() {
-    if (mpScrnDraw == NULL || mpOutFont == NULL) {
+    if (mpScrnDraw == NULL || mpOutFont == NULL || !dusk::game_clock::g_frameTiming.interpolating) {
+        return;
+    }
+    const auto found = sMessageAnimations.find(this);
+    if (found == sMessageAnimations.end()) {
+        return;
+    }
+    auto& animations = found->second;
+    if (animations.phase < 0) {
         return;
     }
 
-    const u16 status = getStatusLocal();
+    const u16 status = animations.phase;
+    auto& animation = animations.frame;
+    const f32 frame = animation.advance(getStatusLocal() == animations.phase ? field_0x16a : animation.value());
     f32 target = 0.0f;
     if (status == 2) {
         if (isPlaceMessage() || isStaffMessage()) {
@@ -590,33 +622,19 @@ void dMsgObject_c::presentAnims() {
         } else {
             target = g_MsgObject_HIO_c.mBoxAppearFrame;
         }
-        dusk::vdt::advance_toward_frame(field_0x16a, target, 1.0f);
+        const f32 ratio = dusk::vdt::clamped_fraction(frame, target);
+        mpScrnDraw->fukiAlpha(ratio);
+        mpOutFont->setAlphaRatio(ratio);
         if (isKanbanMessage() || isPlaceMessage() || isStaffMessage() || isBossMessage()) {
-            f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
             mpScrnDraw->fukiScale(ratio);
-            mpScrnDraw->fukiAlpha(ratio);
-            mpOutFont->setAlphaRatio(ratio);
         } else if (isBookMessage()) {
-            if (field_0x16a <= g_MsgObject_HIO_c.mBoxAppearFrame) {
-                f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, g_MsgObject_HIO_c.mBoxAppearFrame);
-                mpScrnDraw->fukiAlpha(ratio);
-                mpOutFont->setAlphaRatio(ratio);
-            } else {
-                mpScrnDraw->fukiAlpha(1.0f);
-                mpOutFont->setAlphaRatio(1.0f);
-            }
             s16 waitEnd = g_MsgObject_HIO_c.mBoxAppearFrame + g_MsgObject_HIO_c.mWaitFrame;
-            if (field_0x16a >= waitEnd &&
-                field_0x16a <= waitEnd + g_MsgObject_HIO_c.mLightAppearFrame)
-            {
-                f32 scale = dusk::vdt::clamped_fraction(field_0x16a - waitEnd, g_MsgObject_HIO_c.mLightAppearFrame);
+            if (frame >= waitEnd && frame <= waitEnd + g_MsgObject_HIO_c.mLightAppearFrame) {
+                f32 scale = dusk::vdt::clamped_fraction(frame - waitEnd, g_MsgObject_HIO_c.mLightAppearFrame);
                 mpScrnDraw->fukiScale(scale);
             }
         } else {
-            f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
             mpScrnDraw->fukiScale(1.0f);
-            mpScrnDraw->fukiAlpha(ratio);
-            mpOutFont->setAlphaRatio(ratio);
         }
     } else if (status == 17) {
         if (isKanbanMessage() || isBookMessage()) {
@@ -628,33 +646,27 @@ void dMsgObject_c::presentAnims() {
         } else {
             target = 5.0f;
         }
-        dusk::vdt::advance_toward_frame(field_0x16a, target, 1.0f);
-        f32 ratio = dusk::vdt::clamped_fraction(field_0x16a, target);
+        f32 ratio = dusk::vdt::clamped_fraction(frame, target);
         mpScrnDraw->fukiAlpha(1.0f - ratio);
         if (isBookMessage()) {
             mpScrnDraw->fukiScale(1.0f - ratio);
         }
         mpOutFont->setAlphaRatio(1.0f - ratio);
     } else if (status == 6) {
-        if (isBookMessage() && field_0x16a > 0) {
-            dusk::vdt::advance_toward_frame(field_0x16a, 0.0f, 1.0f);
-            f32 alpha = (10 - field_0x16a) / 10.0f;
+        if (isBookMessage() && frame > 0) {
+            f32 alpha = (10 - frame) / 10.0f;
             mpScrnDraw->fontAlpha(alpha);
             mpOutFont->setAlphaRatio(alpha);
         }
         jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference();
         if (pRef->getCharAllAlphaRate() < 1.0f) {
-            pRef->addCharAllAlphaRate();
-            f32 alpha = pRef->getCharAllAlphaRate();
+            f32 alpha = animations.alpha.advance(pRef->getCharAllAlphaRate());
             mpScrnDraw->setCharAlphaRate(alpha);
             mpOutFont->setAlphaRatio(alpha);
         }
-    } else if (status == 5 && isBookMessage() &&
-               (isSend() || field_0x16a > 0))
-    {
-        dusk::vdt::advance_toward_frame(field_0x16a, 10.0f, 1.0f);
-        if (field_0x16a <= 10) {
-            f32 alpha = (10 - field_0x16a) / 10.0f;
+    } else if (status == 5 && isBookMessage() && (field_0x199 || frame > 0)) {
+        if (frame <= 10) {
+            f32 alpha = (10 - frame) / 10.0f;
             mpScrnDraw->fontAlpha(alpha);
             mpOutFont->setAlphaRatio(alpha);
         }
@@ -663,6 +675,7 @@ void dMsgObject_c::presentAnims() {
 #endif
 
 int dMsgObject_c::_delete() {
+    IF_DUSK(sMessageAnimations.erase(this));
     mpResCont->destroyResource_all();
     if (mpScrnDraw != NULL) {
         JKR_DELETE(mpScrnDraw);
@@ -1052,9 +1065,16 @@ void dMsgObject_c::waitProc() {
 }
 
 void dMsgObject_c::openProc() {
+#if TARGET_PC
+    auto& animations = sMessageAnimations[this];
+    if (field_0x16a == 0) {
+        animations.phase = -1;
+        animations.alpha = {};
+    }
+#endif
     if (isMidonaMessage()) {
         bool uVar12 = 0;
-        if (DUSK_IF_ELSE(!mpScrnDraw->isSelectAnimeActive(), field_0x16a == 0)) {
+        if (field_0x16a == 0) {
             jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference();
             field_0x1a3 = 0;
             if (mpRefer->getMsgID() == 0x7fa) {
@@ -1078,7 +1098,7 @@ void dMsgObject_c::openProc() {
                 field_0x16a = 9;
             }
             if (mpRefer->getMsgID() == 0x7fa) {
-                mpScrnDraw->selectAnimeMove(2, getSelectCursorPosLocal(), uVar12);
+                mpScrnDraw->selectAnimeMove(DUSK_IF_ELSE(3, 2), getSelectCursorPosLocal(), uVar12);
             } else {
                 if (getSelectCursorPosLocal() != 0xff) {
                     mpScrnDraw->selectAnimeMove(2, getSelectCursorPosLocal() + 1, uVar12);
@@ -1088,7 +1108,7 @@ void dMsgObject_c::openProc() {
             }
         }
     }
-    IF_NOT_DUSK(field_0x16a++);
+    field_0x16a++;
     s16 sVar7;
     if (isKanbanMessage()) {
         sVar7 = g_MsgObject_HIO_c.mBoxAppearFrame;
@@ -1134,7 +1154,9 @@ void dMsgObject_c::openProc() {
     }
     mpRenProc->setTextInitPos(mpScrnDraw->getTextBoxPosX(), mpScrnDraw->getTextBoxPosY());
     mpRenProc->setTextScale(mpScrnDraw->getTextBoxScaleX(), mpScrnDraw->getTextBoxScaleY());
+    IF_DUSK(startAnimation(*this, 2, field_0x16a - 1.0f, sVar7));
     if (field_0x16a >= sVar7) {
+        IF_DUSK(animations.frame.finish(field_0x16a));
         mpScrnDraw->fukiTrans(0.0f, 0.0f);
         for (int i = 0; i < 3; i++) {
             mpRenProc->setSelTextInitPos(i, mpScrnDraw->getSelTextBoxPosX(i),
@@ -1154,9 +1176,16 @@ void dMsgObject_c::openProc() {
 }
 
 void dMsgObject_c::outnowProc() {
+    IF_DUSK(auto& animations = sMessageAnimations[this]);
     mpRefer->shiftCharCountBuffer();
     if (isBookMessage() && field_0x16a DUSK_IF_ELSE(>, !=) 0) {
-        IF_NOT_DUSK(field_0x16a--);
+        field_0x16a--;
+#if TARGET_PC
+        startAnimation(*this, 6, field_0x16a + 1.0f, 0.0f);
+        if (field_0x16a == 0) {
+            animations.frame.finish(0.0f);
+        }
+#endif
         f32 alpha = (10 - field_0x16a) / 10.0f;
         mpScrnDraw->fontAlpha(alpha);
         mpOutFont->setAlphaRatio(alpha);
@@ -1167,12 +1196,24 @@ void dMsgObject_c::outnowProc() {
     jmessage_tReference* pRef =
         (jmessage_tReference*)mpRenProc->getReference();
     if (pRef->getCharAllAlphaRate() < 1.0f) {
+        IF_DUSK(const f32 before = pRef->getCharAllAlphaRate());
         if (mDoCPd_c::getTrigA(0)) {
             pRef->setCharAllAlphaRate(1.0f);
         } else {
-            IF_NOT_DUSK(pRef->addCharAllAlphaRate());
+            pRef->addCharAllAlphaRate();
         }
         f32 alpha = pRef->getCharAllAlphaRate();
+#if TARGET_PC
+        if (animations.phase != 6) {
+            animations.frame.finish(field_0x16a);
+        }
+        animations.phase = 6;
+        if (alpha >= 1.0f) {
+            animations.alpha.finish(alpha);
+        } else {
+            animations.alpha.approach(before, 1.0f, alpha - before);
+        }
+#endif
         mpScrnDraw->setCharAlphaRate(alpha);
         mpOutFont->setAlphaRatio(alpha);
     } else if (mpRefer->isLightEnd()) {
@@ -1220,17 +1261,20 @@ void dMsgObject_c::outnowProc() {
 }
 
 void dMsgObject_c::outwaitProc() {
+    IF_DUSK(auto& animations = sMessageAnimations[this]);
     jmessage_tReference* pRef =
         (jmessage_tReference*)mpRenProc->getReference();
     mpScrnDraw->arwAnimeMove();
     if (isBookMessage()) {
         if (isSend() || field_0x16a DUSK_IF_ELSE(>, !=) 0) {
-            IF_NOT_DUSK(field_0x16a++);
+            field_0x16a++;
+            IF_DUSK(startAnimation(*this, 5, field_0x16a - 1.0f, 10.0f));
             if (field_0x16a <= 10) {
                 f32 alpha = (10 - field_0x16a) / 10.0f;
                 mpScrnDraw->fontAlpha(alpha);
                 mpOutFont->setAlphaRatio(alpha);
                 if (field_0x16a >= 10) {
+                    IF_DUSK(animations.frame.finish(10.0f));
                     field_0x172++;
                     mpRefer->setPageNum(field_0x172);
                     mpCtrl->render_synchronize();
@@ -1323,11 +1367,7 @@ void dMsgObject_c::selectProc() {
         pRef->setSelectPos(pointerChoice);
     }
 #endif
-    if (mDoCPd_c::getTrigA(0)
-#if TARGET_PC
-        || pointerConfirm
-#endif
-    ) {
+    if (mDoCPd_c::getTrigA(0) IF_DUSK(|| pointerConfirm)) {
         if (getSelectCursorPosLocal() != 0xff) {
             field_0x1a3 = 1;
         }
@@ -1349,15 +1389,13 @@ void dMsgObject_c::selectProc() {
         }
         field_0x1a3 = 2;
     }
-#ifndef TARGET_PC
-    jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference();
-#endif
+    IF_NOT_DUSK(jmessage_tReference* pRef = (jmessage_tReference*)mpRenProc->getReference());
     if (getStatusLocal() == 8) {
         if (isMidonaMessage() && field_0x1a3 != 0) {
             if (field_0x1a3 == 2 && getSelectCancelPos() == 3) {
                 iVar8 = true;
             } else {
-                while (!iVar8) {
+                IF_NOT_DUSK(while (!iVar8)) {
                     if (getSelectCursorPosLocal() != 0xff) {
                         iVar8 =
                             mpScrnDraw->selectAnimeMove(2, getSelectCursorPosLocal() + 1, uVar7);
@@ -1381,7 +1419,7 @@ void dMsgObject_c::selectProc() {
                 if (field_0x1a3 == 2 && getSelectCancelPos() == 4) {
                     iVar8 = true;
                 } else {
-                    while (!iVar8) {
+                    IF_NOT_DUSK(while (!iVar8)) {
                         iVar8 = mpScrnDraw->selectAnimeMove(3, getSelectCursorPosLocal(), uVar7);
                     }
                 }
@@ -1506,7 +1544,8 @@ void dMsgObject_c::finishProc() {
 }
 
 void dMsgObject_c::endProc() {
-    IF_NOT_DUSK(field_0x16a++);
+    field_0x16a++;
+    IF_DUSK(auto& animations = sMessageAnimations[this]);
     s16 sVar4 = 5;
     if (isKanbanMessage() || isBookMessage()) {
         sVar4 = g_MsgObject_HIO_c.field_0x304;
@@ -1515,6 +1554,7 @@ void dMsgObject_c::endProc() {
     } else if (isBossMessage()) {
         sVar4 = g_MsgObject_HIO_c.mBossNameFadeOut;
     }
+    IF_DUSK(startAnimation(*this, 17, field_0x16a - 1.0f, sVar4));
     f32 dVar6 = (f32)field_0x16a / sVar4;
     mpScrnDraw->fukiAlpha(1.0f - dVar6);
     if (isBookMessage()) {
@@ -1522,6 +1562,7 @@ void dMsgObject_c::endProc() {
     }
     mpOutFont->setAlphaRatio(1.0f - dVar6);
     if (field_0x16a >= sVar4) {
+        IF_DUSK(animations.frame.finish(field_0x16a));
         mpScrnDraw->arwAnimeInit();
         mpScrnDraw->dotAnimeInit();
         if (mNoDemoFlag && !field_0x4d4) {

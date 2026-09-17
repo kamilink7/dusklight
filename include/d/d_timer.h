@@ -119,12 +119,6 @@ public:
     /* 0x3E0 */ u8 field_0x3E0;
     /* 0x3E1 */ u8 mTimerVisible;
     /* 0x3E2 */ u8 field_0x3e2;
-#if TARGET_PC
-    bool mPresentStep = false;
-    bool mPresentOpening = false;
-    bool mPresentClosing = false;
-    bool mPresentTimerSlide = false;
-#endif
 };
 
 class dTimer_c : public msg_class {

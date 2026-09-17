@@ -15,6 +15,55 @@
 
 namespace dusk::vdt {
 
+class FrameAnimation {
+public:
+    void start(f32 from, f32 target, f32 speed = 1.0f, f32 period = 0.0f) {
+        mFrame = from;
+        mTarget = target;
+        mSpeed = speed;
+        mPeriod = period;
+        mTime = game_clock::sample_time();
+        mEpoch = game_clock::g_frameTiming.presentationEpoch;
+    }
+
+    void approach(f32 from, f32 target, f32 speed = 1.0f) {
+        if (mTarget != target || std::abs(mSpeed - speed) > 0.000001f || mPeriod != 0.0f ||
+            mEpoch != game_clock::g_frameTiming.presentationEpoch)
+        {
+            start(from, target, speed);
+        }
+    }
+
+    void finish(f32 frame) { start(frame, frame, 0.0f); }
+
+    f32 advance(f32 logicalFrame) {
+        const f32 frames = game_clock::consume_interval(mTime) / game_clock::kSimPeriod;
+        if (!game_clock::g_frameTiming.interpolating ||
+            mEpoch != game_clock::g_frameTiming.presentationEpoch)
+        {
+            mFrame = logicalFrame;
+            mEpoch = game_clock::g_frameTiming.presentationEpoch;
+        } else if (mPeriod > 0.0f) {
+            mFrame = std::fmod(mFrame + mSpeed * frames, mPeriod);
+        } else {
+            const f32 step = mSpeed * frames;
+            mFrame = mFrame < mTarget ? std::min(mFrame + step, mTarget)
+                                      : std::max(mFrame - step, mTarget);
+        }
+        return mFrame;
+    }
+
+    f32 value() const { return mFrame; }
+
+private:
+    f32 mFrame = 0.0f;
+    f32 mTarget = 0.0f;
+    f32 mSpeed = 0.0f;
+    f32 mPeriod = 0.0f;
+    double mTime = 0.0;
+    u64 mEpoch = 0;
+};
+
 inline f32 clamped_fraction(f32 timer, f32 duration) {
     if (duration <= 0.0f) {
         return 1.0f;
