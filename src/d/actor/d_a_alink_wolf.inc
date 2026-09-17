@@ -7038,43 +7038,40 @@ BOOL daAlink_c::checkWolfAttackAction() {
     mComboCutCount++;
     int atk_direction = getCutDirection();
 
-    if (checkWolfDashMode()) {
-        mComboCutCount = 4;
-        return procWolfJumpAttackInit(0);
-    } else if (checkNoResetFlg0(FLG0_UNK_8000)) {
+    if (checkNoResetFlg0(FLG0_UNK_8000)) {
         if (mComboCutCount == 4) {
             if (atk_direction == DIR_NONE) {
                 return procWolfWaitAttackInit(2);
             } else if (atk_direction == DIR_FORWARD || atk_direction == DIR_LEFT) {
-                return procWolfJumpAttackInit(0);
+                return procWolfWaitAttackInit(2);
             } else {
                 return procWolfRollAttackInit(1, 0);
             }
         } else if (atk_direction == DIR_RIGHT || atk_direction == DIR_BACKWARD) {
             return procWolfWaitAttackInit(2);
         } else {
-            return procWolfJumpAttackInit(2);
+            return procWolfWaitAttackInit(2);
         }
     } else if (mComboCutCount == 4) {
         if (mTargetedActor == NULL) {
             if (atk_direction == DIR_LEFT || atk_direction == DIR_NONE) {
                 return procWolfWaitAttackInit(2);
             } else {
-                return procWolfJumpAttackInit(0);
+                return procWolfWaitAttackInit(2);
             }
         } else if (atk_direction == DIR_LEFT) {
             return procWolfRollAttackInit(0, 0);
         } else if (atk_direction == DIR_RIGHT) {
             return procWolfRollAttackInit(1, 0);
         } else if (atk_direction == DIR_FORWARD) {
-            return procWolfJumpAttackInit(0);
+            return procWolfWaitAttackInit(2);
         } else {
-            return procWolfJumpAttackInit(2);
+            return procWolfWaitAttackInit(2);
         }
     } else if (mComboCutCount == 2) {
         return procWolfWaitAttackInit(normalType0[atk_direction]);
     } else if (mComboCutCount == 1 && atk_direction == DIR_FORWARD) {
-        return procWolfJumpAttackInit(0);
+        return procWolfWaitAttackInit(normalType1[atk_direction]);
     } else {
         return procWolfWaitAttackInit(normalType1[atk_direction]);
     }
