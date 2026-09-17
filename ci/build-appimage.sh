@@ -22,6 +22,10 @@ done
 cp -r platforms/freedesktop/{16x16,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024} build/appdir/usr/share/icons/hicolor
 cp platforms/freedesktop/dev.twilitrealm.dusk.desktop build/appdir/usr/share/applications
 
+# Name the AppImage after the artifact scheme in .github/workflows/build.yml,
+# otherwise appimagetool derives it from the desktop file's Name= key
+appimage="lazytweaks${APP_VERSION:+-$APP_VERSION}-linux-${PRESET:-gcc}-$(uname -m).AppImage"
+
 cd build/install
-VERSION="$APP_VERSION" NO_STRIP=1 "$linuxdeploy" \
+OUTPUT="$appimage" VERSION="$APP_VERSION" NO_STRIP=1 "$linuxdeploy" \
   -l "$lib_dir/libusb-1.0.so" --appdir "$build_dir/appdir" --output appimage
