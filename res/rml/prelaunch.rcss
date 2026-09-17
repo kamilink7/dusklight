@@ -509,12 +509,20 @@ body.animate-in .intro-item {
         text-align: right;
     }
 
+    #menu-list button.mod-update-link {
+        justify-content: flex-end;
+    }
+
     body.mirrored #menu-list {
         align-items: flex-start;
     }
 
     body.mirrored #menu-list button {
         text-align: left;
+    }
+
+    body.mirrored #menu-list button.mod-update-link {
+        justify-content: flex-start;
     }
 
     eyebrow {

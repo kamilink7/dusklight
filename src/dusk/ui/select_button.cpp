@@ -80,6 +80,7 @@ void SelectButton::update_props(Props props) {
         if (!props.icon.empty()) {
             mIconElem->SetClass(props.icon, true);
         }
+        mRoot->SetClass("has-icon", !props.icon.empty());
     }
     set_value_label(props.value);
     set_modified(props.modified);

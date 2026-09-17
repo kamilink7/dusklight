@@ -333,21 +333,24 @@ select-button:disabled {
     cursor: default;
 }
 
+select-button key,
+select-button value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 select-button key {
     font-family: var(--font-family-heading);
     font-weight: bold;
     font-size: var(--font-size-xl);
     text-transform: uppercase;
-    flex: 0 0 auto;
-    white-space: nowrap;
+    flex: 0 1 auto;
 }
 
 select-button value {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    flex: 1 0 20%;
     text-align: right;
     font-size: var(--font-size-2xl);
 }
@@ -359,6 +362,16 @@ select-button value.modified {
 select-button input {
     text-align: right;
     font-size: var(--font-size-2xl);
+}
+
+select-button icon {
+    display: none;
+    flex: 0 0 auto;
+}
+
+select-button.has-icon icon,
+select-button.group-button icon {
+    display: inline-block;
 }
 
 select-button.group-button icon {
