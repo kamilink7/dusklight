@@ -44,6 +44,7 @@ UserSettings g_userSettings = {
         .biggerWallets {"game.biggerWallets", false},
         .noReturnRupees {"game.noReturnRupees", false},
         .disableRupeeCutscenes {"game.disableRupeeCutscenes", false},
+        .fastTransitions {"game.fastTransitions", false},
         .noSwordRecoil {"game.noSwordRecoil", false},
         .noHitstop {"game.noHitstop", false},
         .damageMultiplier {"game.damageMultiplier", 1},
@@ -292,6 +293,7 @@ void registerSettings() {
     Register(g_userSettings.game.biggerWallets);
     Register(g_userSettings.game.noReturnRupees);
     Register(g_userSettings.game.disableRupeeCutscenes);
+    Register(g_userSettings.game.fastTransitions);
     Register(g_userSettings.game.noSwordRecoil);
     Register(g_userSettings.game.noHitstop);
     Register(g_userSettings.game.damageMultiplier);
