@@ -4572,7 +4572,6 @@ public:
     bool checkAimInputContext();
 
     bool mIsRollstab = false;
-    void* mAnmBuffers[3] = {};
 
     daPy_anmHeap_c mItemHeapZ_;  // third item heap; see mItemHeap_ above
     s16 mSkillCooldown = 0;
