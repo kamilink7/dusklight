@@ -7,6 +7,7 @@
 #include "mod_texture_provider.hpp"
 #include "prelaunch.hpp"
 #include "remote_texture_provider.hpp"
+#include "saves_window.hpp"
 #include "window.hpp"
 
 #include "dusk/config.hpp"
@@ -197,20 +198,24 @@ void handle_event(const SDL_Event& event) noexcept {
     } else if (event.type == SDL_EVENT_DROP_FILE && event.drop.data != nullptr) {
         sDroppedPackages.push_back(borealis::io::fs_path_from_utf8(event.drop.data));
     } else if (event.type == SDL_EVENT_DROP_COMPLETE) {
-        if (sDroppedPackages.empty()) {
-            push_toast({
-                .type = "warning",
-                .title = "No packages found",
-                .content = "Drop a Dusklight package to import it.",
-                .duration = std::chrono::seconds{4},
-            });
-        } else {
+        if (!sDroppedPackages.empty()) {
             auto paths = std::exchange(sDroppedPackages, {});
-            sPendingDrops.push_back({
-                borealis::spawn([paths = std::move(paths)](borealis::TaskContext& context) {
-                    return inspect_drop_packages(paths, context);
-                }),
+            std::erase_if(paths, [](const std::filesystem::path& path) {
+                const auto extension = Rml::StringUtilities::ToLower(
+                    borealis::io::fs_path_to_string(path.extension()));
+                if (extension != ".gci" && extension != ".raw" && extension != ".dusksave") {
+                    return false;
+                }
+                import_save_location(borealis::io::fs_path_to_string(path));
+                return true;
             });
+            if (!paths.empty()) {
+                sPendingDrops.push_back({
+                    borealis::spawn([paths = std::move(paths)](borealis::TaskContext& context) {
+                        return inspect_drop_packages(paths, context);
+                    }),
+                });
+            }
         }
     } else if (event.type == SDL_EVENT_GAMEPAD_ADDED) {
         auto* gamepad = SDL_GetGamepadFromID(event.gdevice.which);

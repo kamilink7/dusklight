@@ -47,10 +47,10 @@ struct ModStatus {
 
 ModStatus mod_status(const mods::LoadedMod& mod) {
     if (mod.loadFailed) {
-        return {"failed", "Failed"};
+        return {"error", "Failed"};
     }
     if (mod.active) {
-        return {"active", "Active"};
+        return {"success", "Active"};
     }
     if (mod.suspendedByProvider) {
         return {"suspended", "Suspended"};
@@ -139,7 +139,7 @@ public:
         append_text(append(sub, "span"), "·");
         append_text(append(sub, "mod-version"), fmt::format("v{}", mod.metadata.version));
         append_text(append(sub, "span"), "·");
-        auto* statusElement = append(sub, "mod-status");
+        auto* statusElement = append(sub, "status-badge");
         if (status.badgeClass[0] != '\0') {
             statusElement->SetClass(status.badgeClass, true);
         }
@@ -243,6 +243,8 @@ private:
     Button& make_button(Rml::Element* parent, const ContextMenu::Item& item) {
         auto button = std::make_unique<IconButton>(
             parent, IconButton::Props{.icon = item.icon, .label = item.text});
+        button->root()->SetClass("overlay", true);
+        button->root()->SetClass("danger", item.destructive);
         Button& ref = *button;
         mChildren.emplace_back(std::move(button));
         mButtons.push_back(&ref);
@@ -484,10 +486,10 @@ void ModsWindow::build_detail(Pane& pane, mods::LoadedMod& mod) {
     if (mod_uses_network(mod)) {
         append_text(title, "\u00a0");
         auto* badge = append(title, "status-badge");
-        badge->SetClass("network", true);
+        badge->SetClass("info", true);
         append_text(badge, "Network");
     }
-    auto* author = append(pane.root(), "mod-author");
+    auto* author = append(pane.root(), "small");
     append_text(author, fmt::format("by {}\u00a0·\u00a0", mod.metadata.author));
     const auto status = mod_status(mod);
     auto* badge = append(author, "status-badge");
@@ -499,7 +501,7 @@ void ModsWindow::build_detail(Pane& pane, mods::LoadedMod& mod) {
     if (mod.loadFailed && !mod.failureReason.empty()) {
         auto* row = append(pane.root(), "mod-info-row");
         auto* label = append(row, "b");
-        label->SetClass("failed", true);
+        label->SetClass("error", true);
         append_text(label, "Reason");
         append_text(append(row, "span"), mod.failureReason);
     } else if (mod.suspendedByProvider) {

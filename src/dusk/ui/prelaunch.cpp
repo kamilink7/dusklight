@@ -352,14 +352,13 @@ public:
 
         auto* content = append(body, "verification-progress");
 
-        mFileName = append(content, "verification-file");
+        mFileName = append(content, "file-path");
 
         mProgress = append(content, "progress");
-        mProgress->SetClass("progress-ongoing", true);
-        mProgress->SetClass("verification-progress-bar", true);
+        mProgress->SetClass("info", true);
         mProgress->SetAttribute("value", 0.f);
 
-        mDetail = append(content, "verification-detail");
+        mDetail = append(content, "small");
 
         auto* actions = append(mDialog, "modal-actions");
         mCancelButton = std::make_unique<Button>(actions, "Cancel");
@@ -814,6 +813,11 @@ bool is_restart_pending() noexcept {
     if (getSettings().game.language.getValue() != state.initialLanguage) {
         return true;
     }
+    if (g_mDoMemCd_control.mInitialized &&
+        getSettings().backend.cardFileType.getValue() != state.initialCardFileType)
+    {
+        return true;
+    }
     return false;
 }
 
@@ -918,8 +922,13 @@ void Prelaunch::build_menu_buttons() {
                 }
             }
 
+            const bool cardWasInitialized = g_mDoMemCd_control.mInitialized;
             if (g_mDoMemCd_control.mCardCommand == mDoMemCd_Ctrl_c::Command_e::COMM_NONE_e) {
                 mDoMemCd_ThdInit();
+            }
+            if (!cardWasInitialized) {
+                prelaunch_state().initialCardFileType =
+                    getSettings().backend.cardFileType.getValue();
             }
 
             prelaunch_state().firstLaunch = false;
@@ -933,8 +942,7 @@ void Prelaunch::build_menu_buttons() {
         mMenuButtons.push_back(std::make_unique<Button>(menuList, "Settings"));
         mMenuButtons.back()->on_pressed([this] {
             mRestartSuppressed = false;
-            bool showPrelaunchSettings = prelaunch_state().firstLaunch;
-            push(std::make_unique<SettingsWindow>(showPrelaunchSettings));
+            push(std::make_unique<SettingsWindow>(true));
         });
         apply_intro_animation(mMenuButtons.back()->root(), "delay-2");
 
