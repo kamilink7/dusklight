@@ -4483,7 +4483,7 @@ int daAlink_c::procWolfRopeMove() {
     } else if (mTargetedActor != NULL) {
         setDoStatus(BUTTON_STATUS_UNK_139);
 
-        if (doTrigger()) {
+        if (doTrigger() && mSkillCooldown <= 0) {
             return procWolfJumpAttackInit(1);
         }
     }
@@ -7413,6 +7413,10 @@ int daAlink_c::procWolfJumpAttackInit(int param_0) {
         field_0x307e = mpHIO->mWolf.mWlAttack.m.mComboDuration;
     }
 
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 300;
+    }
+
     return 1;
 }
 
@@ -7584,7 +7588,7 @@ int daAlink_c::procWolfJumpAttackSlideLand() {
         if (checkZeroSpeedF()) {
             current.angle.y = shape_angle.y;
 
-            if (mProcVar0.field_0x3008 != 0) {
+            if (mProcVar0.field_0x3008 != 0 && mSkillCooldown <= 0) {
                 procWolfJumpAttackInit(3);
             } else {
                 checkNextActionWolf(0);
@@ -7594,7 +7598,7 @@ int daAlink_c::procWolfJumpAttackSlideLand() {
         s16 prev_angle = current.angle.y;
         current.angle.y = shape_angle.y;
 
-        if (mProcVar0.field_0x3008 != 0) {
+        if (mProcVar0.field_0x3008 != 0 && mSkillCooldown <= 0) {
             procWolfJumpAttackInit(3);
         } else if (!checkNextActionWolf(1)) {
             current.angle.y = prev_angle;
@@ -7641,7 +7645,7 @@ int daAlink_c::procWolfJumpAttackNormalLand() {
     if (checkAnmEnd(frameCtrl)) {
         checkNextActionWolf(0);
     } else if (frameCtrl->getFrame() > mpHIO->mWolf.mWlAttack.mWlAtLand.m.mNormalLandingAnm.mCancelFrame) {
-        if (mProcVar2.field_0x300c != 0) {
+        if (mProcVar2.field_0x300c != 0 && mSkillCooldown <= 0) {
             ANGLE_ADD_2(shape_angle.y, 0x8000);
             return procWolfJumpAttackInit(3);
         }

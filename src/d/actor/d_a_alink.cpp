@@ -11730,12 +11730,12 @@ int daAlink_c::checkNormalAction() {
                 return checkDoCutAction();
             }
         } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_HELM_SPLITTER) {
-            if (checkWolf()) {
+            if (checkWolf() && mSkillCooldown <= 0) {
                 return procWolfJumpAttackInit(1);
             } else if (mSkillCooldown <= 150) {
                 return checkDoCutAction();
             }
-        } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_UNK_139) {
+        } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_UNK_139 && mSkillCooldown <= 0) {
             return procWolfJumpAttackInit(1);
         } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_DRAW) {
             changeCutFast();
@@ -17464,6 +17464,7 @@ int daAlink_c::procCrouch() {
 }
 
 int daAlink_c::procCoMetamorphoseInit() {
+int daAlink_c::procCoMetamorphoseInit() {
     int var_r29 = 0;
 
     if (dComIfGp_getEvent()->isOrderOK()) {
@@ -18347,6 +18348,9 @@ int daAlink_c::execute() {
             setItemAction();
             checkComboCnt();
             setShieldGuard();
+            if (checkNoResetFlg2(FLG2_UNK_8000000) && mDoCPd_c::getTrigA(PAD_1)) {
+                procFrontRollInit();
+            }
 
             if (checkCutFastReady()) {
                 if (checkNoUpperAnime()) {
