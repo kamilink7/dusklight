@@ -1059,6 +1059,13 @@ for temporary offscreen passes. Draw callbacks run later on the render worker th
 `WGPURenderPassEncoder`; they may use only their `GfxDrawContext` handles and raw `wgpu*` calls. Compute callbacks
 registered with `register_compute_type` follow the same worker-thread rule and run on the frame command encoder.
 
+**GfxService 1.3**: set `GfxResolveDesc.normal` to request a view-space normal snapshot. The first request enables the
+normal attachment for the next frame, then stays enabled until quit. Normal snapshots are unavailable in WebGPU
+compatibility mode or offscreen passes.
+
+Scene attachment changes alter `GfxDrawContext.layout.key`. Create scene pipelines from the draw callback's layout
+and rebuild lazily when its key changes. See the included demo gfx mods for examples.
+
 All WGPU handles from the service are borrowed. Resolved target views are valid for the current frame only. GPU objects
 created by a mod are owned by that mod and should be released in `mod_shutdown`.
 

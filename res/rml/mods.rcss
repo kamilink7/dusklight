@@ -74,6 +74,11 @@ mod-entry:selected {
     decorator: vertical-gradient(rgba(var(--color-accent-rgb), 16) rgba(var(--color-accent-rgb), 64));
 }
 
+mod-entry mod-icon {
+    mod-icon-tint: rgba(var(--color-text-rgb), 45%);
+    mod-icon-background: rgba(var(--color-control-rgb), 20%);
+}
+
 mod-info {
     display: flex;
     flex-flow: column;
@@ -150,7 +155,7 @@ mod-info > small {
 }
 
 mod-entry.inactive mod-icon {
-    filter: grayscale(1);
+    image-desaturation: 1;
 }
 
 mod-entry.inactive mod-info {
@@ -175,12 +180,12 @@ mod-header-image {
     bottom: 0;
     left: 0;
     pointer-events: none;
-    mask-image: linear-gradient(180deg, #fff 40%, transparent);
-    filter: grayscale(0);
+    image-fade-start: 0.4;
+    image-desaturation: 0;
 }
 
 mod-header.inactive mod-header-image {
-    filter: grayscale(1);
+    image-desaturation: 1;
 }
 
 mod-actions {

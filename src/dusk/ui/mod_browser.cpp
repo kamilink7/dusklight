@@ -117,7 +117,7 @@ void set_image(Rml::Element* element, const mods::catalog::Image& image, uint32_
     if (!source.empty()) {
         source = remote_image_source(source, image.width, image.height);
         element->SetProperty(
-            "decorator", fmt::format(R"(image("{}" {} center center))", escape(source), fit));
+            "decorator", fmt::format(R"(image-effects("{}" {}))", escape(source), fit));
         element->SetClass("has-image", true);
     }
 }
@@ -166,7 +166,8 @@ class ModBrowserDetail;
 class CatalogCard final : public Button {
 public:
     CatalogCard(Rml::Element* parent, const mods::catalog::Mod& mod, std::function<void()> onOpen)
-        : Button{parent, Props{}}, mId{mod.id}, mPackageSize{format_bytes(mod.packageSize)} {
+        : Button{parent, Props{}}, mId{mod.id}, mPackageSize{format_bytes(mod.packageSize)},
+          mNativeCodeBlocked{mod.containsNativeCode && !mods::catalog::supports_native_installs()} {
         mRoot->SetClass("catalog-card", true);
         mRoot->SetAttribute("mod-id", mod.id);
         const auto category = mod.category ? mod.category->name : "Uncategorized";
@@ -211,7 +212,10 @@ public:
         const bool installed = mods::ModLoader::instance().find_mod(mId) != nullptr;
         const auto* update = mods::updates::find(mId);
         const bool hasUpdate = installed && update && update->actionable;
-        const auto label = hasUpdate ? "Update available" : installed ? "Installed" : mPackageSize;
+        const auto label = hasUpdate          ? "Update available" :
+                           installed          ? "Installed" :
+                           mNativeCodeBlocked ? "Requires bundling" :
+                                                mPackageSize;
         if (mLabel != label) {
             set_text_content(mStatus, label);
             mStatus->SetClass("installed", installed && !hasUpdate);
@@ -224,6 +228,7 @@ public:
 private:
     std::string mId;
     std::string mPackageSize;
+    bool mNativeCodeBlocked = false;
     std::string mLabel;
     Rml::Element* mStatus = nullptr;
 };
@@ -381,6 +386,7 @@ private:
     }
 
     void build_content(Rml::Element* content) {
+        mRoot->SetClass("image-header", mDetail && (mDetail->mod.banner || mDetail->mod.icon));
         if (mDetail) {
             auto* scroll = append(content, "detail-scroll");
             add_child<DetailContent>(scroll, *this, *mDetail).focus();
@@ -410,13 +416,16 @@ class CatalogInstallButton final : public Button {
 public:
     CatalogInstallButton(
         Rml::Element* parent, ModBrowserDetail& window, const mods::catalog::Detail& detail)
-        : Button{parent, Props{}}, mWindow{window}, mRequest{
-                                                        .id = detail.mod.id,
-                                                        .name = detail.mod.name,
-                                                        .version = detail.mod.version,
-                                                        .source = detail.download,
-                                                        .icon = queue_icon(detail.mod.icon),
-                                                    } {
+        : Button{parent, Props{}}, mWindow{window},
+          mRequest{
+              .id = detail.mod.id,
+              .name = detail.mod.name,
+              .version = detail.mod.version,
+              .source = detail.download,
+              .icon = queue_icon(detail.mod.icon),
+          },
+          mNativeCodeBlocked{
+              detail.mod.containsNativeCode && !mods::catalog::supports_native_installs()} {
         mRoot->SetClass("catalog-install-action", true);
         mCaption = append(parent, "small");
         on_pressed([this] { press(); });
@@ -565,6 +574,18 @@ public:
                 }
             }
         }
+        const bool requiresBundling =
+            mNativeCodeBlocked && !activationPending &&
+            (mAction == Action::Install || mAction == Action::Update || mAction == Action::Resume ||
+                mAction == Action::RetryDownload || mAction == Action::CheckUpdates);
+        if (requiresBundling) {
+            icon = "block";
+            label = "Requires bundling";
+            caption = "Contains native code; requires bundling.";
+            state = "idle";
+            progress = 0.0f;
+            disabled = true;
+        }
         if (disabled) {
             mAction = Action::None;
         }
@@ -578,6 +599,7 @@ public:
             mIcon = icon;
         }
         set_text_content(mCaption, caption);
+        mCaption->SetClass("requires-bundling", requiresBundling);
         mRoot->SetClass("primary", state == "idle");
         for (const auto* candidate : {"idle", "queued", "downloading", "paused", "retrying",
                  "installing", "installed", "failed"})
@@ -665,6 +687,7 @@ private:
 
     ModBrowserDetail& mWindow;
     mods::queue::Request mRequest;
+    bool mNativeCodeBlocked = false;
     Rml::Element* mCaption = nullptr;
     Rml::Element* mProgress = nullptr;
     std::string mLabel;
@@ -856,6 +879,7 @@ DetailContent::DetailContent(
 
 ModBrowser::ModBrowser()
     : Window{Props{.tabBar = false, .styleSheets = {"res/rml/mod_browser.rcss"}}} {
+    mQuery.includeNatives = mods::catalog::supports_native_installs();
     mRoot->SetClass("mod-browser", true);
     mLoaderGeneration = mods::ModLoader::instance().generation();
     mState = borealis::http::available() ? State::Loading : State::Unavailable;
@@ -941,6 +965,7 @@ void ModBrowser::build_content(Rml::Element* content) {
             [this](bool value) {
                 if (mQuery.thisDevice != value) {
                     mQuery.thisDevice = value;
+                    mQuery.includeNatives = !value || mods::catalog::supports_native_installs();
                     mQuery.page = 1;
                     begin_fetch(FocusTarget::Device);
                 }

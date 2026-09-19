@@ -106,7 +106,7 @@ catalog-card-art-image {
     bottom: 0;
     left: 0;
     pointer-events: none;
-    mask-image: linear-gradient(180deg, #fff 45%, transparent);
+    image-fade-start: 0.45;
 }
 
 catalog-card-body {
@@ -307,7 +307,7 @@ catalog-detail-hero-image {
     bottom: 0;
     left: 0;
     pointer-events: none;
-    mask-image: linear-gradient(180deg, #fff 40%, transparent);
+    image-fade-start: 0.4;
 }
 
 catalog-detail-actions {
@@ -413,6 +413,10 @@ catalog-install-control small {
 
 catalog-install-control small.failed {
     color: var(--color-error);
+}
+
+catalog-install-control small.requires-bundling {
+    white-space: normal;
 }
 
 catalog-detail-identity {
