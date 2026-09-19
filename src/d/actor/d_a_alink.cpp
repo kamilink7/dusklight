@@ -17464,7 +17464,6 @@ int daAlink_c::procCrouch() {
 }
 
 int daAlink_c::procCoMetamorphoseInit() {
-int daAlink_c::procCoMetamorphoseInit() {
     int var_r29 = 0;
 
     if (dComIfGp_getEvent()->isOrderOK()) {
