@@ -1466,7 +1466,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.meterSpin,
             {
                 .key = "Great Spin Uses Meter",
-                .helpText = "Ties the Great Spin to the skill meter. Can use Great Spin so long as Link's health is above half and the skill meter is full, rather than only at full health.",
+                .helpText = "Ties the Great Spin to the skill meter. Can use Great Spin so long as Link's health and the skill meter are above half. Full health incurs no meter cost.",
             });
 
         leftPane.add_section("Gamefeel Stuff");

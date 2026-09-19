@@ -846,9 +846,9 @@ BOOL daAlink_c::checkCutLargeTurnState() const {
         return TRUE;
     }
 
-    if (dusk::getSettings().game.meterSpin && mSkillCooldown <= 0
+    if (dusk::getSettings().game.meterSpin && mSkillCooldown <= 150
         && dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge() / 2
-        && dComIfGs_isEventBit(dSv_event_flag_c::F_0344)) {
+        && (dComIfGs_isEventBit(dSv_event_flag_c::F_0344) || checkNoResetFlg3(FLG3_TRANING_CUT_LARGE_TURN))) {
         return TRUE;
     }
 #endif
@@ -1800,12 +1800,11 @@ int daAlink_c::procCutTurnInit(int param_0, int param_1) {
             setCutType(CUT_TYPE_LARGE_TURN_LEFT);
         }
 
-        if (dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge() / 2) {
-            mSkillCooldown += 300;
-        }
-        else if (dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge()){
+        if (dusk::getSettings().game.meterSpin && dComIfGs_getLife() >= dComIfGs_getMaxLifeGauge() / 2
+            && dComIfGs_getLife() != dComIfGs_getMaxLifeGauge()) {
             mSkillCooldown += 150;
         }
+
     } else {
         atp = 3;
         field_0x32cc = Z2SE_AL_KAITENGIRI;
