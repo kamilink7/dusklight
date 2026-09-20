@@ -1463,6 +1463,18 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .key = "Shield Uses Meter",
                 .helpText = "Blocking attacks will consume the skill meter, and the meter will not regenerate while blocking. Blocking without enough meter will incur a guard break. Parrying fully restores meter.",
             });
+        config_bool_select(leftPane, rightPane, getSettings().game.alternateParry,
+            {
+                .key = "Deflect instead of Parry",
+                .helpText = "Replace Parry with Deflect, which is based on timed blocks rather than shield bash.",
+                .isDisabled = [] { return getSettings().game.combinedParry.getValue();}
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.combinedParry,
+            {
+                .key = "Combined Parrying",
+                .helpText = "Deflect and Parry are both active, giving Parry a new Riposte action triggered by pressing B within 1 second after a successful parry.",
+                .isDisabled = [] { return getSettings().game.alternateParry.getValue();}
+            });
         config_bool_select(leftPane, rightPane, getSettings().game.meterSpin,
             {
                 .key = "Great Spin Uses Meter",
@@ -1555,7 +1567,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         addCheat(
             "Moon Jump (R+A)", getSettings().game.moonJump, "Hold R and A to rise into the air.");
         addCheat(
-            "Easy Quick Spin (R+B)", getSettings().game.easyQuickSpin, "Hold R to always do a Quick Spin when attacking with B.");
+            "Easy Quick Spin (R+B+Direction)", getSettings().game.easyQuickSpin, "Hold R and Left/Right to always do a Quick Spin when attacking with B.");
 
         addCheat("Super Clawshot", getSettings().game.superClawshot,
             "Extends Clawshot behavior beyond the normal game rules.");

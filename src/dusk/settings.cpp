@@ -69,6 +69,8 @@ UserSettings g_userSettings = {
         .progressiveDefense {"game.progressiveDefense", false},
         .enableSkillMeter {"game.enableSkillMeter", false},
         .shieldUsesMeter {"game.shieldUsesMeter", false},
+        .alternateParry {"game.alternateParry", false},
+        .combinedParry {"game.combinedParry", false},
         .meterSpin {"game.meterSpin", false},
 
         // Preferences
@@ -319,6 +321,8 @@ void registerSettings() {
     Register(g_userSettings.game.progressiveDefense);
     Register(g_userSettings.game.enableSkillMeter);
     Register(g_userSettings.game.shieldUsesMeter);
+    Register(g_userSettings.game.alternateParry);
+    Register(g_userSettings.game.combinedParry);
     Register(g_userSettings.game.meterSpin);
     Register(g_userSettings.game.enableMirrorMode);
     Register(g_userSettings.game.invertCameraXAxis);

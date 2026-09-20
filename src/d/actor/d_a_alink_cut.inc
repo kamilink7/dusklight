@@ -168,7 +168,9 @@ BOOL daAlink_c::checkCutTypeNoBlur() const {
 
 bool daAlink_c::checkCutTurnInput() const {
     #if TARGET_PC
-    if (mDoCPd_c::getHoldR(PAD_1) && dusk::getSettings().game.easyQuickSpin) {
+    int direction = getDirectionFromCurrentAngle();
+    if (mDoCPd_c::getHoldR(PAD_1) && (direction == DIR_LEFT || direction == DIR_RIGHT)
+        && dusk::getSettings().game.easyQuickSpin) {
         return true;
     }
     #endif

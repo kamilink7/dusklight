@@ -1058,7 +1058,7 @@ void dMenu_Ring_c::setItem() {
 
     u8 mixItemIndex0 = dComIfGs_getMixItemIndex(0);
     u8 mixItemIndex1 = dComIfGs_getMixItemIndex(1);
-    u8 mixItemIndex2 = dComIfGs_getMixItemIndex(2); // todo: extend this to support combos on Z(?)
+    u8 mixItemIndex2 = dComIfGs_getMixItemIndex(2);
 
     for (int i = 0; i < 4; i++) {
         setSelectItemForce(i);

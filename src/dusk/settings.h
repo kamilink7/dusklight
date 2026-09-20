@@ -246,6 +246,8 @@ struct UserSettings {
         ConfigVar<bool> progressiveDefense;
         ConfigVar<bool> enableSkillMeter;
         ConfigVar<bool> shieldUsesMeter;
+        ConfigVar<bool> alternateParry;
+        ConfigVar<bool> combinedParry;
         ConfigVar<bool> meterSpin;
 
         // Preferences

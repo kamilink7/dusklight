@@ -674,10 +674,27 @@ BOOL daAlink_c::checkDamageAction() {
 
             if (mParryTimer > 0 && !(mProcID == PROC_SIDESTEP || mProcID == PROC_FRONT_ROLL || mProcID == PROC_SIDE_ROLL
                 || mProcID == PROC_BACK_JUMP)) {
-                setPlayerSe(Z2SE_MIDNA_JUMP);
+                if (mIsNormalParry || mIsCombinedParry) {
+                    setPlayerSe(Z2SE_MIDNA_JUMP);
+                }
+                if (mIsDeflect) {
+                    setPlayerSe(Z2SE_TITLE_ENTER);
+                }
                 dComIfGp_getVibration().StartShock(VIBMODE_S_POWER4, 1, cXyz(0.0f, 1.0f, 0.0f));
-                mSwordUpTimer = 65;
-                mSkillCooldown = 0;
+
+                if (mIsNormalParry || (mIsDeflect && dusk::getSettings().game.alternateParry)) {
+                    mSwordUpTimer = 60;
+                    mSkillCooldown = 0;
+                }
+                if (mIsDeflect) {
+                    setUpperAnimeBase(dRes_ID_ALANM_BCK_ATGPUSHRE_e);
+                    mIsDeflectAnm = true;
+                    mWaitThisLong = 15;
+                    mSkillCooldown = 0;
+                }
+                if (mIsCombinedParry) {
+                    mReposteTimer = 30;
+                }
                 return checkWolfBarrierHitReverse();
             }
 

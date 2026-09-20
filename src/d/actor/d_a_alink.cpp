@@ -16312,7 +16312,7 @@ int daAlink_c::procFrontRoll() {
             onModeFlg(1);
         }
 
-        if (mProcVar2.field_0x300c != 0) {
+        if (mProcVar2.field_0x300c != 0 && !mIsTargetedRoll) {
             procCutFinishInit(2);
         } else if (!checkNextAction(1)) {
             cLib_chaseF(&mNormalSpeed, 0.0f, 2.5f);
@@ -16348,7 +16348,7 @@ int daAlink_c::procFrontRoll() {
             dComIfGp_getVibration().StartShock(1, 1, cXyz(0.0f, 1.0f, 0.0f));
         }
 
-        if (checkForceSwordSwing()) {
+        if (checkForceSwordSwing() && !mIsTargetedRoll) {
             mProcVar2.field_0x300c = 1;
         }
 
@@ -18292,6 +18292,13 @@ int daAlink_c::execute() {
             mParryTimer--;
         }
 
+        if (mParryTimer <= 0) {
+            mParryTimer = 0;
+            mIsNormalParry = false;
+            mIsCombinedParry = false;
+            mIsDeflect = false;
+        }
+
         if (mSkillCooldown != 0) {
             if (dusk::getSettings().game.shieldUsesMeter) {
                 if (!mDoCPd_c::getHoldLockR(PAD_1)) {
@@ -18305,6 +18312,38 @@ int daAlink_c::execute() {
 
         if (mSkillCooldown >= 450) {
             mSkillCooldown = 450;
+        }
+
+        if (mWaitThisLong != 0) {
+            mWaitThisLong--;
+        }
+
+        if (mWaitThisLong <= 0) {
+            if (mIsDeflectAnm) {
+                resetUpperAnime(UPPER_2, 3.0);
+                mIsDeflectAnm = false;
+            }
+            if (mIsTargetedRoll) {
+                mIsTargetedRoll = false;
+            }
+            mWaitThisLong = 0;
+        }
+
+        if (mReposteTimer != 0) {
+            setBStatus(BUTTON_STATUS_DRAW);
+            if (mDoCPd_c::getTrigB(PAD_1)) {
+                if (cM_rndF(1.0) < 0.5) {
+                    procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_A);
+                }
+                else {
+                    procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_B);
+                }
+            }
+            mReposteTimer--;
+        }
+
+        if (mReposteTimer <= 0) {
+            mReposteTimer = 0;
         }
 
         if (checkEquipHeavyBoots()) {
@@ -18347,8 +18386,17 @@ int daAlink_c::execute() {
             setItemAction();
             checkComboCnt();
             setShieldGuard();
-            if (checkNoResetFlg2(FLG2_UNK_8000000) && mDoCPd_c::getTrigA(PAD_1)) {
-                procFrontRollInit();
+            if (checkNoResetFlg2(FLG2_UNK_8000000)) {
+                if (mDoCPd_c::getTrigA(PAD_1)) {
+                    procFrontRollInit();
+                    mIsTargetedRoll = true;
+                    mWaitThisLong = 45;
+                }
+                if ((dusk::getSettings().game.alternateParry || dusk::getSettings().game.combinedParry)
+                    && mDoCPd_c::getTrigR(PAD_1)) {
+                    mParryTimer = 6;
+                    mIsDeflect = true;
+                }
             }
 
             if (checkCutFastReady()) {

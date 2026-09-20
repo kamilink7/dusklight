@@ -201,12 +201,34 @@ void daAlink_c::setShieldCrouch() {
     onNoResetFlg2(FLG2_UNK_8000000);
 
     if (mEquipItem == 0x103 && mDoCPd_c::getTrigB(PAD_1)) {
-        if (cutDir == DIR_FORWARD) {
+        if (checkCutTurnInput()) {
+            if (cutDir == DIR_RIGHT) {
+                procCutTurnInit(1, 1);
+            }
+            else if (cutDir == DIR_LEFT) {
+                procCutTurnInit(1, 0);
+            }
+        }
+        else if (cutDir == DIR_FORWARD) {
             procCutNormalInit(CUT_NM_PARAM_COMBO_STAB);
             resetCombo(TRUE);
         }
         else {
             setCutDash(0, 0);
+        }
+    }
+    if (mDoCPd_c::getTrigA(PAD_1)) {
+        if (cutDir == DIR_BACKWARD) {
+            procBackJumpInit(0);
+        }
+        else if (cutDir == DIR_LEFT) {
+            procSideRollInit(2);
+        }
+        else if (cutDir == DIR_RIGHT) {
+            procSideRollInit(1);
+        }
+        else {
+            procFrontRollInit();
         }
     }
 }
@@ -457,7 +479,16 @@ int daAlink_c::procGuardAttackInit() {
     if (dusk::getSettings().game.enableSkillMeter) {
         mSkillCooldown += 150;
     }
-    mParryTimer = 10;
+    if (!dusk::getSettings().game.alternateParry) {
+        if (dusk::getSettings().game.combinedParry) {
+            mIsCombinedParry = true;
+            mParryTimer = 10;
+        }
+        else {
+            mParryTimer = 10;
+            mIsNormalParry = true;
+        }
+    }
     return 1;
 }
 
