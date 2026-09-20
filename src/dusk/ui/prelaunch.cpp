@@ -7,6 +7,7 @@
 #include "dusk/iso_validate.hpp"
 #include "dusk/language.hpp"
 #include "dusk/main.h"
+#include "dusk/mod_loader.hpp"
 #include "dusk/settings.h"
 #include "dusk/ui/format.hpp"
 #include "dusk/ui/menu_bar.hpp"
@@ -948,6 +949,7 @@ void Prelaunch::build_menu_buttons() {
 
         mMenuButtons.push_back(std::make_unique<Button>(menuList, "Mods"));
         mModsButton = mMenuButtons.back().get();
+        mModsButton->set_disabled(!mods::ModLoader::instance().initialized());
         mMenuButtons.back()->on_pressed([this] {
             mRestartSuppressed = false;
             push(std::make_unique<ModsWindow>());
@@ -1016,6 +1018,7 @@ void Prelaunch::hide(bool close) {
 
 void Prelaunch::update() {
     if (mModsButton) {
+        mModsButton->set_disabled(!mods::ModLoader::instance().initialized());
         set_mod_update_badge(*mModsButton);
     }
     ensure_initialized();

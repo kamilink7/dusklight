@@ -65,12 +65,17 @@ Pane& Modal::content_pane() {
 
 void Modal::add_action(ModalAction action) {
     auto* actions = mDialog->QuerySelector("modal-actions");
-    auto btn =
-        std::make_unique<ControlledButton>(actions, ControlledButton::Props{
-                                                        .text = std::move(action.label),
-                                                        .isDisabled = std::move(action.isDisabled),
-                                                    });
+    auto btn = std::make_unique<ControlledButton>(
+        actions, ControlledButton::Props{
+                     .text = action.icon.empty() ? std::move(action.label) : "",
+                     .isDisabled = std::move(action.isDisabled),
+                 });
     btn->root()->SetClass("modal-btn", true);
+    if (!action.icon.empty()) {
+        auto* icon = append(btn->root(), "icon");
+        icon->SetClass(action.icon, true);
+        append_text(btn->root(), action.label);
+    }
     btn->on_pressed([this, callback = std::move(action.onPressed)] {
         if (!callback) {
             return;

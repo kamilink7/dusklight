@@ -13,6 +13,7 @@ struct ModalAction {
     Rml::String label;
     std::function<void(Modal&)> onPressed;
     std::function<bool()> isDisabled;
+    Rml::String icon;
 };
 
 class Modal : public WindowSmall {

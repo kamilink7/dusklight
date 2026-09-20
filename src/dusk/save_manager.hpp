@@ -32,6 +32,12 @@ enum class ModDataAction {
     Keep,
 };
 
+enum class DiscCompatibility {
+    Exact,
+    RegionChange,
+    Incompatible,
+};
+
 struct Result {
     bool ok = false;
     std::string message;
@@ -115,6 +121,7 @@ ValueResult<Storage> resolve_storage(
 ValueResult<std::vector<SaveIdentity>> list_saves(
     const Storage& storage, std::string_view game, std::string_view maker);
 ValueResult<GciHeader> parse_gci(const std::vector<uint8_t>& bytes);
+DiscCompatibility disc_compatibility(const GciHeader& header, const SaveIdentity& identity);
 ValueResult<Artifact> read_artifact(std::string_view location);
 ValueResult<std::vector<Artifact>> extract_raw_saves(
     const Artifact& artifact, std::string_view game, std::string_view maker);

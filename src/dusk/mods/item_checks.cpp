@@ -328,7 +328,7 @@ uint32_t item_check_message(uint16_t group, uint32_t messageId) {
         }
 
         const ItemCheckResult result = item_check_commit(check.name, check.vanillaItem, nullptr);
-        if (result.itemNo == check.vanillaItem || result.itemNo == dItemNo_NONE_e) {
+        if (!result.was_resolved || result.itemNo == dItemNo_NONE_e) {
             return messageId;
         }
         if (check.enqueueAtDisplay) {
