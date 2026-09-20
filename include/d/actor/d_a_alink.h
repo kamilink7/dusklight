@@ -4582,6 +4582,8 @@ public:
     bool mIsDeflectAnm = false;
     bool mIsCombinedParry = false;
     bool mIsTargetedRoll = false;
+    bool mIsCrouching = false;
+    bool mIsShielding = false;
 
 public:
     daPy_anmHeap_c& itemHeap(int i) { return i < 2 ? mItemHeap_[i] : mItemHeapZ_; }

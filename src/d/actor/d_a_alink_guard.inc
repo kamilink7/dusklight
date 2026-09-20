@@ -185,7 +185,7 @@ void daAlink_c::setUpperGuardAnime(f32 param_0) {
 
 BOOL daAlink_c::checkShieldCrouch() {
     return checkShieldGet() && !checkAttentionLock() && !checkGrabAnime() && !checkUpperReadyThrowAnime() &&
-        !wallGrabTrigger() && !checkFmChainGrabAnime() && mDoCPd_c::getHoldLockR(PAD_1);
+        !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && mDoCPd_c::getHoldLockR(PAD_1);
 }
 
 void daAlink_c::setShieldCrouch() {
@@ -199,6 +199,11 @@ void daAlink_c::setShieldCrouch() {
     setSingleAnimeBaseSpeed(ANM_CROUCH_DEF, mpHIO->mGuard.m.mCrouchGuardAnmSpeed,
                             mpHIO->mGuard.m.mCrouchGuardInterpolation);
     onNoResetFlg2(FLG2_UNK_8000000);
+
+    if (!mIsCrouching) {
+        setSwordVoiceSe(Z2SE_AL_ITEM_TAKEOUT);
+        mIsCrouching = true;
+    }
 
     if (mEquipItem == 0x103 && mDoCPd_c::getTrigB(PAD_1)) {
         if (checkCutTurnInput()) {

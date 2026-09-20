@@ -15668,6 +15668,9 @@ int daAlink_c::procWait() {
         setShieldCrouch();
         return 1;
     }
+    if (!checkShieldCrouch()) {
+        mIsCrouching = false;
+    }
 
     if (!checkNextAction(0) && !checkFrontWallTypeAction()) {
         daPy_frameCtrl_c* frameCtrl_p = mUnderFrameCtrl;
@@ -15721,6 +15724,9 @@ int daAlink_c::procMove() {
     if (checkShieldCrouch()) {
         setShieldCrouch();
         return 1;
+    }
+    if (!checkShieldCrouch()) {
+        mIsCrouching = false;
     }
 
     if (!checkNextAction(0) && !checkFrontWallTypeAction()) {
@@ -18397,6 +18403,13 @@ int daAlink_c::execute() {
                     mParryTimer = 6;
                     mIsDeflect = true;
                 }
+                if (!mIsShielding) {
+                    setSwordVoiceSe(Z2SE_AL_ITEM_TAKEOUT);
+                    mIsShielding = true;
+                }
+            }
+            else {
+                mIsShielding = false;
             }
 
             if (checkCutFastReady()) {
