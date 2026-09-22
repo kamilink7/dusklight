@@ -16254,7 +16254,12 @@ int daAlink_c::procFrontRollInit() {
     mNormalSpeed *= fastRollMultiplier;
 #endif
 
-    current.angle.y = shape_angle.y;
+    if (mIsBackRoll && dComIfGp_att_getLookTarget() != NULL) {
+        current.angle.y = shape_angle.y * 2;
+    }
+    else {
+        current.angle.y = shape_angle.y;
+    }
     voiceStart(Z2SE_AL_V_BACKTEN);
     mProcVar2.field_0x300c = 0;
     setFootEffectProcType(0);
@@ -16287,10 +16292,18 @@ int daAlink_c::procFrontRoll() {
     }
 
     if (checkInputOnR()) {
-        cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate,
-                           mpHIO->mFrontRoll.m.mMaxTurnAngle,
-                           mpHIO->mFrontRoll.m.mTurnMinAngle);
-        shape_angle.y = current.angle.y;
+        if (mIsBackRoll && dComIfGp_att_getLookTarget() == NULL) {
+            cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate * 4,
+                           mpHIO->mFrontRoll.m.mMaxTurnAngle * 2,
+                           mpHIO->mFrontRoll.m.mTurnMinAngle * 2);
+            shape_angle.y = current.angle.y;
+        }
+        else {
+            cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate,
+                               mpHIO->mFrontRoll.m.mMaxTurnAngle,
+                               mpHIO->mFrontRoll.m.mTurnMinAngle);
+            shape_angle.y = current.angle.y;
+        }
     }
 
     if (checkNoResetFlg0(FLG0_UNK_2)) {
@@ -18332,6 +18345,9 @@ int daAlink_c::execute() {
             if (mIsTargetedRoll) {
                 mIsTargetedRoll = false;
             }
+            if (mIsBackRoll) {
+                mIsBackRoll = false;
+            }
             mWaitThisLong = 0;
         }
 
@@ -18392,11 +18408,26 @@ int daAlink_c::execute() {
             setItemAction();
             checkComboCnt();
             setShieldGuard();
+
+            int direction = getDirectionFromShapeAngle();
             if (checkNoResetFlg2(FLG2_UNK_8000000)) {
                 if (mDoCPd_c::getTrigA(PAD_1)) {
-                    procFrontRollInit();
-                    mIsTargetedRoll = true;
-                    mWaitThisLong = 45;
+                    if (direction == DIR_LEFT) {
+                        procSideRollInit(2);
+                    }
+                    else if (direction == DIR_RIGHT) {
+                        procSideRollInit(1);
+                    }
+                    else if (direction == DIR_BACKWARD) {
+                        mIsBackRoll = true;
+                        procFrontRollInit();
+                        mWaitThisLong = 45;
+                    }
+                    else if (direction == DIR_FORWARD || direction == DIR_NONE) {
+                        procFrontRollInit();
+                        mIsTargetedRoll = true;
+                        mWaitThisLong = 45;
+                    }
                 }
                 if ((dusk::getSettings().game.alternateParry || dusk::getSettings().game.combinedParry)
                     && mDoCPd_c::getTrigR(PAD_1)) {

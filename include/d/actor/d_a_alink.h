@@ -4582,6 +4582,7 @@ public:
     bool mIsDeflectAnm = false;
     bool mIsCombinedParry = false;
     bool mIsTargetedRoll = false;
+    bool mIsBackRoll = false;
     bool mIsCrouching = false;
     bool mIsShielding = false;
 

@@ -995,7 +995,8 @@ void dMeter2_c::alphaAnimeSkill() {
     daAlink_c* link = daAlink_getAlinkActorClass();
 
     // Hide during cutscenes/menus
-    if (link == NULL || (mStatus & 0x4000) || link->mSkillCooldown == 0) {
+    if (link == NULL || (mStatus & 0x4000) || link->mSkillCooldown == 0
+        || dComIfGp_event_runCheck() || dComIfGp_isPauseFlag()) {
         mpMeterDraw->setAlphaSkillAnimeMin();
     } else {
         mpMeterDraw->setAlphaSkillAnimeMax();
