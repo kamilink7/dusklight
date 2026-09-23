@@ -4289,9 +4289,9 @@ void dMeter2Draw_c::setItemParamZ(u8 i_itemNo) {
             mItemParams[SELECT_Z_e].pos_y = 1.3f;
             mItemParams[SELECT_Z_e].scale = dusk::getSettings().game.zItemScale.getValue() + 0.8f;
             mItemParams[SELECT_Z_e].rotation = 0.0f;
-            mItemParams[SELECT_Z_e].num_pos_x = 15.0f;
-            mItemParams[SELECT_Z_e].num_pos_y = -30.0f;
-            mItemParams[SELECT_Z_e].num_scale = 0.85f;
+            mItemParams[SELECT_Z_e].num_pos_x = g_drawHIO.mZItemNumPosX;
+            mItemParams[SELECT_Z_e].num_pos_y = g_drawHIO.mZItemNumPosY;
+            mItemParams[SELECT_Z_e].num_scale = g_drawHIO.mZItemNumScale;
             break;
         case dItemNo_HVY_BOOTS_e:
             mItemParams[SELECT_Z_e].pos_x = -6.6f;
