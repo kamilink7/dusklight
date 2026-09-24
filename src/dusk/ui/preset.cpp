@@ -95,6 +95,8 @@ void applyPresetKamilinkInit() {
     s.game.enableSkillMeter.setValue(true);
     s.game.shieldUsesMeter.setValue(true);
     s.game.meterSpin.setValue(true);
+    s.game.combinedParry.setValue(true);
+    s.game.suppressButtonPrompts.setValue(true);
     s.game.noHitstop.setValue(true);
     s.game.noBattleMusic.setValue(true);
     s.game.wolfGear.setValue(true);

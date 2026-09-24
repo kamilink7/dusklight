@@ -1369,16 +1369,25 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         };
 
         leftPane.add_section("Presets");
-        leftPane.register_control(leftPane.add_button("KAMILINK'S FIOR DI BATTAGLIA").on_pressed([this] {
+        leftPane.register_control(leftPane.add_button("FIOR DI BATTAGLIA").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
-            applyPresetKamilink();
+            applyPresetBattaglia();
             config::save();
         }),
             rightPane, [](Pane& pane) {
                 pane.clear();
                 pane.add_text("The intended difficulty of Lazy Tweaks' complete combat rebalance. Experience a smoother introduction to the combat before difficulty eventually ramps in the second half of the game.");
             });
-        leftPane.register_control(leftPane.add_button("KAMILINK'S DEATHWISH").on_pressed([this] {
+        leftPane.register_control(leftPane.add_button("VANILLA PLUS").on_pressed([this] {
+            mDoAud_seStartMenu(kSoundClick);
+            applyPresetVanillaPlus();
+            config::save();
+        }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("An experience closer to vanilla; changes less about the overall feel of TP's combat while attempting to remain more engaging than the original.");
+            });
+        leftPane.register_control(leftPane.add_button("DEATHWISH").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
             applyPresetDeathwish();
             config::save();
@@ -1456,12 +1465,13 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.enableSkillMeter,
             {
                 .key = "Enable Skill Meter",
-                .helpText = "Enables a new skill meter that balances the usage of some attacks. Affects Midna Charge, Shield Attack, Helm Splitter, and Back Slice.",
+                .helpText = "Enables a new skill meter that balances the usage of some attacks. Affects Midna Charge, Wolf Jump Attacks, Shield Attack, Helm Splitter, and Back Slice.",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.shieldUsesMeter,
             {
                 .key = "Shield Uses Meter",
                 .helpText = "Blocking attacks will consume the skill meter, and the meter will not regenerate while blocking. Blocking without enough meter will incur a guard break. Parrying fully restores meter.",
+                .isDisabled = [] { return !getSettings().game.enableSkillMeter.getValue();}
             });
         config_bool_select(leftPane, rightPane, getSettings().game.alternateParry,
             {
@@ -1479,6 +1489,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             {
                 .key = "Great Spin Uses Meter",
                 .helpText = "Ties the Great Spin to the skill meter. Can use Great Spin so long as Link's health and the skill meter are above half. Full health incurs no meter cost.",
+                .isDisabled = [] { return !getSettings().game.enableSkillMeter.getValue();}
             });
 
         leftPane.add_section("Gamefeel Stuff");

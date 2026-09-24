@@ -8,7 +8,9 @@
 #include "d/actor/d_a_b_tn.h"
 #include <cmath>
 #include <cstring>
+
 #include "Z2AudioLib/Z2Instances.h"
+#include "d/actor/d_a_alink.h"
 #include "d/actor/d_a_boomerang.h"
 #include "d/actor/d_a_nbomb.h"
 
@@ -2061,6 +2063,7 @@ void daB_TN_c::executeChaseH() {
     s16 sVar4 = fopAcM_searchPlayerAngleY(this);
     s16 sVar5 = fopAcM_searchPlayerAngleY(this) - cM_atan2s(-current.pos.x, -current.pos.z);
     int mMoveArea = checkMoveArea();
+    daAlink_c* link;
 
     switch (mActionMode2) {
     case ACTION2_0_e:

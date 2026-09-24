@@ -18423,10 +18423,12 @@ int daAlink_c::execute() {
                         procFrontRollInit();
                         mWaitThisLong = 45;
                     }
-                    else if (direction == DIR_FORWARD || direction == DIR_NONE) {
+                    else if ((direction == DIR_FORWARD || direction == DIR_NONE)
+                        && mSkillCooldown <= 150) {
                         procFrontRollInit();
                         mIsTargetedRoll = true;
                         mWaitThisLong = 45;
+                        mSkillCooldown += 150;
                     }
                 }
                 if ((dusk::getSettings().game.alternateParry || dusk::getSettings().game.combinedParry)
@@ -18441,6 +18443,10 @@ int daAlink_c::execute() {
             }
             else {
                 mIsShielding = false;
+            }
+            if (mIsDeflectAnm && mDoCPd_c::getTrigR(PAD_1)) {
+                resetUpperAnime(UPPER_2, 3.0);
+                onNoResetFlg2(FLG2_UNK_8000000);
             }
 
             if (checkCutFastReady()) {
