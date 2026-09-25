@@ -16254,12 +16254,13 @@ int daAlink_c::procFrontRollInit() {
     mNormalSpeed *= fastRollMultiplier;
 #endif
 
-    if (mIsBackRoll && dComIfGp_att_getLookTarget() != NULL) {
-        current.angle.y = shape_angle.y * 2;
+    if (mIsBackRoll && checkAttentionLock() && mTargetedActor != NULL) {
+        current.angle.y = shape_angle.y - -0x8000;
     }
     else {
         current.angle.y = shape_angle.y;
     }
+
     voiceStart(Z2SE_AL_V_BACKTEN);
     mProcVar2.field_0x300c = 0;
     setFootEffectProcType(0);
@@ -16292,18 +16293,10 @@ int daAlink_c::procFrontRoll() {
     }
 
     if (checkInputOnR()) {
-        if (mIsBackRoll && dComIfGp_att_getLookTarget() == NULL) {
-            cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate * 4,
-                           mpHIO->mFrontRoll.m.mMaxTurnAngle * 2,
-                           mpHIO->mFrontRoll.m.mTurnMinAngle * 2);
-            shape_angle.y = current.angle.y;
-        }
-        else {
-            cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate,
-                               mpHIO->mFrontRoll.m.mMaxTurnAngle,
-                               mpHIO->mFrontRoll.m.mTurnMinAngle);
-            shape_angle.y = current.angle.y;
-        }
+        cLib_addCalcAngleS(&current.angle.y, mMoveAngle, mpHIO->mFrontRoll.m.mTurnRate,
+                           mpHIO->mFrontRoll.m.mMaxTurnAngle,
+                           mpHIO->mFrontRoll.m.mTurnMinAngle);
+        shape_angle.y = current.angle.y;
     }
 
     if (checkNoResetFlg0(FLG0_UNK_2)) {
