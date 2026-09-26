@@ -3917,8 +3917,13 @@ static int daB_GND_Execute(b_gnd_class* i_this) {
     cXyz sp118;
     cXyz sp10C;
     cXyz sp100;
+
     if (i_this->mPosture > 0) {
         i_this->mPosture--;
+    }
+
+    if (i_this->mPosture <= 0) {
+        i_this->mPosture = 0;
     }
 
     if (i_this->mDemoCamMode == 0 && !player->checkElecDamage() && dComIfGp_event_runCheck()) {

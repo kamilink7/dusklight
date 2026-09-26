@@ -688,7 +688,7 @@ BOOL daAlink_c::checkDamageAction() {
                 }
                 if (mIsDeflect) {
                     setUpperAnimeBase(dRes_ID_ALANM_BCK_ATGPUSHRE_e);
-                    mZ2Link.startCollisionSE(Z2SE_TITLE_ENTER, 0x28);
+                    Z2GetSeMgr()->setMultiTriggerSE(Z2SE_TITLE_ENTER, NULL, -1);
                     mIsDeflectAnm = true;
                     mWaitThisLong = 15;
                     mSkillCooldown = 0;
