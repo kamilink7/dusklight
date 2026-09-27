@@ -51,6 +51,7 @@ UserSettings g_userSettings = {
         .swordMultiplier {"game.swordMultiplier", 100},
         .bowMultiplier {"game.bowMultiplier", 100},
         .noHeartDrops {"game.noHeartDrops", false},
+        .noArrowDrops {"game.noArrowDrops", false},
         .loseRupees {"game.loseRupees", false},
         .instantDeath {"game.instantDeath", false},
         .fastClimbing {"game.fastClimbing", false},
@@ -305,6 +306,7 @@ void registerSettings() {
     Register(g_userSettings.game.swordMultiplier);
     Register(g_userSettings.game.bowMultiplier);
     Register(g_userSettings.game.noHeartDrops);
+    Register(g_userSettings.game.noArrowDrops);
     Register(g_userSettings.game.loseRupees);
     Register(g_userSettings.game.instantDeath);
     Register(g_userSettings.game.fastClimbing);

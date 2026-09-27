@@ -1447,6 +1447,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         addSpeedrunDisabledOption("Lose Rupees On Death", getSettings().game.loseRupees,
             "Half of Link's rupees will be lost upon death.");
+        config_bool_select(leftPane, rightPane, getSettings().game.noArrowDrops,
+            {
+                .key = "No Arrow Drops",
+                .helpText = "Arrows will no longer drop, except from Bulblins. Make sure to enter every dungeon extra prepared!",
+            });
         config_bool_select(leftPane, rightPane, getSettings().game.insulatedZoraArmor,
             {
                 .key = "Insulated Zora Armor",

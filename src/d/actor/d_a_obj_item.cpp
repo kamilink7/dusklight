@@ -259,6 +259,9 @@ int daItem_c::_daItem_create() {
     if (dusk::getSettings().game.noHeartDrops && isHeart(m_itemNo)) {
         return cPhs_ERROR_e;
     }
+    if (dusk::getSettings().game.noArrowDrops && isArrow(m_itemNo)) {
+        return cPhs_ERROR_e;
+    }
 #endif
     BOOL flag = dItem_data::chkFlag(m_itemNo, 2);
 
