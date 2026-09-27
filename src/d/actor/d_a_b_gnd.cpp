@@ -1271,7 +1271,7 @@ static void b_gnd_g_wait(b_gnd_class* i_this) {
             anm_init(i_this, B_GND_BCK_EGND_WAIT02, 10.0f, 2, 1.0f);
             i_this->field_0xc44[0] = cM_rndF(50.0f) + 30.0f;
         } else if (i_this->field_0xc44[0] == 1) {
-            if (i_this->mPlayerDistXZ < 800.0f && i_this->mPosture >= 2500) {
+            if (i_this->mPlayerDistXZ < 800.0f && i_this->mPosture >= 2000) {
                 i_this->mActionMode = ACTION_ATTACK;
                 i_this->mMoveMode = 10;
             } else {
@@ -1297,7 +1297,7 @@ static void b_gnd_g_wait(b_gnd_class* i_this) {
 
             if (i_this->mPlayerDistXZ > 550.0f) {
                 i_this->mActionMode = ACTION_ATTACK;
-                if (i_this->mPosture >= 2000) {
+                if (i_this->mPosture >= 1500) {
                     i_this->mMoveMode = 10;
                 } else {
                     i_this->mMoveMode = 15;
@@ -3397,7 +3397,7 @@ static void demo_camera(b_gnd_class* i_this) {
         } else if (i_this->mTubazeriPushAmount >= 48.0f) {
             i_this->mDemoCamMode = 55;
             i_this->mDemoCamTimer = 0;
-            i_this->mPosture /= 4;
+            i_this->mPosture /= 2;
 
             anm_init(i_this, B_GND_BCK_EGND_TUBAZERI_LOSE, 3.0f, 0, 1.0f);
             daPy_getPlayerActorClass()->changeDemoMode(89, 3, 0, 0);
