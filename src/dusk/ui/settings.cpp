@@ -1558,6 +1558,16 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             "Z-Item Scale",
             "Scales the size of item icons on Z. Re-equip item or reload area after changing.",
             50, 200, 5);
+        config_bool_select(leftPane, rightPane, getSettings().game.hideZButtonAmmo,
+            {
+                .key = "Hide Z Button Ammo",
+                .helpText = "Hides the ammo counter on Z-button items, for compatibility with mods that make HUD alterations. Re-equip item or reload area after changing.",
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.hideMidnaIcon,
+            {
+                .key = "Hide Midna Icon",
+                .helpText = "Hides the Midna icon. She will be sad.",
+            });
     });
 
     add_tab("Cheats", [this](Rml::Element* content) {

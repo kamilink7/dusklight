@@ -3563,7 +3563,7 @@ void dMeter2Draw_c::setButtonIconMidonaAlpha(u32 param_0) {
     bool midona_hold = false;
     f32 midona_z_target = 0.0f;
 #endif
-    mpButtonMidona->scale(g_drawHIO.mMidnaIconScale, g_drawHIO.mMidnaIconScale);
+    mpButtonMidona->scale(dusk::getSettings().game.hideMidnaIcon ? 0.0f : g_drawHIO.mMidnaIconScale, dusk::getSettings().game.hideMidnaIcon ? 0.0f : g_drawHIO.mMidnaIconScale);
     mpButtonMidona->paneTrans(g_drawHIO.mMidnaIconPosX, g_drawHIO.mMidnaIconPosY);
 
     if (mpButtonMidona->isVisible()) {
@@ -4272,7 +4272,7 @@ void dMeter2Draw_c::setItemParamZ(u8 i_itemNo) {
         mItemParams[SELECT_Z_e].rotation = g_drawHIO.mButtonItemRotation[2];
         mItemParams[SELECT_Z_e].num_pos_x = g_drawHIO.mZItemNumPosX;
         mItemParams[SELECT_Z_e].num_pos_y = g_drawHIO.mZItemNumPosY;
-        mItemParams[SELECT_Z_e].num_scale = g_drawHIO.mZItemNumScale;
+        mItemParams[SELECT_Z_e].num_scale = dusk::getSettings().game.hideZButtonAmmo ?  0.0f : g_drawHIO.mZItemNumScale;
     } else {
         switch (i_itemNo) {
         case dItemNo_BOOMERANG_e:
@@ -4291,7 +4291,7 @@ void dMeter2Draw_c::setItemParamZ(u8 i_itemNo) {
             mItemParams[SELECT_Z_e].rotation = 0.0f;
             mItemParams[SELECT_Z_e].num_pos_x = g_drawHIO.mZItemNumPosX;
             mItemParams[SELECT_Z_e].num_pos_y = g_drawHIO.mZItemNumPosY;
-            mItemParams[SELECT_Z_e].num_scale = g_drawHIO.mZItemNumScale;
+            mItemParams[SELECT_Z_e].num_scale = dusk::getSettings().game.hideZButtonAmmo ?  0.0f : g_drawHIO.mZItemNumScale;
             break;
         case dItemNo_HVY_BOOTS_e:
             mItemParams[SELECT_Z_e].pos_x = -6.6f;
@@ -4354,7 +4354,7 @@ void dMeter2Draw_c::setItemParamZ(u8 i_itemNo) {
                 mItemParams[SELECT_Z_e].rotation = g_drawHIO.mButtonItemRotation[2];
                 mItemParams[SELECT_Z_e].num_pos_x = g_drawHIO.mZItemNumPosX;
                 mItemParams[SELECT_Z_e].num_pos_y = g_drawHIO.mZItemNumPosY;
-                mItemParams[SELECT_Z_e].num_scale = g_drawHIO.mZItemNumScale;
+                mItemParams[SELECT_Z_e].num_scale = dusk::getSettings().game.hideZButtonAmmo ?  0.0f : g_drawHIO.mZItemNumScale;
             }
             break;
         }

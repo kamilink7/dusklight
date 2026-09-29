@@ -80,6 +80,8 @@ UserSettings g_userSettings = {
         .minimalHUD {"game.minimalHUD", false},
         .hudScale {"game.hudScale", 1.0f},
         .zItemScale {"game.zItemScale", 1.0f},
+        .hideZButtonAmmo {"game.hideZButtonAmmo", false},
+        .hideMidnaIcon {"game.hideMidnaIcon", false},
         .pauseOnFocusLost {"game.pauseOnFocusLost", false},
         .enableLinkDollRotation {"game.enableLinkDollRotation", false},
         .enableAchievementToasts {"game.enableAchievementToasts", true},
@@ -343,6 +345,8 @@ void registerSettings() {
     Register(g_userSettings.game.minimalHUD);
     Register(g_userSettings.game.hudScale);
     Register(g_userSettings.game.zItemScale);
+    Register(g_userSettings.game.hideZButtonAmmo);
+    Register(g_userSettings.game.hideMidnaIcon);
     Register(g_userSettings.game.pauseOnFocusLost,
         [](const bool& value, const bool&) { aurora_set_pause_on_focus_lost(value); });
     Register(g_userSettings.game.enableDiscordPresence);

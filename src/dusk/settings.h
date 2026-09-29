@@ -257,6 +257,8 @@ struct UserSettings {
         ConfigVar<bool> minimalHUD;
         ConfigVar<float> hudScale;
         ConfigVar<float> zItemScale;
+        ConfigVar<bool> hideZButtonAmmo;
+        ConfigVar<bool> hideMidnaIcon;
         ConfigVar<bool> pauseOnFocusLost;
         ConfigVar<bool> enableLinkDollRotation;
         ConfigVar<bool> enableAchievementToasts;
