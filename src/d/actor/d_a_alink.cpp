@@ -18402,7 +18402,7 @@ int daAlink_c::execute() {
             checkComboCnt();
             setShieldGuard();
 
-            int direction = getDirectionFromShapeAngle();
+            int direction = getCutDirection();
             if (checkNoResetFlg2(FLG2_UNK_8000000)) {
                 if (mDoCPd_c::getTrigA(PAD_1)) {
                     if (direction == DIR_LEFT) {
