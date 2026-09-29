@@ -75,10 +75,16 @@ void updateActionBindings() {
                 // If keyboard is active for this port
                 u32 count = 0;
                 if (PADGetKeyButtonBindings(port, &count) != nullptr) {
-                    int numKeys = 0;
-                    const bool* kbState = SDL_GetKeyboardState(&numKeys);
-                    if (kbState[button]) {
-                        actionPressData[port][static_cast<int>(action)].pressedCurFrame = true;
+                    if (button <= PAD_KEY_MOUSE_LEFT && button >= PAD_KEY_MOUSE_X2) {
+                        const auto mouseButtons = SDL_GetMouseState(nullptr, nullptr);
+                        actionPressData[port][static_cast<int>(action)].pressedCurFrame =
+                            (mouseButtons & SDL_BUTTON_MASK(-button - 1)) != 0;
+                    } else {
+                        int numKeys = 0;
+                        const bool* kbState = SDL_GetKeyboardState(&numKeys);
+                        if (button >= 0 && button < numKeys && kbState[button]) {
+                            actionPressData[port][static_cast<int>(action)].pressedCurFrame = true;
+                        }
                     }
                 } else {
                     // If controller is active

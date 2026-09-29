@@ -725,9 +725,7 @@ Result apply_artifact(const Storage& storage, const SaveIdentity& identity,
         }
     }
     auto gci = artifact.gci;
-    if (compatibility == DiscCompatibility::RegionChange) {
-        gci[3] = identity.game[3];
-    }
+    std::ranges::copy(identity.game, gci.begin());
     if (const Result written = write_gci(storage, identity, gci); !written) {
         return written;
     }
