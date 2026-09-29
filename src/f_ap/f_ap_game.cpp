@@ -21,6 +21,8 @@
 #include "d/d_tresure.h"
 #include <cstring>
 
+#include "dusk/interp/samples.h"
+
 #if TARGET_PC
 #include "dusk/achievements.h"
 #include "dusk/autosave.h"
@@ -751,9 +753,11 @@ static void duskExecute() {
     updateAutoSave();
     auto floatMusicVolume = static_cast<float>(dusk::getSettings().audio.mainMusicVolume.getValue()) / 100;
     isRecording = false;
-    if (dusk::getSettings().game.recordingMode) {
+    if (dusk::getSettings().game.recordingMode || dusk::getSettings().game.muteBGM) {
         floatMusicVolume = 0.0f;
-        isRecording = true;
+        if (dusk::getSettings().game.recordingMode) {
+            isRecording = true;
+        }
     }
 
     if (floatMusicVolume != 1.0f) {
