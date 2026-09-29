@@ -2019,6 +2019,18 @@ int isArrow(u8 i_itemNo) {
     return is_arrow;
 }
 
+BOOL isRupee(u8 i_itemNo) {
+    BOOL is_rupee = false;
+
+    if (i_itemNo == dItemNo_GREEN_RUPEE_e || i_itemNo == dItemNo_BLUE_RUPEE_e || i_itemNo == dItemNo_YELLOW_RUPEE_e || i_itemNo == dItemNo_RED_RUPEE_e
+        || i_itemNo == dItemNo_PURPLE_RUPEE_e || i_itemNo == dItemNo_ORANGE_RUPEE_e)
+    {
+        is_rupee = true;
+    }
+
+    return is_rupee;
+}
+
 BOOL isBottleItem(u8 i_itemNo) {
     switch (i_itemNo) {
     case dItemNo_OIL_BOTTLE3_e:

@@ -229,6 +229,7 @@ struct UserSettings {
         ConfigVar<int> bowMultiplier;
         ConfigVar<bool> noHeartDrops;
         ConfigVar<bool> noArrowDrops;
+        ConfigVar<bool> noRupeeDrops;
         ConfigVar<bool> loseRupees;
         ConfigVar<bool> instantDeath;
         ConfigVar<bool> fastClimbing;

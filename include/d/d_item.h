@@ -397,6 +397,7 @@ int checkItemGet(u8, int);
 BOOL isHeart(u8 item_no);
 int isBomb(u8);
 int isArrow(u8);
+BOOL isRupee(u8 item_no);
 int addBombCount(u8, u8);
 BOOL isBottleItem(u8 item_no);
 u8 check_itemno(int i_itemNo);

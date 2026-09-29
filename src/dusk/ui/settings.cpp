@@ -1450,7 +1450,12 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.noArrowDrops,
             {
                 .key = "No Arrow Drops",
-                .helpText = "Arrows will no longer drop, except from Bulblins. Make sure to enter every dungeon extra prepared!",
+                .helpText = "Make sure to enter every dungeon extra prepared! Not recommended for use during Goron Mines.",
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.noRupeeDrops,
+            {
+                .key = "No Rupee Drops",
+                .helpText = "Suddenly, Malo began investing in Golden Bugs.",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.insulatedZoraArmor,
             {
