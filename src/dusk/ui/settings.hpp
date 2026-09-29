@@ -32,6 +32,8 @@ public:
         s.game.armorRupeeDrain.setValue(MagicArmorMode::ON_DAMAGE);
         s.game.combinedParry.setValue(true);
         s.game.suppressButtonPrompts.setValue(true);
+        s.game.noRupeeDrops.setValue(false);
+        s.game.noArrowDrops.setValue(false);
     }
     void applyPresetDeathwish() {
         auto& s = getSettings();
@@ -56,6 +58,8 @@ public:
         s.game.armorRupeeDrain.setValue(MagicArmorMode::NORMAL);
         s.game.combinedParry.setValue(true);
         s.game.suppressButtonPrompts.setValue(true);
+        s.game.noArrowDrops.setValue(true);
+        s.game.noRupeeDrops.setValue(true);
     }
     void applyPresetVanillaPlus() {
         auto& s = getSettings();
@@ -80,6 +84,8 @@ public:
         s.game.armorRupeeDrain.setValue(MagicArmorMode::NORMAL);
         s.game.combinedParry.setValue(false);
         s.game.suppressButtonPrompts.setValue(true);
+        s.game.noRupeeDrops.setValue(false);
+        s.game.noArrowDrops.setValue(false);
     }
 
 protected:
