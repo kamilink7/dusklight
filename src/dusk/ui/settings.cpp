@@ -1568,6 +1568,102 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .key = "Hide Midna Icon",
                 .helpText = "Hides the Midna icon. She will be sad.",
             });
+        leftPane.register_control(
+            leftPane.add_child<NumberButton>(NumberButton::Props{
+                .key = "Midna Position X",
+                .getValue = [] { return getSettings().game.midnaPositionX.getValue(); },
+                .setValue =
+                    [](int value) {
+                        getSettings().game.midnaPositionX.setValue(value);
+                        config::save();
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.midnaPositionX.getValue() !=
+                               getSettings().game.midnaPositionX.getDefaultValue();
+                    },
+                .min = -900,
+                .max = 100,
+                .step = 1,
+                .suffix = " ",
+            }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Offsets the Midna icon horizontally.");
+            });
+        leftPane.register_control(
+            leftPane.add_child<NumberButton>(NumberButton::Props{
+                .key = "Midna Position Y",
+                .getValue = [] { return getSettings().game.midnaPositionY.getValue(); },
+                .setValue =
+                    [](int value) {
+                        getSettings().game.midnaPositionY.setValue(value);
+                        config::save();
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.midnaPositionY.getValue() !=
+                               getSettings().game.midnaPositionY.getDefaultValue();
+                    },
+                .min = -450,
+                .max = 450,
+                .step = 1,
+                .suffix = " ",
+            }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Offsets the Midna icon vertically.");
+            });
+        leftPane.register_control(
+            leftPane.add_child<NumberButton>(NumberButton::Props{
+                .key = "Skill Meter Offset X",
+                .getValue = [] { return getSettings().game.skillMeterXPos.getValue(); },
+                .setValue =
+                    [](int value) {
+                        getSettings().game.skillMeterXPos.setValue(value);
+                        config::save();
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.skillMeterXPos.getValue() !=
+                               getSettings().game.skillMeterXPos.getDefaultValue();
+                    },
+                .min = -100,
+                .max = 600,
+                .step = 1,
+                .suffix = " ",
+            }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Offsets the skill meter icon horizontally.");
+            });
+        leftPane.register_control(
+            leftPane.add_child<NumberButton>(NumberButton::Props{
+                .key = "Skill Meter Offset Y",
+                .getValue = [] { return getSettings().game.skillMeterYPos.getValue(); },
+                .setValue =
+                    [](int value) {
+                        getSettings().game.skillMeterYPos.setValue(value);
+                        config::save();
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.skillMeterYPos.getValue() !=
+                               getSettings().game.skillMeterYPos.getDefaultValue();
+                    },
+                .min = -100,
+                .max = 600,
+                .step = 1,
+                .suffix = " ",
+            }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Offsets the skill meter icon vertically.");
+            });
     });
 
     add_tab("Cheats", [this](Rml::Element* content) {

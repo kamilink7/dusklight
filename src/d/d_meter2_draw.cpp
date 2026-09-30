@@ -3562,9 +3562,11 @@ void dMeter2Draw_c::setButtonIconMidonaAlpha(u32 param_0) {
     bool midona_live = false;
     bool midona_hold = false;
     f32 midona_z_target = 0.0f;
+    f32 midona_offset_x = dusk::getSettings().game.midnaPositionX;
+    f32 midona_offset_y = dusk::getSettings().game.midnaPositionY;
 #endif
     mpButtonMidona->scale(dusk::getSettings().game.hideMidnaIcon ? 0.0f : g_drawHIO.mMidnaIconScale, dusk::getSettings().game.hideMidnaIcon ? 0.0f : g_drawHIO.mMidnaIconScale);
-    mpButtonMidona->paneTrans(g_drawHIO.mMidnaIconPosX, g_drawHIO.mMidnaIconPosY);
+    mpButtonMidona->paneTrans(g_drawHIO.mMidnaIconPosX + midona_offset_x, g_drawHIO.mMidnaIconPosY + midona_offset_y);
 
     if (mpButtonMidona->isVisible()) {
         IF_NOT_DUSK(f32 temp_f30 = g_drawHIO.mMidnaIconAlpha * (g_drawHIO.mParentAlpha * g_drawHIO.mMainHUDButtonsAlpha));

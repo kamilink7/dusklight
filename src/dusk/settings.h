@@ -270,6 +270,10 @@ struct UserSettings {
         ConfigVar<LightSwordMode> alwaysLightSword;
         ConfigVar<bool> swordTrail;
         ConfigVar<bool> suppressButtonPrompts;
+        ConfigVar<float> midnaPositionX;
+        ConfigVar<float> midnaPositionY;
+        ConfigVar<float> skillMeterXPos;
+        ConfigVar<float> skillMeterYPos;
 
         // Graphics
         ConfigVar<BloomMode> bloomMode;

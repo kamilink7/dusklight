@@ -986,8 +986,11 @@ void dMeter2_c::moveSkill() {
         charge = SKILL_COOLDOWN_MAX - link->mSkillCooldown;
     }
 
-    mpMeterDraw->drawSkill(SKILL_COOLDOWN_MAX, charge, g_drawHIO.mLanternMeterPosX,
-                           g_drawHIO.mMagicMeterPosY);
+    f32 offsetX = dusk::getSettings().game.skillMeterXPos;
+    f32 offsetY = dusk::getSettings().game.skillMeterYPos;
+
+    mpMeterDraw->drawSkill(SKILL_COOLDOWN_MAX, charge, g_drawHIO.mLanternMeterPosX + offsetX,
+                           g_drawHIO.mMagicMeterPosY + offsetY);
     alphaAnimeSkill();
 }
 

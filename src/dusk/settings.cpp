@@ -93,6 +93,10 @@ UserSettings g_userSettings = {
         .alwaysLightSword {"game.alwaysLightSword", LightSwordMode::OFF},
         .swordTrail {"game.swordTrail", false},
         .suppressButtonPrompts {"game.suppressButtonPrompts", false},
+        .midnaPositionX {"game.midnaPositionX", 0.0f},
+        .midnaPositionY {"game.midnaPositionY", 0.0f},
+        .skillMeterXPos {"game.skillMeterXPos", 0.0f},
+        .skillMeterYPos {"game.skillMeterYPos", 0.0f},
 
         // Graphics
         .bloomMode {"game.bloomMode", BloomMode::Dusk},
@@ -440,6 +444,10 @@ void registerSettings() {
     Register(g_userSettings.game.alwaysLightSword);
     Register(g_userSettings.game.swordTrail);
     Register(g_userSettings.game.suppressButtonPrompts);
+    Register(g_userSettings.game.midnaPositionX);
+    Register(g_userSettings.game.midnaPositionY);
+    Register(g_userSettings.game.skillMeterXPos);
+    Register(g_userSettings.game.skillMeterYPos);
 
     Register(g_userSettings.backend.isoPath);
     Register(g_userSettings.backend.isoVerification);
