@@ -2063,7 +2063,6 @@ void daB_TN_c::executeChaseH() {
     s16 sVar4 = fopAcM_searchPlayerAngleY(this);
     s16 sVar5 = fopAcM_searchPlayerAngleY(this) - cM_atan2s(-current.pos.x, -current.pos.z);
     int mMoveArea = checkMoveArea();
-    daAlink_c* link;
 
     switch (mActionMode2) {
     case ACTION2_0_e:

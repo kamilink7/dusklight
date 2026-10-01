@@ -18344,6 +18344,10 @@ int daAlink_c::execute() {
             mWaitThisLong = 0;
         }
 
+        if (mIsTargetedRoll) {
+            cLib_chaseF(&mNormalSpeed, 13.0f, 2.0f);
+        }
+
         if (mReposteTimer != 0) {
             setBStatus(BUTTON_STATUS_DRAW);
             if (mDoCPd_c::getTrigB(PAD_1)) {
@@ -18420,8 +18424,10 @@ int daAlink_c::execute() {
                         && mSkillCooldown <= 150) {
                         procFrontRollInit();
                         mIsTargetedRoll = true;
-                        mWaitThisLong = 45;
-                        mSkillCooldown += 150;
+                        mWaitThisLong = 25;
+                        if (mEquipItem == 0x103) {
+                            mSkillCooldown += 150;
+                        }
                     }
                 }
                 if ((dusk::getSettings().game.alternateParry || dusk::getSettings().game.combinedParry)
