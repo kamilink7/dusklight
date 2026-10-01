@@ -33,7 +33,7 @@
 
 #define GFX_SERVICE_ID DUSKLIGHT_SERVICE_ID_PREFIX "gfx"
 #define GFX_SERVICE_MAJOR 1u
-#define GFX_SERVICE_MINOR 3u
+#define GFX_SERVICE_MINOR 4u
 
 /* Maximum size for push_draw payload */
 #define GFX_INLINE_DRAW_PAYLOAD_SIZE 128u
@@ -212,10 +212,14 @@ typedef struct GfxResolvedTargets {
     uint32_t height;
     /* Minor version 3 */
     WGPUTextureView normal; /* view-space normal snapshot, RGB10A2Unorm when available */
+    /* Minor version 4 */
+    WGPUTexture colorTexture;
+    WGPUTexture depthTexture;
+    WGPUTexture normalTexture;
 } GfxResolvedTargets;
 
 #define GFX_RESOLVED_TARGETS_INIT                                                                  \
-    {sizeof(GfxResolvedTargets), NULL, NULL, WGPUTextureFormat_Undefined, 0u, 0u, NULL}
+    {sizeof(GfxResolvedTargets), NULL, NULL, WGPUTextureFormat_Undefined, 0u, 0u, NULL, NULL, NULL, NULL}
 
 /*
  * Passed to GfxComputeFn on the render worker thread; valid only during the call. The encoder is

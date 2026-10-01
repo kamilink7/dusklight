@@ -131,6 +131,7 @@ public:
     /* 0x1FF8 */ u32 mDataVersion;
 #ifdef TARGET_PC
     bool mInitialized;
+    bool mReattachPending;
     std::string mFileName;
 #endif
 

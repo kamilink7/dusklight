@@ -98,6 +98,7 @@ void mDoMemCd_Ctrl_c::ThdInit() {
 
 #if TARGET_PC
     mCardCommand = COMM_ATTACH_e;
+    mReattachPending = false;
     mInitialized = true;
 #else
     mCardCommand = COMM_NONE_e;
@@ -177,7 +178,17 @@ void mDoMemCd_Ctrl_c::main() {
         }
 
         OSLockMutex(&mMutex);
+#if TARGET_PC
+        if (mReattachPending) {
+            mReattachPending = false;
+            mCardState = CARD_STATE_13_e;
+            mCardCommand = COMM_ATTACH_e;
+        } else {
+            mCardCommand = COMM_NONE_e;
+        }
+#else
         mCardCommand = COMM_NONE_e;
+#endif
         OSUnlockMutex(&mMutex);
     } while (true);
 }
@@ -940,8 +951,19 @@ void mDoMemCd_Ctrl_c::setFileName(const std::string& fileName) {
         mFileName = fileName;
     } else {
         OSLockMutex(&mMutex);
+        if (mFileName == fileName) {
+            OSUnlockMutex(&mMutex);
+            return;
+        }
         mFileName = fileName;
+        if (mCardCommand == COMM_NONE_e) {
+            mCardState = CARD_STATE_13_e;
+            mCardCommand = COMM_ATTACH_e;
+        } else {
+            mReattachPending = true;
+        }
         OSUnlockMutex(&mMutex);
+        OSSignalCond(&mCond);
     }
 }
 

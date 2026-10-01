@@ -90,13 +90,5 @@ typedef struct ActorService {
     ModResult (*delete_actor)(ModContext* ctx, ActorId actorId);
 } ActorService;
 
-#ifdef __cplusplus
-#include "mods/service.hpp"
-
-template <>
-struct mods::ServiceTraits<ActorService> {
-    static constexpr const char* id = ACTOR_SERVICE_ID;
-    static constexpr uint16_t major_version = ACTOR_SERVICE_MAJOR;
-    static constexpr uint16_t minor_version = ACTOR_SERVICE_MINOR;
-};
-#endif
+MOD_DECLARE_SERVICE(
+    ActorService, svc_actor, ACTOR_SERVICE_ID, ACTOR_SERVICE_MAJOR, ACTOR_SERVICE_MINOR);

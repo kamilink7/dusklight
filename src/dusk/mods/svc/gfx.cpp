@@ -696,6 +696,10 @@ ModResult gfx_resolve_pass(LoadedMod& mod, const GfxResolveDesc& desc, GfxResolv
     out.width = resolved.width;
     out.height = resolved.height;
     out.normal = resolved.normal.Get();
+
+    out.colorTexture = resolved.colorTexture.Get();
+    out.depthTexture = resolved.depthTexture.Get();
+    out.normalTexture = resolved.normalTexture.Get();
     return MOD_OK;
 }
 
@@ -1336,31 +1340,39 @@ ModResult gfx_resolve_pass_impl(
     ModContext* context, const GfxResolveDesc* desc, GfxResolvedTargets* outTargets) {
     OH_FUCK_SYNC
 
-    constexpr size_t legacyDescSize = offsetof(GfxResolveDesc, normal);
-    constexpr size_t legacyTargetsSize = offsetof(GfxResolvedTargets, normal);
+    constexpr size_t v0DescSize = offsetof(GfxResolveDesc, normal);
+    constexpr size_t v3DescSize = sizeof(GfxResolveDesc);
+    constexpr size_t v0TargetsSize = offsetof(GfxResolvedTargets, normal);
+    constexpr size_t v3TargetsSize = offsetof(GfxResolvedTargets, colorTexture);
+    constexpr size_t v4TargetsSize = sizeof(GfxResolvedTargets);
     const size_t outputSize = outTargets != nullptr ? std::min<size_t>(outTargets->struct_size,
                                                           sizeof(GfxResolvedTargets)) :
                                                       0;
+
     GfxResolvedTargets resolved = GFX_RESOLVED_TARGETS_INIT;
-    if (outputSize >= legacyTargetsSize) {
-        resolved.struct_size = static_cast<uint32_t>(outputSize);
+    if (outputSize == v0TargetsSize || outputSize == v3TargetsSize || outputSize >= v4TargetsSize) {
+        resolved.struct_size = outputSize;
         std::memcpy(outTargets, &resolved, outputSize);
+    } else {
+        return MOD_INVALID_ARGUMENT;
     }
+
     auto* mod = mod_from_context(context);
-    if (mod == nullptr || desc == nullptr || desc->struct_size < legacyDescSize ||
-        outputSize < legacyTargetsSize)
+    if (mod == nullptr || desc == nullptr || desc->struct_size < v0DescSize)
     {
         return MOD_INVALID_ARGUMENT;
     }
+    
     GfxResolveDesc request = GFX_RESOLVE_DESC_INIT;
     request.color = desc->color;
     request.depth = desc->depth;
-    request.normal = desc->struct_size >= sizeof(GfxResolveDesc) ? desc->normal : 0;
+    request.normal = desc->struct_size >= v3DescSize ? desc->normal : 0;
     if ((!request.color && !request.depth && !request.normal) ||
-        (request.normal && outputSize < sizeof(GfxResolvedTargets)))
+        (request.normal && outputSize < v3TargetsSize))
     {
         return MOD_INVALID_ARGUMENT;
     }
+
     const auto result = gfx_resolve_pass(*mod, request, resolved);
     resolved.struct_size = static_cast<uint32_t>(outputSize);
     std::memcpy(outTargets, &resolved, outputSize);

@@ -1,8 +1,10 @@
 #include "logs_window.hpp"
 
+#include <algorithm>
 #include <array>
 #include <ctime>
 
+#include <RmlUi/Core/ElementUtilities.h>
 #include <SDL3/SDL_timer.h>
 #include <fmt/format.h>
 
@@ -130,6 +132,10 @@ void LogsWindow::build_content(Rml::Element* content) {
     pane.root()->SetClass("log-view", true);
     mScrollElem = pane.root();
     mLinesElem = append(pane.root(), "log-lines");
+    mTopSpacer = append(mLinesElem, "log-spacer");
+    mBottomSpacer = append(mLinesElem, "log-spacer");
+    mElems.clear();
+    mFirst = 0;
 
     listen(mScrollElem, Rml::EventId::Scroll, [this](Rml::Event&) {
         const float bottom = mScrollElem->GetScrollHeight() - mScrollElem->GetClientHeight();
@@ -156,34 +162,7 @@ void LogsWindow::update() {
         refresh_lines();
     }
 
-    // Applied every frame: layout of freshly appended lines is deferred, so a
-    // single post-append scroll would land short of the real bottom.
-    if (mStickToBottom && mScrollElem != nullptr) {
-        mScrollElem->SetScrollTop(mScrollElem->GetScrollHeight() - mScrollElem->GetClientHeight());
-    }
-
-    update_visible_window();
-}
-
-// Mark items fully outside the scroll view as `visibility: hidden;`.
-// They retain their layout, but stops RmlUi from trying to render them.
-void LogsWindow::update_visible_window() {
-    const float viewTop = mScrollElem->GetAbsoluteOffset(Rml::BoxArea::Border).y;
-    const float viewHeight = mScrollElem->GetClientHeight();
-    const int count = mLinesElem->GetNumChildren();
-    for (int i = 0; i < count && i < static_cast<int>(mLines.size()); ++i) {
-        auto* elem = mLinesElem->GetChild(i);
-        const float top = elem->GetAbsoluteOffset(Rml::BoxArea::Border).y - viewTop;
-        const bool shown = top + elem->GetOffsetHeight() >= -viewHeight && top <= viewHeight * 2.0f;
-        if (shown != mLines[i].shown) {
-            mLines[i].shown = shown;
-            if (shown) {
-                elem->RemoveProperty("visibility");
-            } else {
-                elem->SetProperty("visibility", "hidden");
-            }
-        }
-    }
+    update_window();
 }
 
 void LogsWindow::refresh_lines() {
@@ -192,11 +171,20 @@ void LogsWindow::refresh_lines() {
     mNextSeq = nextSeq;
 
     // Drop displayed lines that fell out of the buffer (ring wrap or clear)
-    while (!mLines.empty() && mLines.front().seq < firstSeq) {
-        if (auto* first = mLinesElem->GetFirstChild()) {
-            mLinesElem->RemoveChild(first);
+    int droppedRows = 0;
+    while (!mLines.empty() && mLines.front().line.seq < firstSeq) {
+        droppedRows += mLines.front().rows;
+        if (mFirst > 0) {
+            --mFirst;
+        } else if (!mElems.empty()) {
+            mLinesElem->RemoveChild(mElems.front());
+            mElems.pop_front();
         }
         mLines.pop_front();
+    }
+    // Keep the view on the same lines
+    if (droppedRows > 0 && !mStickToBottom) {
+        mScrollElem->SetScrollTop(mScrollElem->GetScrollTop() - static_cast<float>(droppedRows) * mRowHeight);
     }
 
     if (mScratch.empty()) {
@@ -208,12 +196,11 @@ void LogsWindow::refresh_lines() {
             break;
         }
     }
-    for (const auto& line : mScratch) {
-        if (!line_visible(line)) {
-            continue;
+    for (auto& line : mScratch) {
+        if (line_visible(line)) {
+            const int rows = count_rows(line);
+            mLines.push_back({.line = std::move(line), .rows = rows});
         }
-        append_log_line(line);
-        mLines.push_back({.seq = line.seq});
     }
 }
 
@@ -225,17 +212,13 @@ void LogsWindow::rebuild_lines() {
     mScratch.clear();
     const auto [_, nextSeq] = mods::log::copy_since(0, mScratch);
     mNextSeq = nextSeq;
+    clear_elements();
     mLines.clear();
-    while (auto* child = mLinesElem->GetFirstChild()) {
-        mLinesElem->RemoveChild(child);
-    }
-
-    for (const auto& line : mScratch) {
-        if (!line_visible(line)) {
-            continue;
+    for (auto& line : mScratch) {
+        if (line_visible(line)) {
+            const int rows = count_rows(line);
+            mLines.push_back({.line = std::move(line), .rows = rows});
         }
-        append_log_line(line);
-        mLines.push_back({.seq = line.seq});
     }
     mStickToBottom = true;
 }
@@ -250,23 +233,142 @@ bool LogsWindow::line_visible(const mods::log::Line& line) const {
     return line.modIndex < mModIds.size() && mModIds[line.modIndex] == mModFilter;
 }
 
-Rml::Element* LogsWindow::append_log_line(const mods::log::Line& line) {
-    std::string_view modId;
+std::string_view LogsWindow::mod_label(const mods::log::Line& line) const {
     if (line.source == mods::log::Source::Loader) {
-        modId = "loader";
-    } else if (line.modIndex < mModIds.size()) {
-        modId = std::string_view{mModIds[line.modIndex]};
-    } else {
-        modId = "?";
+        return "loader";
+    }
+    if (line.modIndex < mModIds.size()) {
+        return mModIds[line.modIndex];
+    }
+    return "?";
+}
+
+int LogsWindow::count_rows(const mods::log::Line& line) const {
+    if (mColumns <= 0) {
+        return 1;
+    }
+    const auto segmentRows = [this](int width) { return std::max(1, (width + mColumns - 1) / mColumns); };
+    // "HH:MM:SS.mmm [mod] " prefix
+    int width = static_cast<int>(mod_label(line).size()) + 16;
+    int rows = 0;
+    for (const char c : line.message) {
+        if (c == '\n') {
+            rows += segmentRows(width);
+            width = 0;
+        } else if ((static_cast<unsigned char>(c) & 0xC0) != 0x80) {
+            ++width;
+        }
+    }
+    return rows + segmentRows(width);
+}
+
+void LogsWindow::update_window() {
+    const float viewHeight = mScrollElem->GetClientHeight();
+    const float rowHeight = mLinesElem->GetLineHeight();
+    const int charWidth = Rml::ElementUtilities::GetStringWidth(mLinesElem, "0");
+    if (viewHeight <= 0.0f || rowHeight <= 0.0f || charWidth <= 0) {
+        return;
+    }
+    mRowHeight = rowHeight;
+    int topRow = static_cast<int>((mScrollElem->GetScrollTop() - mLinesElem->GetOffsetTop()) / rowHeight);
+    const int columns = std::max(1, static_cast<int>(mLinesElem->GetClientWidth()) / charWidth);
+    if (columns != mColumns) {
+        size_t topLine = 0;
+        int row = 0;
+        while (topLine < mLines.size() && row + mLines[topLine].rows <= topRow) {
+            row += mLines[topLine++].rows;
+        }
+        mColumns = columns;
+        for (auto& line : mLines) {
+            line.rows = count_rows(line.line);
+        }
+        if (!mStickToBottom && topLine < mLines.size()) {
+            const int lineRow = topRow - row;
+            topRow = std::min(lineRow, mLines[topLine].rows - 1);
+            for (size_t i = 0; i < topLine; ++i) {
+                topRow += mLines[i].rows;
+            }
+            mScrollElem->SetScrollTop(mLinesElem->GetOffsetTop() + static_cast<float>(topRow) * rowHeight);
+        }
     }
 
-    auto* elem = append(mLinesElem, "log-line");
+    int totalRows = 0;
+    for (const auto& line : mLines) {
+        totalRows += line.rows;
+    }
+    const int viewRows = static_cast<int>(viewHeight / rowHeight) + 1;
+    if (mStickToBottom) {
+        topRow = totalRows - viewRows;
+    }
+
+    size_t first = 0;
+    int firstRow = 0;
+    while (first < mLines.size() && firstRow + mLines[first].rows <= topRow - viewRows / 2) {
+        firstRow += mLines[first++].rows;
+    }
+    size_t last = first;
+    int lastRow = firstRow;
+    while (last < mLines.size() && lastRow < topRow + viewRows + viewRows / 2) {
+        lastRow += mLines[last++].rows;
+    }
+    materialize_range(first, last);
+
+    const auto setHeight = [rowHeight](Rml::Element* spacer, int rows) {
+        const Rml::Property value{static_cast<float>(rows) * rowHeight, Rml::Unit::PX};
+        const auto* current = spacer->GetLocalProperty(Rml::PropertyId::Height);
+        if (current == nullptr || *current != value) {
+            spacer->SetProperty(Rml::PropertyId::Height, value);
+        }
+    };
+    setHeight(mTopSpacer, firstRow);
+    setHeight(mBottomSpacer, totalRows - lastRow);
+
+    if (mStickToBottom) {
+        mScrollElem->SetScrollTop(mScrollElem->GetScrollHeight() - mScrollElem->GetClientHeight());
+    }
+}
+
+void LogsWindow::materialize_range(size_t first, size_t last) {
+    if (last <= mFirst || first >= mFirst + mElems.size()) {
+        clear_elements();
+        mFirst = first;
+    }
+    for (; mFirst < first && !mElems.empty(); ++mFirst) {
+        mLinesElem->RemoveChild(mElems.front());
+        mElems.pop_front();
+    }
+    while (mFirst + mElems.size() > last) {
+        mLinesElem->RemoveChild(mElems.back());
+        mElems.pop_back();
+    }
+    if (mElems.empty()) {
+        mFirst = first;
+    }
+    while (mFirst > first) {
+        --mFirst;
+        mElems.push_front(create_line_element(mLines[mFirst].line, mElems.empty() ? mBottomSpacer : mElems.front()));
+    }
+    while (mFirst + mElems.size() < last) {
+        mElems.push_back(create_line_element(mLines[mFirst + mElems.size()].line, mBottomSpacer));
+    }
+}
+
+void LogsWindow::clear_elements() {
+    for (auto* elem : mElems) {
+        mLinesElem->RemoveChild(elem);
+    }
+    mElems.clear();
+    mFirst = 0;
+}
+
+Rml::Element* LogsWindow::create_line_element(const mods::log::Line& line, Rml::Element* before) {
+    auto* elem = mLinesElem->InsertBefore(mLinesElem->GetOwnerDocument()->CreateElement("log-line"), before);
     elem->SetClass(level_class(line.level), true);
 
     constexpr const char* kNbsp = "\xc2\xa0";
     append_log_field(elem, "log-time", format_time(line.timeMs));
     append_text(elem, kNbsp);
-    append_log_field(elem, "log-mod", fmt::format("[{}]", modId));
+    append_log_field(elem, "log-mod", fmt::format("[{}]", mod_label(line)));
     append_text(elem, kNbsp);
     append_log_field(elem, "log-msg", line.message);
 

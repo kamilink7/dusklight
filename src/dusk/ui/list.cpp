@@ -32,7 +32,7 @@ List::List(Rml::Element* parent, Props props)
     mEmpty = append_element(mRoot, "ui-list-empty");
     append_text(mEmpty, "No items");
 
-    Component::listen(mViewport, Rml::EventId::Scroll, [this](Rml::Event&) { mCullDirty = true; });
+    Component::listen(mViewport, Rml::EventId::Scroll, [this](Rml::Event&) { mRangeDirty = true; });
     listen(Rml::EventId::Keydown, [this](Rml::Event& event) { handle_keydown(event); });
 
     apply_items(std::move(mProps.items));
@@ -52,19 +52,13 @@ void List::update() {
         apply_items(std::move(items), snapshotFocus);
     }
 
-    for (const auto& row : mRows) {
-        if (!row->culled) {
-            row->button->update();
-        }
-    }
-
     const float scrollTop = mViewport->GetScrollTop();
     const float viewportWidth = mViewport->GetClientWidth();
     const float viewportHeight = mViewport->GetClientHeight();
     if (scrollTop != mLastScrollTop || viewportWidth != mLastViewportWidth ||
         viewportHeight != mLastViewportHeight)
     {
-        mCullDirty = true;
+        mRangeDirty = true;
         if (viewportWidth != mLastViewportWidth || viewportHeight != mLastViewportHeight) {
             mLayoutScanFrames = std::max(mLayoutScanFrames, 2);
         }
@@ -73,11 +67,22 @@ void List::update() {
         mLastViewportHeight = viewportHeight;
     }
 
-    if (mCullDirty || mLayoutScanFrames > 0) {
-        update_culling();
-        mCullDirty = false;
+    if (mRangeDirty || mLayoutScanFrames > 0) {
+        update_active_range();
+        mRangeDirty = false;
         if (mLayoutScanFrames > 0) {
             --mLayoutScanFrames;
+        }
+    }
+
+    if (mUpdateAllRows) {
+        mUpdateAllRows = false;
+        for (const auto& row : mRows) {
+            row->button->update();
+        }
+    } else {
+        for (size_t i = mActiveFirst; i < std::min(mActiveLast, mRows.size()); ++i) {
+            mRows[i]->button->update();
         }
     }
 
@@ -156,7 +161,6 @@ std::unique_ptr<List::Row> List::create_row(const Item& item) {
                 [this, key = item.key] { return mProps.isDisabled && mProps.isDisabled(key); },
         });
     row->button->root()->SetClass("ui-list-row", true);
-    row->button->root()->SetProperty("visibility", "hidden");
     row->button->Component::listen(row->button->root(), Rml::EventId::Focus,
         [this, key = item.key](Rml::Event&) { mActiveKey = key; });
     row->button->on_pressed([this, key = item.key] {
@@ -230,43 +234,29 @@ void List::apply_items(std::vector<Item> items, const std::optional<SnapshotFocu
         mPendingFocusMayEnterList = false;
     }
 
-    mCullDirty = true;
+    mRangeDirty = true;
+    mUpdateAllRows = true;
     mLayoutScanFrames = 2;
 }
 
-void List::update_culling() {
-    const float viewTop = mViewport->GetAbsoluteOffset(Rml::BoxArea::Border).y;
+void List::update_active_range() {
+    mActiveFirst = 0;
+    mActiveLast = 0;
     const float viewHeight = mViewport->GetClientHeight();
     if (viewHeight <= 0.0f) {
         return;
     }
-    auto* context = mRoot->GetContext();
-    const Row* focusedRow = context != nullptr ? row_from_element(context->GetFocusElement()) : nullptr;
-
-    for (const auto& row : mRows) {
-        auto* element = row->button->root();
-        const float top = element->GetAbsoluteOffset(Rml::BoxArea::Border).y - viewTop;
-        const bool inWindow =
-            top + element->GetOffsetHeight() >= -viewHeight && top <= viewHeight * 2.0f;
-        const bool focusGuard =
-            row.get() == focusedRow || (mPendingFocusKey && row->key == *mPendingFocusKey);
-        const bool shouldShow = inWindow || focusGuard;
-        if (shouldShow && row->culled) {
-            show_row(*row);
-        } else if (!shouldShow && !row->culled) {
-            row->culled = true;
-            element->SetProperty("visibility", "hidden");
-        }
-    }
-}
-
-void List::show_row(Row& row) {
-    if (!row.culled) {
-        return;
-    }
-    row.button->update();
-    row.button->root()->RemoveProperty("visibility");
-    row.culled = false;
+    const float viewTop = mViewport->GetAbsoluteOffset(Rml::BoxArea::Border).y;
+    const auto rowTop = [](const std::unique_ptr<Row>& row) {
+        return row->button->root()->GetAbsoluteOffset(Rml::BoxArea::Border).y;
+    };
+    const auto first = std::ranges::partition_point(mRows, [&](const auto& row) {
+        return rowTop(row) + row->button->root()->GetOffsetHeight() < viewTop - viewHeight;
+    });
+    const auto last = std::ranges::partition_point(first, mRows.end(),
+        [&](const auto& row) { return rowTop(row) <= viewTop + viewHeight * 2.0f; });
+    mActiveFirst = static_cast<size_t>(first - mRows.begin());
+    mActiveLast = static_cast<size_t>(last - mRows.begin());
 }
 
 bool List::focus_row(int index, bool mayEnterList) {
@@ -274,7 +264,6 @@ bool List::focus_row(int index, bool mayEnterList) {
         return false;
     }
     auto& row = *mRows[index];
-    show_row(row);
     row.button->update();
     if (row.button->root()->IsPseudoClassSet("disabled")) {
         return false;
@@ -295,7 +284,6 @@ void List::request_focus(uint64_t key, bool mayEnterList) {
     if (it == mRowsByKey.end()) {
         return;
     }
-    show_row(*it->second);
     mPendingFocusKey = key;
     mPendingFocusFrames = 2;
     mPendingFocusMayEnterList = mayEnterList;
@@ -329,7 +317,6 @@ void List::update_pending_focus() {
     }
 
     auto& row = *it->second;
-    show_row(row);
     row.button->update();
     if (!row.button->root()->IsPseudoClassSet("disabled") && row.button->focus()) {
         mActiveKey = row.key;

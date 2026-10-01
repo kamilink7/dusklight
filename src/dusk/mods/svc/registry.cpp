@@ -268,6 +268,7 @@ void ModLoader::init_services() {
             &svc::g_logModule,
             &svc::g_resourceModule,
             &svc::g_fileModule,
+            &svc::g_interpModule,
             &svc::g_httpModule,
             &svc::g_netModule,
             &svc::g_websocketModule,

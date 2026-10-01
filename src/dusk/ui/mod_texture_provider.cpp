@@ -19,6 +19,8 @@ std::string mod_image_source(const mods::LoadedMod& mod, std::string_view bundle
 #include <aurora/rmlui.hpp>
 #include <borealis/log.hpp>
 
+#include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -40,10 +42,40 @@ constexpr std::string_view kSourcePrefix = "mod://";
 constexpr size_t kMaxCachedImages = 64;
 constexpr size_t kMaxCachedImageBytes = 64 * 1024 * 1024;
 constexpr size_t kMaxImageFileSize = 16 * 1024 * 1024;
+constexpr auto kEvictionGrace = std::chrono::seconds{2};
 
-std::unordered_map<std::string, DecodedImage>& image_cache() {
-    static std::unordered_map<std::string, DecodedImage> cache;
+struct CachedImage {
+    DecodedImage image;
+    std::chrono::steady_clock::time_point lastLoaded;
+};
+
+std::unordered_map<std::string, CachedImage>& image_cache() {
+    static std::unordered_map<std::string, CachedImage> cache;
     return cache;
+}
+
+// TODO: move cache logic into a shared location
+void make_cache_room(size_t incomingBytes) {
+    auto& cache = image_cache();
+    size_t cachedBytes = 0;
+    for (const auto& cached : cache | std::views::values) {
+        cachedBytes += cached.image.pixels.size();
+    }
+    const auto overLimit = [&](size_t factor) {
+        return cache.size() >= kMaxCachedImages * factor ||
+               cachedBytes + incomingBytes > kMaxCachedImageBytes * factor;
+    };
+    const auto graceStart = std::chrono::steady_clock::now() - kEvictionGrace;
+    while (!cache.empty() && overLimit(1)) {
+        const auto victim = std::ranges::min_element(
+            cache, {}, [](const auto& entry) { return entry.second.lastLoaded; });
+        if (victim->second.lastLoaded > graceStart && !overLimit(2)) {
+            break;
+        }
+        cachedBytes -= victim->second.image.pixels.size();
+        Rml::ReleaseTexture(victim->first);
+        cache.erase(victim);
+    }
 }
 
 std::string_view strip_query(std::string_view path) noexcept {
@@ -110,22 +142,12 @@ std::optional<aurora::rmlui::RuntimeTexture> mod_texture_provider(std::string_vi
         if (image->pixels.size() > kMaxCachedImageBytes) {
             return std::nullopt;
         }
-        size_t cachedBytes = 0;
-        for (const auto& [source, cached] : cache) {
-            cachedBytes += cached.pixels.size();
-        }
-        while (cache.size() >= kMaxCachedImages ||
-               cachedBytes > kMaxCachedImageBytes - image->pixels.size())
-        {
-            const auto victim = cache.begin();
-            cachedBytes -= victim->second.pixels.size();
-            Rml::ReleaseTexture(victim->first);
-            cache.erase(victim);
-        }
-        it = cache.emplace(key, std::move(*image)).first;
+        make_cache_room(image->pixels.size());
+        it = cache.emplace(key, CachedImage{.image = std::move(*image)}).first;
     }
+    it->second.lastLoaded = std::chrono::steady_clock::now();
 
-    const auto& image = it->second;
+    const auto& image = it->second.image;
     return aurora::rmlui::RuntimeTexture{
         .width = image.width,
         .height = image.height,
@@ -157,6 +179,7 @@ void unregister_mod_texture_provider() noexcept {
 namespace dusk::ui {
 
 void register_mod_texture_provider() noexcept {}
+
 void unregister_mod_texture_provider() noexcept {}
 
 }  // namespace dusk::ui

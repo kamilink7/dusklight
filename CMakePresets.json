@@ -450,6 +450,7 @@
       ],
       "cacheVariables": {
         "AURORA_SDL3_PROVIDER": "vendor",
+        "BOREALIS_CURL_PROVIDER": "vendor",
         "CMAKE_LINKER_TYPE": "MOLD"
       }
     },

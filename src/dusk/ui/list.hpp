@@ -42,7 +42,6 @@ private:
     struct Row {
         uint64_t key = 0;
         std::unique_ptr<ControlledButton> button;
-        bool culled = true;
     };
 
     Row* row_from_element(Rml::Element* element) const;
@@ -50,8 +49,7 @@ private:
     SnapshotFocus capture_snapshot_focus();
     std::unique_ptr<Row> create_row(const Item& item);
     void apply_items(std::vector<Item> items, const std::optional<SnapshotFocus>& snapshotFocus = {});
-    void update_culling();
-    void show_row(Row& row);
+    void update_active_range();
     bool focus_row(int index, bool mayEnterList);
     void request_focus(uint64_t key, bool mayEnterList);
     void update_pending_focus();
@@ -70,7 +68,10 @@ private:
     std::optional<uint64_t> mPendingFocusKey;
     int mPendingFocusFrames = 0;
     bool mPendingFocusMayEnterList = false;
-    bool mCullDirty = true;
+    size_t mActiveFirst = 0;
+    size_t mActiveLast = 0;
+    bool mRangeDirty = true;
+    bool mUpdateAllRows = true;
     int mLayoutScanFrames = 2;
     float mLastScrollTop = -1.0f;
     float mLastViewportWidth = -1.0f;
