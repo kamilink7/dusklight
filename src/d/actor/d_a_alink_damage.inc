@@ -684,6 +684,7 @@ BOOL daAlink_c::checkDamageAction() {
 
                 if (mIsNormalParry || (mIsDeflect && dusk::getSettings().game.alternateParry)) {
                     mSwordUpTimer = 60;
+                    mDodgeTimer = 10;
                     mSkillCooldown = 0;
                 }
                 if (mIsDeflect) {
@@ -695,6 +696,7 @@ BOOL daAlink_c::checkDamageAction() {
                 }
                 if (mIsCombinedParry) {
                     mReposteTimer = 30;
+                    mDodgeTimer = 10;
                 }
                 return checkWolfBarrierHitReverse();
             }

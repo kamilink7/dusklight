@@ -7977,6 +7977,8 @@ int daAlink_c::procWolfDownAtLandInit(fopEn_enemy_c* i_enemy) {
 }
 
 int daAlink_c::procWolfDownAtLand() {
+    mSkillCooldown = 0;
+
     if (checkWolfGroundSpecialMode()) {
         return 1;
     }

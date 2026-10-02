@@ -2118,7 +2118,7 @@ void daB_TN_c::executeChaseH() {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M2, 0, -1);
         }
 
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y;
 
         if (mPlayerDistance < 700.0f) {
@@ -2141,7 +2141,7 @@ void daB_TN_c::executeChaseH() {
 
     case ACTION2_2_e:
         setAwaitSound();
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y;
 
         if (mPlayerDistance > 800.0f) {
@@ -2164,7 +2164,7 @@ void daB_TN_c::executeChaseH() {
     case ACTION2_4_e:
         setAwaitSound();
         speedF = 2.3f;
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y + 0x8000;
 
         if (mPlayerDistance < 200.0f && mTimer3 == 0) {
@@ -2205,7 +2205,7 @@ void daB_TN_c::executeChaseH() {
 
     case ACTION2_6_e:
         setAwaitSound();
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y + 0x4000;
 
         if (mTimer1 == 0) {
@@ -2229,7 +2229,7 @@ void daB_TN_c::executeChaseH() {
 
     case ACTION2_7_e:
         setAwaitSound();
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y + -0x4000;
 
         if (mTimer1 == 0) {
@@ -2259,9 +2259,9 @@ void daB_TN_c::executeChaseH() {
 
     case ACTION2_102_e:
         setAwaitSound();
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
-        cLib_addCalcAngleS(&current.angle.y, cM_atan2s(-current.pos.x, -current.pos.z), 4, 0x400,
-                           16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
+        cLib_addCalcAngleS(&current.angle.y, cM_atan2s(-current.pos.x, -current.pos.z), 4, 0x800,
+                           0x160);
 
         if (!checkMoveAngle()) {
             mActionMode2 = ACTION2_103_e;
@@ -2302,7 +2302,7 @@ void daB_TN_c::executeChaseH() {
     case ACTION2_107_e:
         setAwaitSound();
         speedF = 2.3f;
-        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, sVar4, 4, 0x800, 0x160);
 
         if (mActionMode2 == ACTION2_106_e) {
             if (mMoveArea == 3) {
@@ -2429,13 +2429,13 @@ void daB_TN_c::executeAttackH() {
 
         if (playerDistance < 250.0f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            setBck(BCK_TNA_ATACK_A, 0, 6.0f, 1.75f);
         } else if (playerDistance < 350.0f) {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
         } else if (cM_rnd() < 0.5f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            setBck(BCK_TNA_ATACK_A, 0, 6.0f, 1.75f);
         } else {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
@@ -2468,7 +2468,7 @@ void daB_TN_c::executeAttackH() {
         }
 
         if (mpModelMorf2->getFrame() <= 30.0f) {
-            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 8, 0x400, 16);
+            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 4, 0x800, 0x160);
         }
 
         frame = mpModelMorf2->getFrame();
@@ -2476,13 +2476,22 @@ void daB_TN_c::executeAttackH() {
             mSphCSmallFlag = true;
         }
 
-        if (mpModelMorf2->checkFrame(18.0f)) {
+        if (mpModelMorf2->checkFrame(9.0f)) {
             setSwordAtBit(1);
             setSwordAtBreak(1);
         }
 
-        if (mpModelMorf2->checkFrame(29.0f)) {
+        if (mpModelMorf2->checkFrame(39.0f)) {
             setSwordAtBit(0);
+        }
+
+        if (mpModelMorf2->getFrame() >= 29.0f) {
+            if ((daAlink_getAlinkActorClass()->mIsTargetedRoll || daAlink_getAlinkActorClass()->checkFrontRoll())
+                && playerDistance < 200.0f) {
+                cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 2, 0x800, 0x160);
+                setActionMode(ACT_ATTACKSHIELDH, ACTION2_0_e);
+                break;
+            }
         }
 
         if (mpModelMorf2->isStop()) {
@@ -2505,8 +2514,8 @@ void daB_TN_c::executeAttackH() {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M2, 0, -1);
         }
 
-        if (mpModelMorf2->getFrame() <= 22.0f) {
-            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 8, 0x400, 16);
+        if (mpModelMorf2->getFrame() <= 30.0f) {
+            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 8, 0x800, 16);
         }
 
         if (mpModelMorf2->getFrame() >= 22.0f && mpModelMorf2->getFrame() < 30.0f) {
@@ -2521,6 +2530,15 @@ void daB_TN_c::executeAttackH() {
 
         if (mpModelMorf2->checkFrame(30.0f)) {
             setSwordAtBit(0);
+        }
+
+        if (mpModelMorf2->getFrame() >= 30.0f) {
+            if ((daAlink_getAlinkActorClass()->mIsTargetedRoll || daAlink_getAlinkActorClass()->checkFrontRoll())
+                && playerDistance < 200.0f) {
+                cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 4, 0x800, 0x160);
+                setActionMode(ACT_ATTACKSHIELDH, ACTION2_0_e);
+                break;
+                }
         }
 
         if (mpModelMorf2->checkFrame(26.0f)) {
@@ -2639,9 +2657,9 @@ void daB_TN_c::executeDamageH() {
         if (part_idx >= 12) {
             setActionMode(ACT_CHANGEDEMO, ACTION2_0_e);
         } else {
-            if (player->getCutType() != daPy_py_c::CUT_TYPE_HEAD_JUMP) {
+            if (player->getCutType() != daPy_py_c::CUT_TYPE_HEAD_JUMP && (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3))) {
                 setBreakPart(part_idx);
-            } else {
+            } else if (player->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP) {
                 setBreakHeadPart(part_idx);
             }
 
@@ -2650,10 +2668,12 @@ void daB_TN_c::executeDamageH() {
             mDoMtx_stack_c::multVecZero(&sp1c);
             current.pos.set(sp1c.x, current.pos.y, sp1c.z);
 
-            if (mActionMode2 == ACTION2_0_e) {
-                setBck(BCK_TNA_DAMAGE_L, 0, 0.0f, 2.0f);
-            } else {
-                setBck(BCK_TNA_DAMAGE_R, 0, 0.0f, 2.0f);
+            if (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3)) {
+                if (mActionMode2 == ACTION2_0_e) {
+                    setBck(BCK_TNA_DAMAGE_L, 0, 0.0f, 2.0f);
+                } else {
+                    setBck(BCK_TNA_DAMAGE_R, 0, 0.0f, 2.0f);
+                }
             }
 
             mSound.startCreatureVoice(Z2SE_EN_TN_V_DMG, -1);
@@ -3138,7 +3158,7 @@ void daB_TN_c::initChaseL(int param_1) {
         }
 
         current.angle.y = shape_angle.y + 0x4000;
-        mTimer1 = cM_rndFX(20.0f) + 90.0f;
+        mTimer1 = cM_rndFX(10.0f) + 45.0f;
         speedF = 4.8f;
         mWalkDir = 1;
         break;
@@ -3149,7 +3169,7 @@ void daB_TN_c::initChaseL(int param_1) {
         }
 
         current.angle.y = shape_angle.y + -0x4000;
-        mTimer1 = cM_rndFX(20.0f) + 90.0f;
+        mTimer1 = cM_rndFX(10.0f) + 45.0f;
         speedF = 4.8f;
         mWalkDir = 1;
         break;
@@ -3219,6 +3239,7 @@ bool daB_TN_c::checkNextMove() {
     s16 isAttackAble = checkAttackAble();
     int iVar1 = 0;
     s16 sVar7 = current.angle.y;
+    daAlink_c* link = daAlink_getAlinkActorClass();
 
     fopAc_ac_c* mActor = (fopAc_ac_c*)fpcM_Search(s_obj_sub, this);
     if (mActor != NULL) {
@@ -3259,7 +3280,12 @@ bool daB_TN_c::checkNextMove() {
     }
 
     if (isAttackAble) {
-        if (player->checkFrontRoll() && mPlayerDistance < 250.0f) {
+        if ((player->checkFrontRoll() || link->mIsTargetedRoll) && mPlayerDistance < 250.0f) {
+            if (link->mIsTargetedRoll) {
+                setActionMode(ACT_CHASEL, ACTION2_0_e);
+                initChaseL(6);
+                return 1;
+            }
             setActionMode(ACT_ATTACKSHIELDL, ACTION2_10_e);
             return 1;
         }
@@ -3423,7 +3449,7 @@ void daB_TN_c::executeChaseL() {
                 mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M2, 0, -1);
             }
 
-            cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x400, 16);
+            cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x800, 0x160);
             current.angle.y = shape_angle.y;
 
             if (mPlayerDistance < 700.0f) {
@@ -3449,10 +3475,10 @@ void daB_TN_c::executeChaseL() {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M2, 0, -1);
         }
 
-        cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x400, 16);
+        cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x800, 0x160);
         current.angle.y = shape_angle.y;
 
-        if (mTimer1 == 0) {
+        if (mTimer1 == 0 || mPlayerDistance > 400.0f) {
             initChaseL(17);
         }
         break;
@@ -3667,9 +3693,16 @@ void daB_TN_c::executeChaseL() {
 void daB_TN_c::executeAttackL() {
     s16 mPlayerAngleY = fopAcM_searchPlayerAngleY(this);
     f32 mPlayerDistance = fopAcM_searchPlayerDistance(this);
+    daAlink_c* link = daAlink_getAlinkActorClass();
 
     speedF = 0.0f;
     current.angle.y = shape_angle.y;
+
+    if (mpModelMorf2->getFrame() > 15.0f && (link->checkFrontRoll() || link->mIsTargetedRoll)
+        && mPlayerDistance < 300.0f) {
+            setActionMode(ACT_CHASEL, ACTION2_0_e);
+            initChaseL(6);
+        }
 
     switch (mActionMode2) {
     case ACTION2_0_e:
@@ -3887,6 +3920,7 @@ void daB_TN_c::executeAttackL() {
 void daB_TN_c::executeAttackShieldL() {
     s16 mPlayerAngleY = fopAcM_searchPlayerAngleY(this);
     fopAcM_searchPlayerDistance(this);
+    daAlink_c* link = daAlink_getAlinkActorClass();
 
     switch (mActionMode2) {
     case ACTION2_10_e:
@@ -3914,7 +3948,13 @@ void daB_TN_c::executeAttackShieldL() {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M1, 0, -1);
         }
 
-        if (mpModelMorf2->getFrame() < 10.0f) {
+        if (link->mIsTargetedRoll || link->checkFrontRoll()) {
+            setActionMode(ACT_CHASEL, ACTION2_0_e);
+            initChaseL(6);
+            break;
+        }
+
+        if (mpModelMorf2->getFrame() < 15.0f) {
             cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x800, 16);
         }
 
@@ -4097,10 +4137,12 @@ void daB_TN_c::executeDamageL() {
         setSwordAtBreak(1);
         mSphC.OffAtSetBit();
 
-        if (mActionMode2 == ACTION2_0_e) {
-            setBck(BCK_TNB_DAMAGE_L, 0, 3.0f, 1.5f);
-        } else {
-            setBck(BCK_TNB_DAMAGE_R, 0, 3.0f, 1.5f);
+        if (mAtInfo.mHitStatus != 0 || player->getCutCount() != 3) {
+            if (mActionMode2 == ACTION2_0_e) {
+                setBck(BCK_TNB_DAMAGE_L, 0, 3.0f, 1.5f);
+            } else {
+                setBck(BCK_TNB_DAMAGE_R, 0, 3.0f, 1.5f);
+            }
         }
 
         mSound.startCreatureVoice(Z2SE_EN_TN_V_DMG, -1);
@@ -4111,7 +4153,7 @@ void daB_TN_c::executeDamageL() {
 
         if (mType == 1 && mCutFlag) {
             field_0xa91 = true;
-            mTimer10 = 40;
+            mTimer10 = 15;
         }
         break;
 

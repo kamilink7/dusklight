@@ -18326,6 +18326,10 @@ int daAlink_c::execute() {
             mSkillCooldown = 450;
         }
 
+        if (mSkillCooldown <= 0) {
+            mSkillCooldown = 0;
+        }
+
         if (mWaitThisLong != 0) {
             mWaitThisLong--;
         }
@@ -18353,9 +18357,13 @@ int daAlink_c::execute() {
             if (mDoCPd_c::getTrigB(PAD_1)) {
                 if (cM_rndF(1.0) < 0.5) {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_A);
+                    mReposteTimer = 0;
+                    mDodgeTimer = 20;
                 }
                 else {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_B);
+                    mReposteTimer = 0;
+                    mDodgeTimer = 20;
                 }
             }
             mReposteTimer--;
@@ -18421,11 +18429,11 @@ int daAlink_c::execute() {
                         mWaitThisLong = 45;
                     }
                     else if ((direction == DIR_FORWARD || direction == DIR_NONE)
-                        && mSkillCooldown <= 150) {
+                        && (mSkillCooldown <= 150 || mEquipItem != 0x103)) {
                         procFrontRollInit();
-                        mIsTargetedRoll = true;
                         mWaitThisLong = 25;
                         if (mEquipItem == 0x103) {
+                            mIsTargetedRoll = true;
                             mSkillCooldown += 150;
                         }
                     }

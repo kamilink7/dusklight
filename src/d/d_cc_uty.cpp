@@ -386,6 +386,7 @@ static u16 scale_damage(u16 i_power, int i_percent) {
 fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
     daPy_py_c* player_p = (daPy_py_c*)dComIfGp_getPlayer(0);
     i_AtInfo->mpActor = at_power_check(i_AtInfo);
+    daAlink_c* link = daAlink_getAlinkActorClass();
 
     f32 x_diff;
     f32 z_diff;
@@ -437,12 +438,12 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
         }
 
         if (i_AtInfo->mHitType == HIT_TYPE_LINK_NORMAL_ATTACK) {
-            if (!daPy_py_c::checkNowWolf()) {
 #if TARGET_PC
-                if (dusk::getSettings().game.swordMultiplier != 100) {
-                    i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, dusk::getSettings().game.swordMultiplier);
-                }
+            if (dusk::getSettings().game.swordMultiplier != 100) {
+                i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, dusk::getSettings().game.swordMultiplier);
+            }
 #endif
+            if (!daPy_py_c::checkNowWolf()) {
                 if (player_p->checkMasterSwordEquip()) {
                     i_AtInfo->mAttackPower *= 2;
                 }
@@ -541,6 +542,16 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
                 pause_time = 4;
             }
             dScnPly_c::setPauseTimer(pause_time);
+
+            if (daPy_py_c::checkNowWolf()) {
+                if (i_AtInfo->mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                    link->mSkillCooldown -= 35;
+                }
+                if (i_enemy->health <= 0 && fopAcM_GetGroup(i_enemy) == fopAc_ENEMY_e
+                    && !i_AtInfo->mpCollider->ChkAtType(AT_TYPE_MIDNA_LOCK)) {
+                    link->mSkillCooldown = 0;
+                }
+            }
         }
     }
 
