@@ -3047,7 +3047,7 @@ DUSK_GAME_DATA const daAlinkHIO_wlAtLock_c1 daAlinkHIO_wlAtLock_c0::m = {
     120,
     100.0f,
     550.0f,
-    25.0f,
+    35.0f,
     85.0f,
     80.0f,
     60.0f,
