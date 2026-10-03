@@ -785,7 +785,7 @@ void daE_OC_c::damage_check() {
         setActionMode(E_OC_ACTION_BIG_DAMAGE, my_val - 5);
         offTgSph();
     } else {
-        if (daPy_getPlayerActorClass()->mComboCutCount >= 2 || daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_GUARD_ATTACK) {
+        if (mAtInfo.mHitStatus == 0 && daPy_getPlayerActorClass()->mComboCutCount != 1 && daPy_getPlayerActorClass()->mComboCutCount != 3) {
             setActionMode(E_OC_ACTION_DAMAGE, my_val);
         }
     }
@@ -1215,7 +1215,7 @@ void daE_OC_c::executeFind() {
 
                 mBattleOn = true;
                 if ((s16)cLib_distanceAngleS(shape_angle.y, pl_ang) >= 0x400) {
-                    cLib_addCalcAngleS(&shape_angle.y, pl_ang, 4, 0x800, 0x100);
+                    cLib_addCalcAngleS(&shape_angle.y, pl_ang, 2, 0x1000, 0x200);
                 }
 
                 current.angle.y = shape_angle.y;
@@ -1232,11 +1232,11 @@ void daE_OC_c::executeFind() {
                         if (pl_dist < 300.0f) {
                             cLib_chaseF(&speedF, -3.0f, 1.5f);
                         } else {
-                            cLib_chaseF(&speedF, 20.0f + nREG_F(0), 1.0f);
+                            cLib_chaseF(&speedF, 20.0f + nREG_F(0), 1.5f);
                         }
 
                         if (pl_dist < 400.0f && pl_dist > 200.0f) {
-                            if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x1000) {
+                            if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x800) {
                                 if (!dComIfGp_event_runCheck()) {
                                     setActionMode(E_OC_ACTION_ATTACK, 0);
                                 }
@@ -1246,11 +1246,11 @@ void daE_OC_c::executeFind() {
                         }
                     } else {
                         if (pl_dist < 400.0f && pl_dist > 200.0f) {
-                            cLib_chaseF(&speedF, 0.0f, 1.0f);
+                            cLib_chaseF(&speedF, 0.0f, 1.5f);
                         } else if (pl_dist < 300.0f) {
-                            cLib_chaseF(&speedF, -3.0f, 1.0f);
+                            cLib_chaseF(&speedF, -3.0f, 1.5f);
                         } else {
-                            cLib_chaseF(&speedF, 20.0f + nREG_F(0), 1.0f);
+                            cLib_chaseF(&speedF, 20.0f + nREG_F(0), 1.5f);
                         }
 
                         if (speedF < 0.0f) {
@@ -1384,6 +1384,7 @@ void daE_OC_c::setWeaponGroundAngle() {
 }
 
 void daE_OC_c::executeAttack() {
+    s16 pl_ang = fopAcM_searchPlayerAngleY(this);
     f32 my_float = 0.0f;
     int frame_ctrl = (mpMorf->getFrame() - 9.0f);
     if (frame_ctrl >= 0) {
@@ -1458,12 +1459,12 @@ void daE_OC_c::executeAttack() {
                 }
             }
 
-            if (mpMorf->getFrame() >= 14.0f && mpMorf->getFrame() <= 22.0f) {
+            if (mpMorf->getFrame() >= 12.0f && mpMorf->getFrame() <= 24.0f) {
                 mSphs_at[0].OnAtSetBit();
                 mSphs_at[1].OnAtSetBit();
             }
 
-            if (mpMorf->getFrame() >= 22.0f) {
+            if (mpMorf->getFrame() >= 12.0f) {
                 mPrevShapeAngle = fopAcM_searchPlayerAngleY(this);
             }
 
@@ -1498,6 +1499,7 @@ void daE_OC_c::executeAttack() {
                 if (field_0x6e3) {
                     setActionMode(E_OC_ACTION_MOVE_OUT, 0);
                 } else if (field_0x6ca && fopAcM_searchPlayerDistance(this) < 500.0f) {
+                    cLib_addCalcAngleS(&shape_angle.y, pl_ang, 2, 0x800, 0x200);
                     mOcState = 0;
                 } else {
                     setActionMode(E_OC_ACTION_FIND, 0);
@@ -1544,19 +1546,19 @@ void daE_OC_c::executeDamage() {
     switch (mOcState) {
         case 0:
             speedF = 0.0f;
-            setBck(0x9, 0, 0.0f, 1.0f);
+            setBck(0x9, 0, 0.0f, 2.0f);
             mSound.startCreatureVoice(Z2SE_EN_OC_V_DAMAGE_LR, -1);
             mOcState = 5;
             break;
         case 1:
             speedF = 0.0f;
-            setBck(0xa, 0, 0.0f, 1.0f);
+            setBck(0xa, 0, 0.0f, 2.0f);
             mSound.startCreatureVoice(Z2SE_EN_OC_V_DAMAGE_LR, -1);
             mOcState = 5;
             break;
         case 2:
             speedF = 0.0f;
-            setBck(0x8, 0, 0.0f, 1.0f);
+            setBck(0x8, 0, 0.0f, 2.0f);
             mSound.startCreatureVoice(Z2SE_EN_OC_V_DAMAGE_LR, -1);
             mOcState = 5;
             break;
@@ -1564,7 +1566,7 @@ void daE_OC_c::executeDamage() {
             setBck(0x8, 0, 0.0f, 1.0f);
             mSound.startCreatureVoice(Z2SE_EN_OC_V_DAMAGE, -1);
             mOcState = 5;
-            if (s16(cLib_distanceAngleS(shape_angle.y, fopAcM_searchPlayerAngleY(this))) < 0x4000) {
+            if (s16(cLib_distanceAngleS(shape_angle.y, fopAcM_searchPlayerAngleY(this))) < 0x1000) {
                 speedF = -20.0f;
             } else {
                 speedF = 20.0f;
@@ -1589,7 +1591,7 @@ void daE_OC_c::executeDamage() {
                     if (field_0x6e3) {
                         setActionMode(E_OC_ACTION_MOVE_OUT, 0);
                     } else {
-                        setActionMode(E_OC_ACTION_FIND, 0);
+                        setActionMode(E_OC_ACTION_ATTACK, 0);
                     }
                 }
             }
@@ -1600,7 +1602,7 @@ void daE_OC_c::executeDamage() {
                 if (field_0x6e3) {
                     setActionMode(E_OC_ACTION_MOVE_OUT, 0);
                 } else {
-                    setActionMode(E_OC_ACTION_FIND, 0);
+                    setActionMode(E_OC_ACTION_ATTACK, 0);
                 }
             }
             break;
@@ -2292,7 +2294,7 @@ void daE_OC_c::executeFindStay() {
 
             current.angle.y = shape_angle.y;
             if (target_dist < 400.0f && target_dist > 200.0f) {
-                if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x5000 && checkBeforeFloorBg(100.0f)
+                if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x1000 && checkBeforeFloorBg(100.0f)
                     && !dComIfGp_event_runCheck()) {
                     setActionMode(E_OC_ACTION_ATTACK, 0);
                 }
@@ -2390,7 +2392,7 @@ void daE_OC_c::executeMoveOut() {
                 }
 
                 if (player_distance < 400.0f && player_distance > 200.0f) {
-                    if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x1000
+                    if (abs(shape_angle.y - fopAcM_searchPlayerAngleY(this)) < 0x800
                         && !dComIfGp_event_runCheck()) {
                         setActionMode(E_OC_ACTION_ATTACK, 0);
                     }
