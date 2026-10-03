@@ -439,7 +439,7 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
 
         if (i_AtInfo->mHitType == HIT_TYPE_LINK_NORMAL_ATTACK) {
 #if TARGET_PC
-            if (dusk::getSettings().game.swordMultiplier != 100) {
+            if (dusk::getSettings().game.swordMultiplier != 100 && !i_AtInfo->mpCollider->ChkAtType(AT_TYPE_MIDNA_LOCK)) {
                 i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, dusk::getSettings().game.swordMultiplier);
             }
 #endif
