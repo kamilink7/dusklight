@@ -226,6 +226,7 @@ struct UserSettings {
         ConfigVar<bool> noHitstop;
         ConfigVar<int> damageMultiplier;
         ConfigVar<int> swordMultiplier;
+        ConfigVar<int> wolfMultiplier;
         ConfigVar<int> bowMultiplier;
         ConfigVar<bool> noHeartDrops;
         ConfigVar<bool> noArrowDrops;

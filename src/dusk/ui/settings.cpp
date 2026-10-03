@@ -1423,6 +1423,30 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
+                .key = "Wolf Damage Multiplier",
+                .getValue = [] { return getSettings().game.wolfMultiplier.getValue(); },
+                .setValue =
+                    [](int value) {
+                        getSettings().game.wolfMultiplier.setValue(value);
+                        config::save();
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.wolfMultiplier.getValue() !=
+                               getSettings().game.wolfMultiplier.getDefaultValue();
+                    },
+                .min = 0,
+                .max = 1000,
+                .step = 10,
+                .suffix = "%",
+            }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Multiplies damage done by Wolf Link attacks, except Midna Charge.");
+            });
+        leftPane.register_control(
+            leftPane.add_child<NumberButton>(NumberButton::Props{
                 .key = "Bow Damage Multiplier",
                 .getValue = [] { return getSettings().game.bowMultiplier.getValue(); },
                 .setValue =

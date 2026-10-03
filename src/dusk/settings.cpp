@@ -49,6 +49,7 @@ UserSettings g_userSettings = {
         .noHitstop {"game.noHitstop", false},
         .damageMultiplier {"game.damageMultiplier", 1},
         .swordMultiplier {"game.swordMultiplier", 100},
+        .wolfMultiplier {"game.wolfMultiplier", 100},
         .bowMultiplier {"game.bowMultiplier", 100},
         .noHeartDrops {"game.noHeartDrops", false},
         .noArrowDrops {"game.noArrowDrops", false},
@@ -311,6 +312,7 @@ void registerSettings() {
     Register(g_userSettings.game.noHitstop);
     Register(g_userSettings.game.damageMultiplier);
     Register(g_userSettings.game.swordMultiplier);
+    Register(g_userSettings.game.wolfMultiplier);
     Register(g_userSettings.game.bowMultiplier);
     Register(g_userSettings.game.noHeartDrops);
     Register(g_userSettings.game.noArrowDrops);
