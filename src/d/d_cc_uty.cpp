@@ -376,7 +376,7 @@ static u16 scale_damage(u16 i_power, int i_percent) {
     if (i_power == 0 || i_percent == 100) {
         return i_power;
     }
-    int scaled = (i_power * i_percent + 50) / 100;
+    int scaled = (i_power * i_percent) / 100;
     if (scaled == 0 && i_percent != 0) {
         scaled = 1; // hard code to 1 so low damage doesn't get rounded to 0
     }
