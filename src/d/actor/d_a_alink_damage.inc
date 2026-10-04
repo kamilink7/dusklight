@@ -678,7 +678,7 @@ BOOL daAlink_c::checkDamageAction() {
             if (mParryTimer > 0 && !(mProcID == PROC_SIDESTEP || mProcID == PROC_FRONT_ROLL || mProcID == PROC_SIDE_ROLL
                 || mProcID == PROC_BACK_JUMP)) {
                 if (mIsNormalParry || mIsCombinedParry) {
-                    setPlayerSe(Z2SE_MIDNA_JUMP);
+                    Z2GetSeMgr()->setMultiTriggerSE(Z2SE_MIDNA_JUMP, NULL, -1);
                 }
                 dComIfGp_getVibration().StartShock(VIBMODE_S_POWER4, 1, cXyz(0.0f, 1.0f, 0.0f));
 
@@ -741,6 +741,10 @@ BOOL daAlink_c::checkDamageAction() {
                     }
                 }
             }
+        } else if (mDodgeTimer != 0) {
+            mCcStts.ClrTg();
+            mCcStts.ClrAt();
+            return checkWolfBarrierHitReverse();
         } else {
             int dmg = mCcStts.GetDmg();
             if (var_r29->ChkTgHit() && tghit_gobj != NULL && tghit_gobj->GetAtType() == AT_TYPE_BOMB) {
