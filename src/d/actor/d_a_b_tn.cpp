@@ -1064,7 +1064,20 @@ static daB_TN_c* m_attack_tn;
 
 static int m_attack_timer;
 
+static void* findNuts(void* i_actor, void* i_data) {
+    if (fopAcM_IsActor(i_actor) && i_actor != i_data &&
+        fopAcM_GetName(i_actor) == fpcNm_B_TN_e &&
+        !fpcM_IsCreating(fopAcM_GetID(i_actor)) &&
+        fopAcM_GetRoomNo((fopAc_ac_c*)i_actor) == fopAcM_GetRoomNo((fopAc_ac_c*)i_data))
+    {
+        return i_actor;
+    }
+
+    return NULL;
+}
+
 bool daB_TN_c::checkNormalAttackAble() {
+    daB_TN_c* otherNuts = (daB_TN_c*)fopAcM_Search(findNuts, this);
     if (mType == 1) {
         if (daPy_getPlayerActorClass()->getCutCount() != 0) {
             mTimer3 = cM_rndF(60.0f) + 30.0f;
@@ -1079,6 +1092,10 @@ bool daB_TN_c::checkNormalAttackAble() {
         if (m_attack_timer != 0) {
             mTimer3 = cM_rndF(60.0f) + 30.0f;
             return 0;
+        }
+
+        if (otherNuts != NULL) {
+            return 1;
         }
 
         m_attack_timer = 5;
@@ -1378,12 +1395,9 @@ void daB_TN_c::damage_check() {
                 return;
             }
 
-            if (cut_type == daPy_py_c::CUT_TYPE_HEAD_JUMP ||
-                cut_type == daPy_py_c::CUT_TYPE_MORTAL_DRAW_B ||
-                cut_type == daPy_py_c::CUT_TYPE_MORTAL_DRAW_A)
+            if (cut_type == daPy_py_c::CUT_TYPE_HEAD_JUMP)
             {
                 mTimer12 = 60;
-                mBashSuccessCount++;
             }
         } else {
             if (mAtInfo.mpCollider->ChkAtType(AT_TYPE_SHIELD_ATTACK)) {
@@ -2422,6 +2436,7 @@ void daB_TN_c::executeAttackH() {
     f32 frame;
     s16 playerAngleY = fopAcM_searchPlayerAngleY(this);
     f32 playerDistance = fopAcM_searchPlayerDistance(this);
+    daB_TN_c* otherNuts = (daB_TN_c*)fopAcM_Search(findNuts, this);
 
     switch (mActionMode2) {
     case ACTION2_0_e:
@@ -2429,13 +2444,13 @@ void daB_TN_c::executeAttackH() {
 
         if (playerDistance < 250.0f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 6.0f, 1.75f);
+            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
         } else if (playerDistance < 350.0f) {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
         } else if (cM_rnd() < 0.5f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 6.0f, 1.75f);
+            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
         } else {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
@@ -2485,7 +2500,7 @@ void daB_TN_c::executeAttackH() {
             setSwordAtBit(0);
         }
 
-        if (mpModelMorf2->getFrame() >= 29.0f) {
+        if (mpModelMorf2->getFrame() >= 29.0f && otherNuts != NULL) {
             if ((daAlink_getAlinkActorClass()->mIsTargetedRoll || daAlink_getAlinkActorClass()->checkFrontRoll())
                 && playerDistance < 200.0f) {
                 cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 2, 0x800, 0x160);
@@ -2532,7 +2547,7 @@ void daB_TN_c::executeAttackH() {
             setSwordAtBit(0);
         }
 
-        if (mpModelMorf2->getFrame() >= 30.0f) {
+        if (mpModelMorf2->getFrame() >= 30.0f && otherNuts != NULL) {
             if ((daAlink_getAlinkActorClass()->mIsTargetedRoll || daAlink_getAlinkActorClass()->checkFrontRoll())
                 && playerDistance < 200.0f) {
                 cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 4, 0x800, 0x160);
@@ -2557,7 +2572,7 @@ void daB_TN_c::executeAttackShieldH() {
     switch (mActionMode2) {
     case ACTION2_0_e:
         speedF = 0.0f;
-        setBck(BCK_TNA_ATACK_SHIELD, 0, 3.0f, 1.0f);
+        setBck(BCK_TNA_ATACK_SHIELD, 0, 10.0f, 1.0f);
         mActionMode2 = ACTION2_1_e;
         break;
 
@@ -2590,6 +2605,7 @@ void daB_TN_c::executeAttackShieldH() {
 
 void daB_TN_c::executeGuardH() {
     cXyz sp18;
+    daPy_py_c* player = daPy_getPlayerActorClass();
     switch (mActionMode2) {
     case ACTION2_0_e:
         setSwordAtBit(0);
@@ -2603,9 +2619,11 @@ void daB_TN_c::executeGuardH() {
         mActionMode2 = ACTION2_1_e;
         speedF = 0.0f;
 
-        if (field_0xaa8 && mBashSuccessCount < 1) {
+        if (field_0xaa8 || (mBashSuccessCount <= 3 && player->getCutType() == daPy_py_c::CUT_TYPE_GUARD_ATTACK)) {
             shape_angle.y = fopAcM_searchPlayerAngleY(this);
             setBck(BCK_TNA_GUARD_DAMAGE, 0, 0.0f, 1.0f);
+            if (player->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP)
+                mBashSuccessCount++;
         } else {
             cLib_chaseAngleS(&shape_angle.y, fopAcM_searchPlayerAngleY(this), 0x2000);
             setBck(BCK_TNA_GUARD, 0, 0.0f, 1.0f);
@@ -2634,6 +2652,7 @@ void daB_TN_c::executeDamageH() {
     s16 mPlayerAngleY = fopAcM_searchPlayerAngleY(this);
     daPy_py_c* player = daPy_getPlayerActorClass();
     field_0xa91 = false;
+    daB_TN_c* otherNuts = (daB_TN_c*)fopAcM_Search(findNuts, this);
 
     if (mTimer5 == 0) {
         field_0xa91 = true;
@@ -2657,7 +2676,8 @@ void daB_TN_c::executeDamageH() {
         if (part_idx >= 12) {
             setActionMode(ACT_CHANGEDEMO, ACTION2_0_e);
         } else {
-            if (player->getCutType() != daPy_py_c::CUT_TYPE_HEAD_JUMP && (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3))) {
+            if (player->getCutType() != daPy_py_c::CUT_TYPE_HEAD_JUMP && (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3)
+                || otherNuts != NULL)) {
                 setBreakPart(part_idx);
             } else if (player->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP) {
                 setBreakHeadPart(part_idx);
@@ -2668,7 +2688,7 @@ void daB_TN_c::executeDamageH() {
             mDoMtx_stack_c::multVecZero(&sp1c);
             current.pos.set(sp1c.x, current.pos.y, sp1c.z);
 
-            if (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3)) {
+            if (mAtInfo.mHitStatus != 0 || (player->getCutCount() != 1 && player->getCutCount() != 3) || otherNuts != NULL) {
                 if (mActionMode2 == ACTION2_0_e) {
                     setBck(BCK_TNA_DAMAGE_L, 0, 0.0f, 2.0f);
                 } else {
@@ -3223,8 +3243,14 @@ void daB_TN_c::initChaseL(int param_1) {
 }
 
 bool daB_TN_c::checkAttackAble() {
+    daB_TN_c* otherNuts = (daB_TN_c*)fopAcM_Search(findNuts, this);
+
     if (fopAcM_searchPlayerDistance(this) < 500.0f &&
         abs((s16)(fopAcM_searchPlayerAngleY(this) - shape_angle.y)) < 0x3000)
+    {
+        return true;
+    }
+    if (otherNuts != NULL)
     {
         return true;
     }
@@ -3935,7 +3961,7 @@ void daB_TN_c::executeAttackShieldL() {
         }
 
         speedF = 0.0f;
-        setBck(BCK_TNB_ATACK_SHIELD, 0, 3.0f, 1.0f);
+        setBck(BCK_TNB_ATACK_SHIELD, 0, 10.0f, 1.0f);
         mActionMode2 = ACTION2_1_e;
         break;
 
