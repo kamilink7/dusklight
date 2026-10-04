@@ -4483,7 +4483,7 @@ int daAlink_c::procWolfRopeMove() {
     } else if (mTargetedActor != NULL) {
         setDoStatus(BUTTON_STATUS_UNK_139);
 
-        if (doTrigger() && mSkillCooldown <= 0) {
+        if (doTrigger() && (mSkillCooldown <= 0 || dusk::getSettings().game.noWolfJumpMeter)) {
             return procWolfJumpAttackInit(1);
         }
     }
@@ -6890,7 +6890,7 @@ void daAlink_c::setWolfLockDomeModel() {
         field_0x0724->setFrame(0.0f);
     }
 
-    if (dusk::getSettings().game.enableSkillMeter) {
+    if (dusk::getSettings().game.enableSkillMeter && !dusk::getSettings().game.noMidnaChargeMeter) {
         mSkillCooldown += 300;
     }
 }
@@ -7203,7 +7203,7 @@ int daAlink_c::procWolfRollAttackMove() {
     if (mProcVar0.field_0x3008 != 0) {
         mProcVar0.field_0x3008--;
 
-        if (mProcVar0.field_0x3008 == 0 && checkWolfLockAttackChargeState() && mSkillCooldown <= 0) {
+        if (mProcVar0.field_0x3008 == 0 && checkWolfLockAttackChargeState() && (mSkillCooldown <= 0 || dusk::getSettings().game.noMidnaChargeMeter)) {
             setWolfLockDomeModel();
         }
     } else {
@@ -7413,7 +7413,7 @@ int daAlink_c::procWolfJumpAttackInit(int param_0) {
         field_0x307e = mpHIO->mWolf.mWlAttack.m.mComboDuration;
     }
 
-    if (dusk::getSettings().game.enableSkillMeter) {
+    if (dusk::getSettings().game.enableSkillMeter && !dusk::getSettings().game.noWolfJumpMeter) {
         mSkillCooldown += 300;
     }
 
@@ -7588,7 +7588,7 @@ int daAlink_c::procWolfJumpAttackSlideLand() {
         if (checkZeroSpeedF()) {
             current.angle.y = shape_angle.y;
 
-            if (mProcVar0.field_0x3008 != 0 && mSkillCooldown <= 0) {
+            if (mProcVar0.field_0x3008 != 0 && (mSkillCooldown <= 0 || dusk::getSettings().game.noWolfJumpMeter)) {
                 procWolfJumpAttackInit(3);
             } else {
                 checkNextActionWolf(0);
@@ -7598,7 +7598,7 @@ int daAlink_c::procWolfJumpAttackSlideLand() {
         s16 prev_angle = current.angle.y;
         current.angle.y = shape_angle.y;
 
-        if (mProcVar0.field_0x3008 != 0 && mSkillCooldown <= 0) {
+        if (mProcVar0.field_0x3008 != 0 && (mSkillCooldown <= 0 || dusk::getSettings().game.noWolfJumpMeter)) {
             procWolfJumpAttackInit(3);
         } else if (!checkNextActionWolf(1)) {
             current.angle.y = prev_angle;
@@ -7645,7 +7645,7 @@ int daAlink_c::procWolfJumpAttackNormalLand() {
     if (checkAnmEnd(frameCtrl)) {
         checkNextActionWolf(0);
     } else if (frameCtrl->getFrame() > mpHIO->mWolf.mWlAttack.mWlAtLand.m.mNormalLandingAnm.mCancelFrame) {
-        if (mProcVar2.field_0x300c != 0 && mSkillCooldown <= 0) {
+        if (mProcVar2.field_0x300c != 0 && (mSkillCooldown <= 0 || dusk::getSettings().game.noWolfJumpMeter)) {
             ANGLE_ADD_2(shape_angle.y, 0x8000);
             return procWolfJumpAttackInit(3);
         }

@@ -1525,6 +1525,18 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .helpText = "Ties the Great Spin to the skill meter. Can use Great Spin so long as Link's health and the skill meter are above half. Full health incurs no meter cost.",
                 .isDisabled = [] { return !getSettings().game.enableSkillMeter.getValue();}
             });
+        config_bool_select(leftPane, rightPane, getSettings().game.noWolfJumpMeter,
+            {
+                .key = "Disable Wolf Jump Meter Usage",
+                .helpText = "Disable Wolf jump attacks using the skill meter when the meter is enabled.",
+                .isDisabled = [] { return !getSettings().game.enableSkillMeter.getValue();}
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.noMidnaChargeMeter,
+            {
+                .key = "Disable Midna Charge Meter Usage",
+                .helpText = "Disable Midna charge attacks using the skill meter when the meter is enabled.",
+                .isDisabled = [] { return !getSettings().game.enableSkillMeter.getValue();}
+            });
 
         leftPane.add_section("Gamefeel Stuff");
         addOption("No Hitstop", getSettings().game.noHitstop,
