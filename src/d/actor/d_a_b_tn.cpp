@@ -2444,13 +2444,23 @@ void daB_TN_c::executeAttackH() {
 
         if (playerDistance < 250.0f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            if (otherNuts != NULL) {
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            }
+            else {
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.75f);
+            }
         } else if (playerDistance < 350.0f) {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
         } else if (cM_rnd() < 0.5f) {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            if (otherNuts != NULL) {
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+            }
+            else {
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.75f);
+            }
         } else {
             mActionMode2 = ACTION2_2_e;
             setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
@@ -2482,8 +2492,15 @@ void daB_TN_c::executeAttackH() {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M1, 0, -1);
         }
 
-        if (mpModelMorf2->getFrame() <= 30.0f) {
+        if (mpModelMorf2->getFrame() <= 39.0f) {
             cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 4, 0x800, 0x160);
+        }
+
+        if (mpModelMorf2->getFrame() <= 23.0f && playerDistance > 200.0f) {
+            speedF = 8.0f;
+            current.angle.y = shape_angle.y;
+        } else {
+            speedF = 0.0f;
         }
 
         frame = mpModelMorf2->getFrame();
@@ -2530,7 +2547,14 @@ void daB_TN_c::executeAttackH() {
         }
 
         if (mpModelMorf2->getFrame() <= 30.0f) {
-            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 8, 0x800, 16);
+            cLib_addCalcAngleS(&shape_angle.y, playerAngleY, 4, 0x800, 16);
+        }
+
+        if (mpModelMorf2->getFrame() <= 32.0f && playerDistance > 200.0f) {
+            speedF = 8.0f;
+            current.angle.y = shape_angle.y;
+        } else {
+            speedF = 0.0f;
         }
 
         if (mpModelMorf2->getFrame() >= 22.0f && mpModelMorf2->getFrame() < 30.0f) {
@@ -2543,7 +2567,7 @@ void daB_TN_c::executeAttackH() {
             setSwordAtBreak(1);
         }
 
-        if (mpModelMorf2->checkFrame(30.0f)) {
+        if (mpModelMorf2->checkFrame(35.0f)) {
             setSwordAtBit(0);
         }
 
@@ -2569,10 +2593,11 @@ void daB_TN_c::executeAttackH() {
 }
 
 void daB_TN_c::executeAttackShieldH() {
+    s16 mPlayerAngleY = fopAcM_searchPlayerAngleY(this);
     switch (mActionMode2) {
     case ACTION2_0_e:
         speedF = 0.0f;
-        setBck(BCK_TNA_ATACK_SHIELD, 0, 10.0f, 1.0f);
+        setBck(BCK_TNA_ATACK_SHIELD, 0, 3.0f, 0.95f);
         mActionMode2 = ACTION2_1_e;
         break;
 
@@ -2587,6 +2612,10 @@ void daB_TN_c::executeAttackShieldH() {
 
         if (mpModelMorf2->checkFrame(21.0f)) {
             mSound.startCreatureSound(Z2SE_EN_TN_FOOT_M1, 0, -1);
+        }
+
+        if (mpModelMorf2->getFrame() <= 9.0f) {
+            cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 3, 0x600, 16);
         }
 
         if (mpModelMorf2->checkFrame(5.0f)) {
@@ -3961,7 +3990,7 @@ void daB_TN_c::executeAttackShieldL() {
         }
 
         speedF = 0.0f;
-        setBck(BCK_TNB_ATACK_SHIELD, 0, 10.0f, 1.0f);
+        setBck(BCK_TNB_ATACK_SHIELD, 0, 3.0f, 0.95f);
         mActionMode2 = ACTION2_1_e;
         break;
 
@@ -3984,11 +4013,11 @@ void daB_TN_c::executeAttackShieldL() {
             cLib_addCalcAngleS(&shape_angle.y, mPlayerAngleY, 4, 0x800, 16);
         }
 
-        if (mpModelMorf2->checkFrame(8.0f)) {
+        if (mpModelMorf2->checkFrame(10.0f)) {
             mSphC.OnAtSetBit();
         }
 
-        if (mpModelMorf2->checkFrame(12.0f)) {
+        if (mpModelMorf2->checkFrame(14.0f)) {
             mSphC.OffAtSetBit();
         }
 
