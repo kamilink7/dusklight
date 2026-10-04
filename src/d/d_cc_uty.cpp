@@ -552,7 +552,7 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
             dScnPly_c::setPauseTimer(pause_time);
 
             if (daPy_py_c::checkNowWolf()) {
-                if (i_AtInfo->mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                if (i_AtInfo->mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK) && link->mSkillCooldown >= 0) {
                     link->mSkillCooldown -= 35;
                 }
                 if (i_enemy->health <= 0 && fopAcM_GetGroup(i_enemy) == fopAc_ENEMY_e
