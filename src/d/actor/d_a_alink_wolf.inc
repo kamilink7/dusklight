@@ -7047,6 +7047,8 @@ BOOL daAlink_c::checkWolfAttackAction() {
             } else {
                 return procWolfRollAttackInit(1, 0);
             }
+        } else if (mComboCutCount == 3) {
+            return procWolfWaitAttackInit(1);
         } else if (atk_direction == DIR_RIGHT || atk_direction == DIR_BACKWARD) {
             return procWolfWaitAttackInit(2);
         } else {
@@ -7068,6 +7070,8 @@ BOOL daAlink_c::checkWolfAttackAction() {
         } else {
             return procWolfWaitAttackInit(2);
         }
+    } else if (mComboCutCount == 3) {
+        return procWolfWaitAttackInit(1);
     } else if (mComboCutCount == 2) {
         return procWolfWaitAttackInit(normalType0[atk_direction]);
     } else if (mComboCutCount == 1 && atk_direction == DIR_FORWARD) {

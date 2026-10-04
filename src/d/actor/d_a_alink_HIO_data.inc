@@ -2839,10 +2839,10 @@ DUSK_GAME_DATA const daAlinkHIO_wlAtWait_c1 daAlinkHIO_wlAtWaLr_c0::m = {
 DUSK_GAME_DATA const daAlinkHIO_wlAtWait_c1 daAlinkHIO_wlAtWaSc_c0::m = {
 	{
 		15,
-        1.2f,
-        0.0f,
+        1.05f,
         3.0f,
-        7.5f,
+        3.0f,
+        7.0f,
 	},
     5,
     5,
@@ -2850,7 +2850,7 @@ DUSK_GAME_DATA const daAlinkHIO_wlAtWait_c1 daAlinkHIO_wlAtWaSc_c0::m = {
     3.0f,
     5.0f,
     11.0f,
-    18.0f,
+    12.0f,
     0.0f,
     100.0f,
     85.0f,
