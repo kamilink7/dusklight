@@ -2333,6 +2333,7 @@ int daAlink_c::procCutHead() {
             mProcVar3.field_0x300e = 1;
             setCutWaterDropEffect();
             setSwordVoiceSe(Z2SE_AL_V_KABUTO_ATK);
+            mDodgeTimer = 10;
         }
     } else {
         daPy_frameCtrl_c* frameCtrl = mUnderFrameCtrl;
