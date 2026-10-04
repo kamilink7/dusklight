@@ -684,7 +684,7 @@ BOOL daAlink_c::checkDamageAction() {
 
                 if (mIsNormalParry || (mIsDeflect && dusk::getSettings().game.alternateParry)) {
                     mSwordUpTimer = 60;
-                    mDodgeTimer = 10;
+                    mDodgeTimer = 20;
                     mSkillCooldown = 0;
                 }
                 if (mIsDeflect) {
@@ -693,10 +693,11 @@ BOOL daAlink_c::checkDamageAction() {
                     mIsDeflectAnm = true;
                     mWaitThisLong = 15;
                     mSkillCooldown = 0;
+                    mDodgeTimer = 10;
                 }
                 if (mIsCombinedParry) {
                     mReposteTimer = 30;
-                    mDodgeTimer = 10;
+                    mDodgeTimer = 20;
                 }
                 return checkWolfBarrierHitReverse();
             }
@@ -718,6 +719,7 @@ BOOL daAlink_c::checkDamageAction() {
 
             if ((mProcID != PROC_GUARD_ATTACK || (tghit_ac_name != fpcNm_E_TK_BALL_e && tghit_ac_name != fpcNm_KN_BULLET_e)) && !checkModeFlg(0x4000000)) {
                 if (at_spl == 10 || at_spl == 11 || at_spl == 9 || mSkillCooldown >= 300) {
+                    offNoResetFlg2(FLG2_UNK_8000000);
                     return procGuardBreakInit();
                 }
 
