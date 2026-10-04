@@ -18304,8 +18304,9 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
-        if (!mIsWolfDodge && checkNowWolf() && mDoCPd_c::getHoldLockR(PAD_1) && !checkGrabAnime() && !checkUpperReadyThrowAnime()
-            && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun()) {
+        if (!mIsWolfDodge && checkNowWolf() && !checkGrabAnime() && !checkUpperReadyThrowAnime()
+            && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && !getWallGrabStatus()
+            && mDoCPd_c::getTrigZ(PAD_1)) {
             procWolfBackJumpInit(1);
             mDodgeTimer = 15;
             mWaitThisLong = 15;
@@ -18379,12 +18380,12 @@ int daAlink_c::execute() {
                 if (cM_rndF(1.0) < 0.5) {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_A);
                     mReposteTimer = 0;
-                    mDodgeTimer = 20;
+                    mDodgeTimer = 30;
                 }
                 else {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_B);
                     mReposteTimer = 0;
-                    mDodgeTimer = 20;
+                    mDodgeTimer = 30;
                 }
             }
             mReposteTimer--;
