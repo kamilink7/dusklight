@@ -18300,6 +18300,10 @@ int daAlink_c::execute() {
             mDodgeTimer--;
         }
 
+        if (mDodgeTimer <= 0) {
+            mDodgeTimer = 0;
+        }
+
         if (mParryTimer != 0) {
             mParryTimer--;
         }
