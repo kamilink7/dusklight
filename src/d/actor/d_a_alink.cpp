@@ -18304,6 +18304,20 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
+        if (!mIsWolfDodge && checkNowWolf() && mDoCPd_c::getHoldLockR(PAD_1) && !checkGrabAnime() && !checkUpperReadyThrowAnime()
+            && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun()) {
+            procWolfBackJumpInit(1);
+            mDodgeTimer = 15;
+            mWaitThisLong = 15;
+            mIsWolfDodge = true;
+        }
+
+        if (mIsWolfDodge && mDoCPd_c::getTrigB(PAD_1)) {
+            resetUpperAnime(UPPER_2, 3.0f);
+            procWolfWaitAttackInit(2);
+            mIsWolfDodge = false;
+        }
+
         if (mParryTimer != 0) {
             mParryTimer--;
         }
@@ -18348,6 +18362,9 @@ int daAlink_c::execute() {
             }
             if (mIsBackRoll) {
                 mIsBackRoll = false;
+            }
+            if (mIsWolfDodge) {
+                mIsWolfDodge = false;
             }
             mWaitThisLong = 0;
         }
