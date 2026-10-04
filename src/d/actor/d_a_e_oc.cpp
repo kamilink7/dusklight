@@ -785,7 +785,17 @@ void daE_OC_c::damage_check() {
         setActionMode(E_OC_ACTION_BIG_DAMAGE, my_val - 5);
         offTgSph();
     } else {
-        if (mAtInfo.mHitStatus == 0 && daPy_getPlayerActorClass()->mComboCutCount != 1 && daPy_getPlayerActorClass()->mComboCutCount != 3) {
+        if (mAtInfo.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+            if (daPy_getPlayerActorClass()->mComboCutCount <= 3)
+                setActionMode(E_OC_ACTION_DAMAGE, my_val);
+            if (daPy_getPlayerActorClass()->mComboCutCount == 4)
+                setActionMode(E_OC_ACTION_BIG_DAMAGE, my_val);
+        }
+        else if (mAtInfo.mpCollider->ChkAtType(AT_TYPE_WOLF_CUT_TURN)) {
+            my_val = 3;
+            setActionMode(E_OC_ACTION_DAMAGE, my_val);
+        }
+        else if (mAtInfo.mHitStatus == 0 && daPy_getPlayerActorClass()->mComboCutCount != 1 && daPy_getPlayerActorClass()->mComboCutCount != 3) {
             setActionMode(E_OC_ACTION_DAMAGE, my_val);
         }
     }
@@ -1403,18 +1413,25 @@ void daE_OC_c::executeAttack() {
     mPrevShapeAngle = shape_angle.y;
     switch (mOcState) {
         case 0: {
-            if (cLib_chaseF(&speedF, 0.0f, 2.0f)) {
-                if (cM_rndF(1.0f) < 0.5f) {
-                    setBck(5, 0, 5.0f, 1.5f);
-                    mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_B, -1);
-                    mOcState = 1;
-                } else {
-                    setBck(6, 0, 5.0f, 1.5f);
-                    mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_C, -1);
-                    mOcState = 2;
-                }
+            mPrevShapeAngle = pl_ang;
 
-                field_0x6a0 = 0.0f;
+            if ((s16)cLib_distanceAngleS(shape_angle.y, pl_ang) >= 0x400) {
+                cLib_addCalcAngleS(&shape_angle.y, pl_ang, 2, 0x1000, 0x200);
+            }
+            if (cLib_chaseF(&speedF, 0.0f, 2.0f) && (s16)cLib_distanceAngleS(shape_angle.y, pl_ang) < 0x800) {
+                if (cLib_chaseF(&speedF, 0.0f, 2.0f)) {
+                    if (cM_rndF(1.0f) < 0.5f) {
+                        setBck(5, 0, 5.0f, 1.5f);
+                        mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_B, -1);
+                        mOcState = 1;
+                    } else {
+                        setBck(6, 0, 5.0f, 1.5f);
+                        mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_C, -1);
+                        mOcState = 2;
+                    }
+
+                    field_0x6a0 = 0.0f;
+                }
             }
 
             break;
