@@ -18304,6 +18304,11 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
+        if (!mIsWolfDodge && checkNowWolf() && !dComIfGp_att_getZHint()) {
+            // dComIfGp_setZStatus(BUTTON_STATUS_DODGE, 1); broken for now, need to fix pikari anm
+            mCanWolfDodge = true;
+        }
+
         if (!mIsWolfDodge && checkNowWolf() && !checkGrabAnime() && !checkUpperReadyThrowAnime()
             && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && !getWallGrabStatus()
             && mDoCPd_c::getTrigZ(PAD_1)) {

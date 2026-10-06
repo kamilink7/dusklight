@@ -18,6 +18,8 @@
 #include "d/d_pane_class.h"
 #include <cstring>
 
+#include "d/actor/d_a_alink.h"
+
 #if TARGET_PC
 #include "dusk/game_clock.h"
 #include "dusk/interp/user_interface.h"
@@ -273,6 +275,7 @@ int dMeterButton_c::_execute(u32 i_flags, bool i_drawA, bool i_drawB, bool i_dra
 void dMeterButton_c::draw() {
     J2DGrafContext* graf_ctx = dComIfGp_getCurrentGrafPort();
     graf_ctx->setup2D();
+    daAlink_c* link = daAlink_getAlinkActorClass();
 
 #if TARGET_PC
     if (isButtonShowBit(BUTTON_Z_e) && mpButtonZ->getAlphaTimer() < 5.0f) {
