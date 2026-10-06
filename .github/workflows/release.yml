@@ -1,0 +1,95 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to release (e.g. v1.2.0); Build must have succeeded on it'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as prerelease'
+        type: boolean
+        default: false
+      draft:
+        description: 'Create as draft (review before publishing)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Find successful Build run for tag
+        id: build
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::Tag '$TAG' is not semver (vX.Y.Z[-pre])"; exit 1
+          fi
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq .sha)
+          # Tag pushes report the tag name as headBranch
+          run_id=$(gh run list -R "$GITHUB_REPOSITORY" --workflow build.yml \
+            --branch "$TAG" --event push --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run_id" ]; then
+            echo "::error::No successful Build run for tag $TAG; push the tag and wait for Build"; exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: lazytweaks-${{ inputs.tag }}-*
+          path: artifacts
+          run-id: ${{ steps.build.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Package release assets
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          mkdir -p release
+          for dir in artifacts/*/; do
+            name=$(basename "$dir")
+            case "$name" in
+              *-linux-*)
+                for f in "$dir"*.AppImage; do chmod +x "$f"; cp "$f" release/; done ;;
+              *-win32-*)
+                (cd "$dir" && zip -qr9 "$GITHUB_WORKSPACE/release/$name.zip" . -x 'debug.7z' 'sdk/*') ;;
+              *-macos-*)
+                cp "$dir"Dusklight.app.zip "release/$name.zip" ;;
+              *-android-*)
+                for f in "$dir"*.apk; do cp "$f" "release/$name.apk"; done ;;
+              *-ios-*)
+                echo "Skipping $name" ;;
+              *)
+                echo "::warning::Unrecognized artifact $name" ;;
+            esac
+          done
+          (cd release && sha256sum * > SHA256SUMS.txt)
+          ls -la release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag }}
+          target_commitish: ${{ steps.build.outputs.sha }}
+          name: ${{ inputs.tag }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: release/*

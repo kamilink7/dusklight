@@ -146,12 +146,16 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{matrix.preset}}
 
+      - name: Package app bundle
+        if: matrix.platform == 'macos'
+        run: ditto -c -k --keepParent build/install/Dusklight.app build/install/Dusklight.app.zip
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: lazytweaks-${{env.APP_VERSION}}-${{matrix.artifact_name}}
           path: |
-            build/install/Dusklight.app
+            build/install/Dusklight.app.zip
             build/install/debug.tar.*
             build/install/sdk/
 
