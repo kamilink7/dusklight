@@ -5,9 +5,9 @@
 namespace dusk {
     /** Application identity fields for Borealis modules */
     inline constexpr borealis::AppInfo AppInfo{
-        .orgName = "TwilitRealm",
-        .appName = "Dusklight",
-        .githubOwner = "TwilitRealm",
+        .orgName = "Kamilink",
+        .appName = "LazyTweaks",
+        .githubOwner = "kamilink7",
         .githubRepo = "dusklight",
         .discordApplicationId = "1495632471994405035",
     };

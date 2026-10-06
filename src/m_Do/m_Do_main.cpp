@@ -671,7 +671,7 @@ int game_main(int argc, char* argv[]) {
     }
 
     // Set SDL metadata for audio mixers and macOS "About" menu
-    SDL_SetAppMetadata("Dusklight", BOREALIS_APP_VERSION, "dev.twilitrealm.dusk");
+    SDL_SetAppMetadata("LazyTweaks", BOREALIS_APP_VERSION, "dev.kamilink.lazytweaks");
 
     {
         const auto userPathString = dusk::ConfigPath.u8string();

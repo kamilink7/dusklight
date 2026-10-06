@@ -88,7 +88,7 @@ borealis::data::Manager& manager() {
             .portableRelativePath = "data",
             .legacyApps =
                 {
-                    {.orgName = "TwilitRealm", .appName = "Dusk"},
+                    {},
                 },
             .migration =
                 {
