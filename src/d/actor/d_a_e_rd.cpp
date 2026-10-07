@@ -1462,20 +1462,53 @@ static void e_rd_fight(e_rd_class* i_this) {
             }
 
             i_this->mode = 1;
-            i_this->timer[1] = 5;
+            i_this->timer[1] = 15;
             i_this->sound.startCreatureVoice(Z2SE_EN_RD_V_WAND_ATTACK, -1);
             break;
         }
 
         case 1: {
             if (i_this->timer[1] != 0) {
-                cLib_addCalcAngleS2(&enemy->current.angle.y, i_this->angleY, 4, 0x800);
+                cLib_addCalcAngleS2(&enemy->current.angle.y, i_this->angleY, 2, 0x800);
             }
 
             if (frame == 30) {
                 i_this->anm_p->setFrame(0.0f);
             } else if (i_this->timer[0] == 0) {
                 anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, l_HIO.swing_speed);
+                i_this->anm_p->setFrame(30.0f);
+                i_this->mode = 2;
+            }
+            break;
+        }
+        // case 4 and 5: "retaliation" branch
+        case 4: {
+            anm_init(i_this, BCK_RD_ATTACK01, TREG_F(14) + 6.0f, 0, 1.5f);
+
+            if (l_HIO.field_0x38 == 0) {
+                i_this->timer[0] = 25;
+            } else if (l_HIO.field_0x38 == 1) {
+                // in practice, only goes in here
+                i_this->timer[0] = 10;
+            } else if (l_HIO.field_0x38 == 2) {
+                i_this->timer[0] = 10;
+            }
+
+            i_this->mode = 5;
+            i_this->timer[1] = 15;
+            i_this->sound.startCreatureVoice(Z2SE_EN_RD_V_WAND_ATTACK, -1);
+            break;
+        }
+
+        case 5: {
+            if (i_this->timer[1] != 0) {
+                cLib_addCalcAngleS2(&enemy->current.angle.y, i_this->angleY, 2, 0x800);
+            }
+
+            if (frame == 30) {
+                i_this->anm_p->setFrame(0.0f);
+            } else if (i_this->timer[0] == 0) {
+                anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, 2.20f);
                 i_this->anm_p->setFrame(30.0f);
                 i_this->mode = 2;
             }
@@ -3361,14 +3394,14 @@ static void e_rd_stand(e_rd_class* i_this) {
             if (i_this->timer[0] == 0) {
                 anm_init(i_this, BCK_RD_KYORO2, 10.0f, 2, 1.0f);
                 i_this->mode = 1;
-                i_this->timer[0] = cM_rndF(40.0f) + 60.0f;
+                i_this->timer[0] = cM_rndF(20.0f) + 30.0f;
             }
             break;
 
         case 1:
             if (i_this->timer[0] == 0) {
                 anm_init(i_this, BCK_RD_WAIT01, 10.0f, 2, 1.0f);
-                i_this->timer[0] = cM_rndF(100.0f) + 100.0f;
+                i_this->timer[0] = cM_rndF(50.0f) + 50.0f;
                 i_this->mode = 0;
             }
             break;
@@ -4523,7 +4556,15 @@ static void damage_check(e_rd_class* i_this) {
                             i_this->damage_timer = 6;
                         }
                         else if (pla->getCutCount() == 3) {
-                            i_this->action = ACTION_FIGHT_RUN;
+                            f32 rnd = cM_rndF(1.0);
+                            if (rnd < 0.5) {
+                                i_this->action = ACTION_FIGHT;
+                                i_this->mode = 4;
+                            }
+                            else {
+                                i_this->action = ACTION_AVOID;
+                                i_this->mode = 0;
+                            }
                             i_this->damage_timer = 10;
                         }
                     }
