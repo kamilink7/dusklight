@@ -4395,13 +4395,14 @@ static void damage_check(e_rd_class* i_this) {
 
                     if (enemy->health <= 0 || i_this->at_info.mHitStatus != 0 || i_this->ride_mode != RIDE_MODE_OFF) {
                         if (enemy->health > 0 && ((pla->getCutType() == daPy_py_c::CUT_TYPE_JUMP && pla->checkCutJumpCancelTurn())
-                            || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT)) {
+                            || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT)
+                            && pla->getCutType() != daPy_py_c::CUT_TYPE_GUARD_ATTACK) {
                             small_damage(i_this, i);
                             if (pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || pla->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT) {
                                 i_this->damage_timer = 15 + NREG_S(7);
                             }
                             else {
-                                i_this->damage_timer = 3 + NREG_S(7);
+                                i_this->damage_timer = 6 + NREG_S(7);
                             }
                         } else {
                             if (i_this->actor_set != ACTOR_SET_NONE && boar != NULL) {
@@ -4512,11 +4513,19 @@ static void damage_check(e_rd_class* i_this) {
                         }
                     } else {
                         int iVar2 = i;
-                        if (i_this->at_info.mHitType == 16) {
+                        if (i_this->at_info.mHitType == 16 || pla->getCutType() == daPy_py_c::CUT_TYPE_GUARD_ATTACK) {
                             iVar2 = 0;
+                            small_damage(i_this, iVar2);
+                            i_this->damage_timer = 15;
                         }
-
-                        small_damage(i_this, iVar2);
+                        else if (i_this->at_info.mHitType == 1 && pla->getCutCount() != 3) {
+                            small_damage(i_this, iVar2);
+                            i_this->damage_timer = 6;
+                        }
+                        else if (pla->getCutCount() == 3) {
+                            i_this->action = ACTION_FIGHT_RUN;
+                            i_this->damage_timer = 10;
+                        }
                     }
 
                     enemy->speedF = 0.0f;
