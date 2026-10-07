@@ -3159,7 +3159,7 @@ static void damage_check(e_rdy_class* i_this) {
                         if (i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_UNK)) {
                             i_this->mIFrameTimer = 20;
                         } else {
-                            i_this->mIFrameTimer = 10;
+                            i_this->mIFrameTimer = 6;
                         }
                         if (i_this->mAtInfo.mAttackPower <= 1) {
                             i_this->mIFrameTimer = 10 + KREG_S(8);
