@@ -2749,9 +2749,7 @@ void dMeter2Draw_c::drawButtonR(u8 unused0, u8 i_action, bool unused1, bool unus
 void dMeter2Draw_c::drawButtonZ(u8 i_action) {
     char* mp_string = getActionString(i_action, 1, &field_0x764);
 
-    if (dComIfGp_isZSetFlag(2) || dComIfGp_isZSetFlag(4)) {
-        field_0x764 = 7;
-    }
+    field_0x764 = i_action == BUTTON_STATUS_CHECK || dComIfGp_isZSetFlag(2) || dComIfGp_isZSetFlag(4) ? 7 : 1;
 
     if (i_action == 0x27) {
         // mpTextXY[2]->hide();

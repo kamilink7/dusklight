@@ -18304,8 +18304,14 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
-        if (!mIsWolfDodge && checkNowWolf() && !dComIfGp_att_getZHint()) {
-            // dComIfGp_setZStatus(BUTTON_STATUS_DODGE, 1); broken for now, need to fix pikari anm
+        if (!mIsWolfDodge && checkNowWolf()) {
+            fopAc_ac_c* zhint = dComIfGp_att_getZHint();
+            if (zhint != NULL) {
+                setMidnaTalkStatus(BUTTON_STATUS_CHECK);
+            }
+            else {
+                dComIfGp_setZStatus(BUTTON_STATUS_DODGE, 1);
+            }
             mCanWolfDodge = true;
         }
 
