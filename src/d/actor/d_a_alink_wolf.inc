@@ -7972,7 +7972,7 @@ int daAlink_c::procWolfDownAtLandInit(fopEn_enemy_c* i_enemy) {
     || fopAcM_GetName(i_enemy) == fpcNm_E_KG_e || fopAcM_GetName(i_enemy) == fpcNm_E_YR_e) {
         i_enemy->onCutDownHitFlg();
         i_enemy->speedF = 0.0f;
-        seStartSwordCut(Z2SE_HIT_SWORD);
+        setPlayerSe(Z2SE_WL_V_BITE_THROAT);
     }
 
     voiceStart(Z2SE_WL_V_ATTACK_POU_BITE);
