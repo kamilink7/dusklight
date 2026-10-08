@@ -1607,7 +1607,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.hideMidnaIcon,
             {
                 .key = "Hide Midna Icon",
-                .helpText = "Hides the Midna icon. She will be sad.",
+                .helpText = "Hides the Midna icon. She will be sad (also might break quick transform).",
             });
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
