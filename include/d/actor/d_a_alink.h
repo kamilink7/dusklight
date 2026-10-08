@@ -4583,6 +4583,7 @@ public:
     bool mIsCombinedParry = false;
     bool mIsTargetedRoll = false;
     bool mIsBackRoll = false;
+    bool mIsSideRoll = false;
     bool mIsCrouching = false;
     bool mIsShielding = false;
     bool mIsWolfDodge = false;

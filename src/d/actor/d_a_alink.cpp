@@ -16583,7 +16583,7 @@ int daAlink_c::procSideRoll() {
         }
     } else if (mProcVar2.field_0x300c != 0 && !checkNotJumpSinkLimit() &&
                frameCtrl_p->getFrame() > mpHIO->mGuard.mTurnMove.m.mTurnAnm.mCancelFrame
-               && mSkillCooldown <= 150)
+               && mSkillCooldown <= 150 && !mIsSideRoll)
     {
         procCutFinishJumpUpInit();
     } else if (frameCtrl_p->getFrame() > mpHIO->mGuard.mTurnMove.m.mTurnAnm.mCancelFrame) {
@@ -18453,9 +18453,13 @@ int daAlink_c::execute() {
                 if (mDoCPd_c::getTrigA(PAD_1)) {
                     if (direction == DIR_LEFT) {
                         procSideRollInit(2);
+                        mIsSideRoll = true;
+                        mWaitThisLong = 30;
                     }
                     else if (direction == DIR_RIGHT) {
                         procSideRollInit(1);
+                        mIsSideRoll = true;
+                        mWaitThisLong = 30;
                     }
                     else if (direction == DIR_BACKWARD) {
                         mIsBackRoll = true;
