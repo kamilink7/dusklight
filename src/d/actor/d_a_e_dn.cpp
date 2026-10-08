@@ -15,6 +15,8 @@
 #include "Z2AudioLib/Z2Instances.h"
 #include <cstring>
 
+#include "d/actor/d_a_alink.h"
+
 class daE_DN_HIO_c : public JORReflexible {
 public:
     daE_DN_HIO_c();
@@ -135,8 +137,8 @@ daE_DN_HIO_c::daE_DN_HIO_c() {
     model_size = 1.1f;
     movement_speed = 15.0f;
     dash_speed = 40.0f;
-    battle_init_range = 300.0f;
-    attack_init_range = 350.0f;
+    battle_init_range = 350.0f;
+    attack_init_range = 400.0f;
     defense_pause_time = 1;
     soul_disappear_time_weak = 40;
     soul_disappear_time_strong = 80;
@@ -920,7 +922,7 @@ static void e_dn_drawback(e_dn_class* i_this) {
 
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_DRAWBACK, 5.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
+            anm_init(i_this, ANM_DRAWBACK, 5.0f, J3DFrameCtrl::EMode_NONE, 1.75f);
             i_this->mode = 1;
             actor->speedF = KREG_F(4) + -5.0f;
             i_this->invulnerability_timer = 10;
@@ -1101,7 +1103,7 @@ static void e_dn_fight_run(e_dn_class* i_this) {
             } else if (i_this->pl_dir < l_HIO.battle_init_range) {
                 anm_init(i_this, ANM_WAIT_02, 5.0f, J3DFrameCtrl::EMode_LOOP, 1.0f);
                 i_this->mode = 2;
-                i_this->timer[2] = JREG_F(1) + (cM_rndF(30.0f) + 30.0f);
+                i_this->timer[2] = JREG_F(1) + (cM_rndF(15.0f) + 15.0f);
             }
 
             if (i_this->unk_counter_1 > 20) {
@@ -1205,7 +1207,7 @@ static void e_dn_fight_run(e_dn_class* i_this) {
         }
     } else if (
         dComIfGp_checkPlayerStatus1(0, 0x2000000) != 0 ||
-        (((i_this->search_angle_x < 0x1000 && i_this->search_angle_x > -0x1000) || def != 0) && player_way_check(i_this))
+        (i_this->search_angle_x < 0x1000 && i_this->search_angle_x > -0x1000) || def != 0
     ) {
         if (
             (def != 0 || (i_this->pl_dir < l_HIO.battle_init_range && (i_this->learn & cc_pl_cut_bit_get()) != 0 &&
@@ -1225,12 +1227,12 @@ static void e_dn_fight_run(e_dn_class* i_this) {
             i_this->invulnerability_timer = 15;
         } else if (i_this->pl_dir < l_HIO.attack_init_range) {
             if (i_this->timer[2] == 0) {
-                i_this->timer[2] = JREG_F(1) + (cM_rndF(30.0f) + 30.0f);
+                i_this->timer[2] = JREG_F(1) + (cM_rndF(15.0f) + 15.0f);
                 f32 fVar1 = 1.0f;
                 if (cM_rndF(1.0f) < fVar1) {
                     //TOOD: probably fakematch (debug)
                     BOOL wayCheck;
-                    if (!(wayCheck = way_check(i_this)) && cM_rndF(1.0f) < 0.75f) {
+                    if (cM_rndF(1.0f) < 0.75f) {
                         if (i_this->pl_dir < (l_HIO.attack_init_range - 100.0f) + TREG_F(7)) {
                             i_this->action = ACTION_ATTACK_0;
                         } else {
@@ -1506,7 +1508,7 @@ static void e_dn_attack(e_dn_class* i_this) {
     s16 sVar1, sVar2;
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_TAIL_02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
+            anm_init(i_this, ANM_ATTACK_TAIL_02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.25f);
             i_this->sound.startCreatureVoice(Z2SE_EN_DN_V_KNIFE2_A, -1);
             i_this->mode = 1;
             // fallthrough
@@ -1522,7 +1524,7 @@ static void e_dn_attack(e_dn_class* i_this) {
                 } else if (sVar1 < (s16)-sVar3) {
                     sVar1 = -sVar3;
                 }
-                cLib_addCalcAngleS2(&i_this->jnt_tail_y_rot_offset, sVar1, 2, 0x400);
+                cLib_addCalcAngleS2(&i_this->jnt_tail_y_rot_offset, sVar1, 2, 0x800);
             }
 
             if (frame >= 13 && frame <= 18) {
@@ -2372,7 +2374,7 @@ static void damage_check(e_dn_class* i_this) {
                     }
 
                     if (i_this->at_info.mAttackPower <= 1) {
-                        i_this->invulnerability_timer = 10;
+                        i_this->invulnerability_timer = 6;
                     }
 
                     i_this->learn |= i_this->at_info.mHitBit;
@@ -2400,36 +2402,49 @@ static void damage_check(e_dn_class* i_this) {
                         }
                     }
 
-                    if (actor->health <= 0 || i_this->at_info.mHitStatus != 0) { // heavy attacks only?
+                    if (i_this->at_info.mHitStatus != 0) { // heavy attacks only?
                         // spin cancel branch
-                        if (player->getCutType() == daPy_py_c::CUT_TYPE_JUMP && player->checkCutJumpCancelTurn()) {
+                        if (player->mCutType == daPy_py_c::CUT_TYPE_JUMP && player->checkCutJumpCancelTurn()) {
                             small_damage(i_this);
                             i_this->invulnerability_timer = 3;
                         }
-                        // spin attack branch
-                        else if (player->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT || player->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT
-                            || player->getCutCount() == 4) {
+                        // spin attack branch and 4th hit
+                        else if (player->mCutType == daPy_py_c::CUT_TYPE_TURN_LEFT || player->mCutType == daPy_py_c::CUT_TYPE_TURN_RIGHT
+                            || player->mComboCutCount == 4) {
                             small_damage(i_this);
-                            i_this->invulnerability_timer = 6;
+                            i_this->invulnerability_timer = 15;
                         }
                         // prevent combo finishers from knocking back, jump attack and hidden skills should fall here
-                        else if (player->getCutCount() != 4) {
+                        else if (player->mComboCutCount != 4) {
                             big_damage(i_this);
                             i_this->invulnerability_timer = 1000;
                         }
-                    // explicitly allow non-first attacks to stagger
-                    } else if (player->getCutCount() != 1) {
-                        small_damage(i_this);
-                        i_this->invulnerability_timer = 3;
-                    // explicitly prevent first attacks from staggering
-                    } else if (player->getCutCount() == 1 && player->getCutType() <= daPy_py_c::CUT_TYPE_NM_LEFT) {
-                        i_this->invulnerability_timer = 2;
+                    // explicitly prevent hits 1 and 3 from staggering
+                    } else if (player->mCutType <= daPy_py_c::CUT_TYPE_NM_LEFT && player->mComboCutCount != 4) {
+                        f32 rnd = cM_rndF(1.0);
+                        if (player->mComboCutCount == 3) {
+                            if (rnd < 0.25) {
+                                i_this->action = ACTION_ATTACK_0;
+                                i_this->mode = 0;
+                            }
+                            else if (rnd < 0.50) {
+                                i_this->action = ACTION_ATTACK;
+                                i_this->mode = 0;
+                            }
+                            else if (rnd < 0.75) {
+                                i_this->action = ACTION_TAIL_ATTACK;
+                                i_this->mode = 0;
+                            }
+                            else {
+                                i_this->action = ACTION_GUARD;
+                                i_this->mode = 5;
+                            }
+                        }
+                        else if (player->mComboCutCount == 2) {
+                            small_damage(i_this);
+                        }
+                        i_this->invulnerability_timer = 6;
                     }
-                    // fallback just in case
-                    else {
-                        small_damage(i_this);
-                    }
-
                     actor->speedF = 0.0f;
                 }
                 break;
@@ -3447,7 +3462,7 @@ static cPhs_Step daE_DN_Create(fopAc_ac_c* actor) {
         if (i_this->arg1 == 1) {
             actor->field_0x560 = actor->health = 150;
         } else {
-            actor->field_0x560 = actor->health = 150;
+            actor->field_0x560 = actor->health = 100;
         }
         i_this->stts.Init(200, 0, actor);
 
