@@ -254,6 +254,7 @@ struct UserSettings {
         ConfigVar<bool> alternateParry;
         ConfigVar<bool> combinedParry;
         ConfigVar<bool> meterSpin;
+        ConfigVar<bool> dodgeCancel;
 
         // Preferences
         ConfigVar<bool> enableMirrorMode;

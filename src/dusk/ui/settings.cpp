@@ -1519,6 +1519,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .helpText = "Deflect and Parry are both active, giving Parry a new Riposte action triggered by pressing B within 1 second after a successful parry.",
                 .isDisabled = [] { return getSettings().game.alternateParry.getValue();}
             });
+        config_bool_select(leftPane, rightPane, getSettings().game.dodgeCancel,
+            {
+                .key = "Attack Dodge Cancel",
+                .helpText = "Enables dodging in the middle of some basic attacks with R+A.",
+            });
         config_bool_select(leftPane, rightPane, getSettings().game.meterSpin,
             {
                 .key = "Great Spin Uses Meter",

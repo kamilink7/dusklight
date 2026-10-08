@@ -18448,7 +18448,8 @@ int daAlink_c::execute() {
             setShieldGuard();
 
             int direction = getCutDirection();
-            if (checkNoResetFlg2(FLG2_UNK_8000000) || (mComboCutCount != 0 && mComboCutCount != 4 && mDoCPd_c::getHoldLockR(PAD_1))) {
+            if (checkNoResetFlg2(FLG2_UNK_8000000) || (dusk::getSettings().game.dodgeCancel
+                && mComboCutCount != 0 && mComboCutCount != 4 && mDoCPd_c::getHoldLockR(PAD_1))) {
                 if (mDoCPd_c::getTrigA(PAD_1)) {
                     if (direction == DIR_LEFT) {
                         procSideRollInit(2);
@@ -18467,7 +18468,9 @@ int daAlink_c::execute() {
                         mWaitThisLong = 25;
                         if (mEquipItem == 0x103) {
                             mIsTargetedRoll = true;
-                            mSkillCooldown += 150;
+                            if (dusk::getSettings().game.enableSkillMeter) {
+                                mSkillCooldown += 150;
+                            }
                         }
                     }
                 }
