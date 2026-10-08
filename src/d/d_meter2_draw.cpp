@@ -2754,7 +2754,7 @@ void dMeter2Draw_c::drawButtonZ(u8 i_action) {
     if (i_action == 0x27) {
         // mpTextXY[2]->hide();
         mpButtonMidona->hide();
-    } else if (*mp_string != 0 && i_action != 0x2F && i_action != 8) {
+    } else if (*mp_string != 0 && i_action != 0x2F && i_action != 8 && i_action != 45) {
         // mpTextXY[2]->show();
         mpButtonMidona->hide();
     } else {
