@@ -1470,7 +1470,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 pane.add_text("Multiplies the damage Link's arrows will do to most enemies. Set to 0 to make most enemies invulnerable to arrows. Does not affect Bomb Arrows.");
             });
         addSpeedrunDisabledOption("Lose Rupees On Death", getSettings().game.loseRupees,
-            "Half of Link's rupees will be lost upon death.");
+            "Half of Link's rupees will be lost upon death. It's like Dark Souls, but shittier.");
         config_bool_select(leftPane, rightPane, getSettings().game.noArrowDrops,
             {
                 .key = "No Arrow Drops",
@@ -1484,7 +1484,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.insulatedZoraArmor,
             {
                 .key = "Insulated Zora Armor",
-                .helpText = "Zora Armor is no longer weak to ice and fire.",
+                .helpText = "Zora Armor is no longer weak to ice and fire. Wear Mommy Zora's fashionable gift to you without fear.",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.sturdierWolfLink,
             {
@@ -1516,7 +1516,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         config_bool_select(leftPane, rightPane, getSettings().game.combinedParry,
             {
                 .key = "Combined Parrying",
-                .helpText = "Deflect and Parry are both active, giving Parry a new Riposte action triggered by pressing B within 1 second after a successful parry.",
+                .helpText = "Deflect and Parry are both active, giving Parry a new Riposte action triggered by pressing B within 1 second after a successful parry instead of a damage boost.",
                 .isDisabled = [] { return getSettings().game.alternateParry.getValue();}
             });
         config_bool_select(leftPane, rightPane, getSettings().game.dodgeCancel,

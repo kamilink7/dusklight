@@ -86,6 +86,7 @@ void applyPresetKamilinkInit() {
     s.game.enableMenuPointer.setValue(true);
 
     s.game.swordMultiplier.setValue(50);
+    s.game.bowMultiplier.setValue(100);
     s.game.damageMultiplier.setValue(2);
     s.game.noHeartDrops.setValue(true);
     s.game.loseRupees.setValue(true);
@@ -95,8 +96,6 @@ void applyPresetKamilinkInit() {
     s.game.enableSkillMeter.setValue(true);
     s.game.shieldUsesMeter.setValue(true);
     s.game.meterSpin.setValue(true);
-    s.game.combinedParry.setValue(true);
-    s.game.suppressButtonPrompts.setValue(true);
     s.game.noHitstop.setValue(true);
     s.game.noBattleMusic.setValue(true);
     s.game.wolfGear.setValue(true);
@@ -105,6 +104,13 @@ void applyPresetKamilinkInit() {
     s.game.fastSpinner.setValue(true);
     s.game.enableFastIronBoots.setValue(true);
     s.game.armorRupeeDrain.setValue(MagicArmorMode::ON_DAMAGE);
+    s.game.combinedParry.setValue(true);
+    s.game.suppressButtonPrompts.setValue(true);
+    s.game.noRupeeDrops.setValue(false);
+    s.game.noArrowDrops.setValue(false);
+    s.game.noWolfJumpMeter.setValue(false);
+    s.game.noMidnaChargeMeter.setValue(false);
+    s.game.dodgeCancel.setValue(true);
 }
 }  // namespace
 

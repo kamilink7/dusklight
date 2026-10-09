@@ -34,6 +34,9 @@ public:
         s.game.suppressButtonPrompts.setValue(true);
         s.game.noRupeeDrops.setValue(false);
         s.game.noArrowDrops.setValue(false);
+        s.game.noWolfJumpMeter.setValue(false);
+        s.game.noMidnaChargeMeter.setValue(false);
+        s.game.dodgeCancel.setValue(true);
     }
     void applyPresetDeathwish() {
         auto& s = getSettings();
@@ -60,6 +63,9 @@ public:
         s.game.suppressButtonPrompts.setValue(true);
         s.game.noArrowDrops.setValue(true);
         s.game.noRupeeDrops.setValue(true);
+        s.game.noWolfJumpMeter.setValue(false);
+        s.game.noMidnaChargeMeter.setValue(false);
+        s.game.dodgeCancel.setValue(true);
     }
     void applyPresetVanillaPlus() {
         auto& s = getSettings();
@@ -86,6 +92,7 @@ public:
         s.game.suppressButtonPrompts.setValue(true);
         s.game.noRupeeDrops.setValue(false);
         s.game.noArrowDrops.setValue(false);
+        s.game.dodgeCancel.setValue(false);
     }
 
 protected:
