@@ -765,7 +765,7 @@ DUSK_GAME_DATA const daAlinkHIO_cutHead_c1 daAlinkHIO_cutHead_c0::m = {
 DUSK_GAME_DATA const daAlinkHIO_cutLargeJump_c1 daAlinkHIO_cutLargeJump_c0::m = {
 	{
 		29,
-        1.3f,
+        1.95f,
         0.0f,
         3.0f,
         30.0f,

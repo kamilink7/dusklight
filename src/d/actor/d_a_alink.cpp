@@ -18498,6 +18498,11 @@ int daAlink_c::execute() {
                 resetUpperAnime(UPPER_2, 3.0);
                 onNoResetFlg2(FLG2_UNK_8000000);
             }
+            if (mComboCutCount >= 1 && mComboCutCount <= 3) {
+                if (mDoCPd_c::getHoldA(PAD_1) && !(mDoCPd_c::getTrigR(PAD_1) || mDoCPd_c::getHoldLockR(PAD_1))) {
+                    procCutLargeJumpChargeInit();
+                }
+            }
 
             if (checkCutFastReady()) {
                 if (checkNoUpperAnime()) {
