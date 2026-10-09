@@ -1410,7 +1410,7 @@ static void e_mf_attack(e_mf_class* i_this) {
                 cLib_addCalcAngleS2(&i_this->field_0x806, sVar1, 2, 0x400);
             }
 
-            if (frame >= 15 && frame <= 20) {
+            if (frame >= 12 && frame <= 23) {
                 i_this->field_0x6cf = 1;
                 i_this->field_0x6ce = 0;
             }
@@ -2137,9 +2137,22 @@ static void small_damage(e_mf_class* i_this) {
     i_this->field_0x6ec = i_this->mAtInfo.mHitDirection.y;
 }
 
+static void* findLizards(void* i_actor, void* i_data) {
+    if (fopAcM_IsActor(i_actor) && i_actor != i_data &&
+        fopAcM_GetName(i_actor) == fpcNm_E_MF_e &&
+        !fpcM_IsCreating(fopAcM_GetID(i_actor)) &&
+        fopAcM_GetRoomNo((fopAc_ac_c*)i_actor) == fopAcM_GetRoomNo((fopAc_ac_c*)i_data))
+    {
+        return i_actor;
+    }
+
+    return NULL;
+}
+
 static void damage_check(e_mf_class* i_this) {
     fopEn_enemy_c* a_this = (fopEn_enemy_c*)&i_this->actor;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    e_mf_class* otherLizards = (e_mf_class*)fopAcM_Search(findLizards, i_this);
 
     i_this->mStts.Move();
 
@@ -2153,7 +2166,7 @@ static void damage_check(e_mf_class* i_this) {
             if (i_this->field_0xa7c[i].ChkTgHit() != 0) {
                 i_this->mAtInfo.mpCollider = i_this->field_0xa7c[i].GetTgHitObj();
                 if (player->getCutType() != daPy_py_c::CUT_TYPE_WOLF_B_LEFT && player->getCutType() != daPy_py_c::CUT_TYPE_WOLF_B_RIGHT &&
-                    i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                    player->getCutType() == daPy_py_c::CUT_TYPE_WOLF_JUMP) {
                     if (!player->onWolfEnemyHangBite(mf_p)) {
                         return;
                     }
@@ -2174,10 +2187,6 @@ static void damage_check(e_mf_class* i_this) {
                     at_power_check(&i_this->mAtInfo);
                     s16 sVar1 = a_this->health;
                     cc_at_check(a_this, &i_this->mAtInfo);
-
-                    if (daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP) {
-                        i_this->mAtInfo.mHitStatus = 0;
-                    }
 
                     if (i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_UNK)) {
                         i_this->field_0x6c8 = 20;
@@ -2221,20 +2230,29 @@ static void damage_check(e_mf_class* i_this) {
                             else if (player->getCutType() == daPy_py_c::CUT_TYPE_TURN_LEFT
                                 || player->getCutType() == daPy_py_c::CUT_TYPE_TURN_RIGHT) {
                                 small_damage(i_this);
-                                i_this->field_0x6c8 = 6;
+                                i_this->field_0x6c8 = 15;
                             }
-                            else if (player->getCutCount() != 4) {
+                            else if (player->getCutCount() != 4 || player->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP
+                                || player->getCutType() == daPy_py_c::CUT_TYPE_MORTAL_DRAW_A || player->getCutType() == daPy_py_c::CUT_TYPE_MORTAL_DRAW_B) {
                                 big_damage(i_this);
                                 i_this->field_0x6c8 = 1000;
                             }
-                        } else if (player->getCutCount() != 1) {
+                        } else if ((player->getCutCount() != 1 && player->getCutCount() != 3) || i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)
+                            || (player->getCutCount() != 3 && otherLizards != NULL)) {
                             small_damage(i_this);
-                            i_this->field_0x6c8 = 3;
-                        } else if (player->getCutCount() == 1 && player->getCutType() <= daPy_py_c::CUT_TYPE_NM_LEFT) {
-                            i_this->field_0x6c8 = 2;
-                        }
-                        else {
-                            small_damage(i_this);
+                            i_this->field_0x6c8 = 6;
+                        // slight redundancy here
+                        } else if ((player->getCutCount() == 1 || (player->getCutCount() == 3 && otherLizards == NULL)) && player->getCutType() <= daPy_py_c::CUT_TYPE_NM_LEFT) {
+                            f32 rnd = cM_rndF(1.0f);
+                            if (player->getCutCount() == 3) {
+                                if (rnd < 0.33f) {
+                                    e_mf_attack(i_this);
+                                }
+                                else if (rnd < 0.66f) {
+                                    e_mf_tail_attack(i_this);
+                                }
+                            }
+                            i_this->field_0x6c8 = 6;
                         }
 
                         a_this->speedF = 0.0f;
