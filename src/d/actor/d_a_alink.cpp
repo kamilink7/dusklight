@@ -18378,6 +18378,9 @@ int daAlink_c::execute() {
             if (mIsWolfDodge) {
                 mIsWolfDodge = false;
             }
+            if (mIsSideRoll) {
+                mIsSideRoll = false;
+            }
             mWaitThisLong = 0;
         }
 
