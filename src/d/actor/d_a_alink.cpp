@@ -18500,7 +18500,9 @@ int daAlink_c::execute() {
             }
             if (mComboCutCount >= 1 && mComboCutCount <= 3) {
                 if (mDoCPd_c::getHoldA(PAD_1) && !(mDoCPd_c::getTrigR(PAD_1) || mDoCPd_c::getHoldLockR(PAD_1))) {
-                    procCutLargeJumpChargeInit();
+                    if (mSkillCooldown <= 150) {
+                        procCutLargeJumpChargeInit();
+                    }
                 }
             }
 

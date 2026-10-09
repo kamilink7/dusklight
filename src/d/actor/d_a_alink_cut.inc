@@ -774,7 +774,7 @@ BOOL daAlink_c::checkCutCancelNextMode(int param_0) {
 BOOL daAlink_c::checkDoCutAction() {
     fopAc_ac_c* enemy = mTargetedActor;
 
-    if (doButton() && (dComIfGs_isEventBit(dSv_event_flag_c::F_0343) || checkNoResetFlg3(FLG3_TRANING_CUT_LARGE_JUMP))) {
+    if ((doButton() && mSkillCooldown <= 150) && (dComIfGs_isEventBit(dSv_event_flag_c::F_0343) || checkNoResetFlg3(FLG3_TRANING_CUT_LARGE_JUMP))) {
         return procCutLargeJumpChargeInit();
     } else if (checkDownAttackState()) {
         return procCutDownInit();
@@ -2407,7 +2407,7 @@ int daAlink_c::procCutLargeJumpCharge() {
         setDoStatusEmphasys(BUTTON_STATUS_FINISH);
     } else if (checkCutHeadState() && mSkillCooldown <= 150) {
         setDoStatusEmphasys(BUTTON_STATUS_HELM_SPLITTER);
-    } else {
+    } else if (mSkillCooldown <= 150) {
         setDoStatus(BUTTON_STATUS_UNK_134);
     }
 
@@ -2444,6 +2444,10 @@ int daAlink_c::procCutLargeJumpInit() {
     mProcVar3.field_0x300e = 4;
     mProcVar4.field_0x3010 = 0;
     field_0x3198 = 2;
+
+    if (dusk::getSettings().game.enableSkillMeter) {
+        mSkillCooldown += 150;
+    }
     return 1;
 }
 
