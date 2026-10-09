@@ -452,6 +452,15 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
                 if (daPy_py_c::checkWoodSwordEquip()) {
                     i_AtInfo->mAttackPower /= 2;
                 }
+
+                if (dusk::getSettings().game.progressiveCombos) {
+                    if (player_p->mComboCutCount == 2) {
+                        i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, 120);
+                    }
+                    if (player_p->mComboCutCount == 3) {
+                        i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, 140);
+                    }
+                }
             }
 #if TARGET_PC
             else {

@@ -11,7 +11,7 @@ public:
     void hide(bool close) override;
     void applyPresetBattaglia() {
         auto& s = getSettings();
-        s.game.swordMultiplier.setValue(50);
+        s.game.swordMultiplier.setValue(40);
         s.game.bowMultiplier.setValue(100);
         s.game.damageMultiplier.setValue(2);
         s.game.noHeartDrops.setValue(true);
@@ -37,10 +37,11 @@ public:
         s.game.noWolfJumpMeter.setValue(false);
         s.game.noMidnaChargeMeter.setValue(false);
         s.game.dodgeCancel.setValue(true);
+        s.game.progressiveCombos.setValue(true);
     }
     void applyPresetDeathwish() {
         auto& s = getSettings();
-        s.game.swordMultiplier.setValue(50);
+        s.game.swordMultiplier.setValue(30);
         s.game.bowMultiplier.setValue(50);
         s.game.damageMultiplier.setValue(4);
         s.game.noHeartDrops.setValue(true);
@@ -66,6 +67,7 @@ public:
         s.game.noWolfJumpMeter.setValue(false);
         s.game.noMidnaChargeMeter.setValue(false);
         s.game.dodgeCancel.setValue(true);
+        s.game.progressiveCombos.setValue(true);
     }
     void applyPresetVanillaPlus() {
         auto& s = getSettings();
@@ -93,6 +95,7 @@ public:
         s.game.noRupeeDrops.setValue(false);
         s.game.noArrowDrops.setValue(false);
         s.game.dodgeCancel.setValue(false);
+        s.game.progressiveCombos.setValue(false);
     }
 
 protected:

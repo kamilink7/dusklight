@@ -85,7 +85,7 @@ void applyPresetKamilinkInit() {
     s.game.enhancedMapMenus.setValue(true);
     s.game.enableMenuPointer.setValue(true);
 
-    s.game.swordMultiplier.setValue(50);
+    s.game.swordMultiplier.setValue(40);
     s.game.bowMultiplier.setValue(100);
     s.game.damageMultiplier.setValue(2);
     s.game.noHeartDrops.setValue(true);
@@ -111,6 +111,7 @@ void applyPresetKamilinkInit() {
     s.game.noWolfJumpMeter.setValue(false);
     s.game.noMidnaChargeMeter.setValue(false);
     s.game.dodgeCancel.setValue(true);
+    s.game.progressiveCombos.setValue(true);
 }
 }  // namespace
 

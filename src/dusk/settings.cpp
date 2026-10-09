@@ -78,6 +78,7 @@ UserSettings g_userSettings = {
         .combinedParry {"game.combinedParry", false},
         .meterSpin {"game.meterSpin", false},
         .dodgeCancel {"game.dodgeCancel", false},
+        .progressiveCombos {"game.progressiveCombos", false},
 
         // Preferences
         .enableMirrorMode {"game.enableMirrorMode", false},
@@ -343,6 +344,7 @@ void registerSettings() {
     Register(g_userSettings.game.combinedParry);
     Register(g_userSettings.game.meterSpin);
     Register(g_userSettings.game.dodgeCancel);
+    Register(g_userSettings.game.progressiveCombos);
     Register(g_userSettings.game.enableMirrorMode);
     Register(g_userSettings.game.invertCameraXAxis);
     Register(g_userSettings.game.invertCameraYAxis);
