@@ -831,7 +831,7 @@ static void e_dn_normal(e_dn_class* i_this) {
     cXyz sp44, sp50;
     f32 movement_speed = 0.0f;
     s16 search_angle, angle, angle_delta;
-    search_angle = 0x4000; // 90°
+    search_angle = 0x8000; // 90°
 
     switch (i_this->mode) {
         case 0:
@@ -1231,7 +1231,11 @@ static void e_dn_fight_run(e_dn_class* i_this) {
                 f32 fVar1 = 1.0f;
                 if (cM_rndF(1.0f) < fVar1) {
                     //TOOD: probably fakematch (debug)
-                    BOOL wayCheck;
+                    BOOL wayCheck = player_way_check(i_this);
+                    if (!wayCheck) {
+                        i_this->action = ACTION_TAIL_ATTACK;
+                        i_this->mode = 0;
+                    }
                     if (cM_rndF(1.0f) < 0.75f) {
                         if (i_this->pl_dir < (l_HIO.attack_init_range - 100.0f) + TREG_F(7)) {
                             i_this->action = ACTION_ATTACK_0;
@@ -1473,11 +1477,15 @@ static void e_dn_attack_0(e_dn_class* i_this) {
     i_this->field_0x6f4 = 1;
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_TAIL_01, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
+            anm_init(i_this, ANM_ATTACK_TAIL_01, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.75f);
             i_this->sound.startCreatureVoice(Z2SE_EN_DN_V_KNIFE, -1);
             i_this->mode = 1;
             // fallthrough
         case 1:
+            if (frame <= 22) {
+                cLib_addCalcAngleS2(&actor->current.angle.y, i_this->search_angle_y, 2, 0x800);
+            }
+
             if (frame >= 22 && frame <= 28) {
                 i_this->at_chk_flag = 1;
                 i_this->tail_at_sph_flag = 0;
@@ -2342,7 +2350,7 @@ static void damage_check(e_dn_class* i_this) {
             if (i_this->cc_sph[i].ChkTgHit() != 0) {
                 i_this->at_info.mpCollider = i_this->cc_sph[i].GetTgHitObj();
                 if (player->getCutType() != daPy_py_c::CUT_TYPE_WOLF_B_LEFT && player->getCutType() != daPy_py_c::CUT_TYPE_WOLF_B_RIGHT &&
-                    i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                    player->getCutType() == daPy_py_c::CUT_TYPE_WOLF_JUMP) {
                     if (player->onWolfEnemyHangBite(enemy)) {
                         OS_REPORT("DN PL BITE HANG \n");
                         i_this->action = ACTION_WOLFBITE;
@@ -2362,10 +2370,6 @@ static void damage_check(e_dn_class* i_this) {
                     s16 oldHealth1 = actor->health;
                     s16 oldHealth2 = actor->health;
                     cc_at_check(actor, &i_this->at_info);
-
-                    if (daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP) {
-                        i_this->at_info.mHitStatus = 0;
-                    }
 
                     if (i_this->at_info.mpCollider->ChkAtType(AT_TYPE_UNK)) {
                         i_this->invulnerability_timer = 20;
@@ -2415,12 +2419,14 @@ static void damage_check(e_dn_class* i_this) {
                             i_this->invulnerability_timer = 15;
                         }
                         // prevent combo finishers from knocking back, jump attack and hidden skills should fall here
-                        else if (player->mComboCutCount != 4) {
+                        else if (player->mComboCutCount != 4 || player->mCutType == daPy_py_c::CUT_TYPE_HEAD_JUMP
+                            || player->mCutType == daPy_py_c::CUT_TYPE_MORTAL_DRAW_A || player->mCutType == daPy_py_c::CUT_TYPE_MORTAL_DRAW_B) {
                             big_damage(i_this);
                             i_this->invulnerability_timer = 1000;
                         }
                     // explicitly prevent hits 1 and 3 from staggering
-                    } else if (player->mCutType <= daPy_py_c::CUT_TYPE_NM_LEFT && player->mComboCutCount != 4) {
+                    } else if ((player->mCutType <= daPy_py_c::CUT_TYPE_NM_LEFT || i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK))
+                        && player->mComboCutCount != 4) {
                         f32 rnd = cM_rndF(1.0);
                         if (player->mComboCutCount == 3) {
                             if (rnd < 0.25) {
@@ -2440,8 +2446,11 @@ static void damage_check(e_dn_class* i_this) {
                                 i_this->mode = 5;
                             }
                         }
-                        else if (player->mComboCutCount == 2) {
+                        else if (player->mComboCutCount == 2 || i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
                             small_damage(i_this);
+                        }
+                        if (i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                            i_this->invulnerability_timer = 4;
                         }
                         i_this->invulnerability_timer = 6;
                     }
@@ -3202,6 +3211,7 @@ static int daE_DN_Execute(e_dn_class* i_this) {
         }
 
         i_this->at_sph.SetAtAtp(1);
+        i_this->at_sph.SetAtSpl(dCcG_At_Spl_UNK_0);
     }
 
     if (i_this->skull_model != NULL) {
@@ -3239,6 +3249,7 @@ static int daE_DN_Execute(e_dn_class* i_this) {
         }
 
         i_this->at_sph.SetAtAtp(2);
+        i_this->at_sph.SetAtSpl(dCcG_At_Spl_UNK_D);
         i_this->at_sph.SetR((70.0f + BREG_F(10)) * l_HIO.model_size);
     }
 
