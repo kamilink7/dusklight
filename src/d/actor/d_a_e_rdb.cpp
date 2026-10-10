@@ -1899,6 +1899,7 @@ static int daE_RDB_Create(fopAc_ac_c* actor) {
 
         i_this->mStts2.Init(0xFF, 0, actor);
         i_this->field_0xe64.Set(at_sph_src);
+        i_this->field_0xe64.SetAtAtp(4);
         i_this->field_0xe64.SetStts(&i_this->mStts2);
         i_this->field_0xe64.OnTgShield();
         i_this->field_0xe64.SetTgHitMark((CcG_Tg_HitMark)2);
