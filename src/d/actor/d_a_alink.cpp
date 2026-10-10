@@ -18296,6 +18296,7 @@ int daAlink_c::execute() {
             damageTimerCount();
         }
 
+        // i-frame tickdown
         if (mDodgeTimer != 0) {
             mDodgeTimer--;
         }
@@ -18304,6 +18305,7 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
+        // Set "dodge" prompt on Z
         if (!mIsWolfDodge && checkNowWolf()) {
             fopAc_ac_c* zhint = dComIfGp_att_getZHint();
             if (zhint != NULL) {
@@ -18315,6 +18317,7 @@ int daAlink_c::execute() {
             mCanWolfDodge = true;
         }
 
+        // Wolf Z-dodge handling
         if (!mIsWolfDodge && checkNowWolf() && !checkGrabAnime() && !checkUpperReadyThrowAnime()
             && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && !getWallGrabStatus()
             && mDoCPd_c::getTrigZ(PAD_1)) {
@@ -18324,6 +18327,7 @@ int daAlink_c::execute() {
             mIsWolfDodge = true;
         }
 
+        // Wolf Z-dodge followup attack
         if (mIsWolfDodge && mDoCPd_c::getTrigB(PAD_1)) {
             resetUpperAnime(UPPER_2, 3.0f);
             procWolfWaitAttackInit(2);
@@ -18341,6 +18345,7 @@ int daAlink_c::execute() {
             mIsDeflect = false;
         }
 
+        // Don't tick down mSkillCooldown while the player is guarding
         if (mSkillCooldown != 0) {
             if (dusk::getSettings().game.shieldUsesMeter) {
                 if (!mDoCPd_c::getHoldLockR(PAD_1)) {
@@ -18364,6 +18369,7 @@ int daAlink_c::execute() {
             mWaitThisLong--;
         }
 
+        // Multi purpose timer for stuff
         if (mWaitThisLong <= 0) {
             if (mIsDeflectAnm) {
                 resetUpperAnime(UPPER_2, 3.0);
@@ -18384,29 +18390,31 @@ int daAlink_c::execute() {
             mWaitThisLong = 0;
         }
 
+        // Slow down the targeted front roll
         if (mIsTargetedRoll) {
             cLib_chaseF(&mNormalSpeed, 13.0f, 2.0f);
         }
 
-        if (mReposteTimer != 0) {
+        // Riposte logic
+        if (mRiposteTimer != 0) {
             setBStatus(BUTTON_STATUS_DRAW);
             if (mDoCPd_c::getTrigB(PAD_1)) {
                 if (cM_rndF(1.0) < 0.5) {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_A);
-                    mReposteTimer = 0;
+                    mRiposteTimer = 0;
                     mDodgeTimer = 30;
                 }
                 else {
                     procCutFinishInit(CUT_FINISH_PARAM_MORTAL_DRAW_B);
-                    mReposteTimer = 0;
+                    mRiposteTimer = 0;
                     mDodgeTimer = 30;
                 }
             }
-            mReposteTimer--;
+            mRiposteTimer--;
         }
 
-        if (mReposteTimer <= 0) {
-            mReposteTimer = 0;
+        if (mRiposteTimer <= 0) {
+            mRiposteTimer = 0;
         }
 
         if (checkEquipHeavyBoots()) {
@@ -18450,6 +18458,7 @@ int daAlink_c::execute() {
             checkComboCnt();
             setShieldGuard();
 
+            // Dodge cancel & targeted/shielded roll tree
             int direction = getCutDirection();
             if (checkNoResetFlg2(FLG2_UNK_8000000) || (dusk::getSettings().game.dodgeCancel
                 && mComboCutCount != 0 && mComboCutCount != 4 && (mDoCPd_c::getHoldLockR(PAD_1) || mDoCPd_c::getTrigR(PAD_1)))) {
@@ -18481,11 +18490,13 @@ int daAlink_c::execute() {
                         }
                     }
                 }
+                // Set parry timer on R input for parry styles that include deflect
                 if ((dusk::getSettings().game.alternateParry || dusk::getSettings().game.combinedParry)
                     && mDoCPd_c::getTrigR(PAD_1)) {
                     mParryTimer = 6;
                     mIsDeflect = true;
                 }
+                // Sound effect for raising shield
                 if (!mIsShielding) {
                     setSwordVoiceSe(Z2SE_AL_ITEM_TAKEOUT);
                     mIsShielding = true;
@@ -18494,10 +18505,12 @@ int daAlink_c::execute() {
             else {
                 mIsShielding = false;
             }
+            // Reset deflect animation for subsequent deflects
             if (mIsDeflectAnm && mDoCPd_c::getTrigR(PAD_1)) {
                 resetUpperAnime(UPPER_2, 3.0);
                 onNoResetFlg2(FLG2_UNK_8000000);
             }
+            // Mid-combo jump strike cancel
             if (mComboCutCount >= 1 && mComboCutCount <= 3) {
                 if (mDoCPd_c::getHoldA(PAD_1) && !(mDoCPd_c::getTrigR(PAD_1) || mDoCPd_c::getHoldLockR(PAD_1))) {
                     if (mSkillCooldown <= 150 && (dComIfGs_isEventBit(dSv_event_flag_c::F_0343)

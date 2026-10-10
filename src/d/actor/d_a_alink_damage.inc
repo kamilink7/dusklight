@@ -696,7 +696,7 @@ BOOL daAlink_c::checkDamageAction() {
                     mDodgeTimer = 10;
                 }
                 if (mIsCombinedParry) {
-                    mReposteTimer = 30;
+                    mRiposteTimer = 30;
                     mDodgeTimer = 20;
                 }
                 return checkWolfBarrierHitReverse();

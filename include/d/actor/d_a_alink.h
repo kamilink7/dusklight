@@ -4576,7 +4576,7 @@ public:
     daPy_anmHeap_c mItemHeapZ_;  // third item heap; see mItemHeap_ above
     s16 mSkillCooldown = 0;
     s16 mWaitThisLong = 0;
-    s16 mReposteTimer = 0;
+    s16 mRiposteTimer = 0;
     bool mIsNormalParry = false;
     bool mIsDeflect = false;
     bool mIsDeflectAnm = false;
