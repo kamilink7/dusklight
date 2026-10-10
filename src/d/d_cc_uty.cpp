@@ -467,6 +467,10 @@ fopAc_ac_c* cc_at_check(fopAc_ac_c* i_enemy, dCcU_AtInfo* i_AtInfo) {
                 if (dusk::getSettings().game.wolfMultiplier != 100 && !i_AtInfo->mpCollider->ChkAtType(AT_TYPE_MIDNA_LOCK)) {
                     i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, dusk::getSettings().game.wolfMultiplier);
                 }
+                if (link->mIsWolfDodge) {
+                    i_AtInfo->mAttackPower = scale_damage(i_AtInfo->mAttackPower, 140);
+                    i_AtInfo->mHitStatus = 1;
+                }
             }
 #endif
 

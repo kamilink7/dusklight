@@ -18323,7 +18323,7 @@ int daAlink_c::execute() {
             && mDoCPd_c::getTrigZ(PAD_1)) {
             procWolfBackJumpInit(1);
             mDodgeTimer = 15;
-            mWaitThisLong = 15;
+            mWaitThisLong = 30;
             mIsWolfDodge = true;
         }
 
@@ -18331,7 +18331,6 @@ int daAlink_c::execute() {
         if (mIsWolfDodge && mDoCPd_c::getTrigB(PAD_1)) {
             resetUpperAnime(UPPER_2, 3.0f);
             procWolfWaitAttackInit(2);
-            mIsWolfDodge = false;
         }
 
         if (mParryTimer != 0) {
