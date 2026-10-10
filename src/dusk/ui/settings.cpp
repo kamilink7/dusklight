@@ -1519,6 +1519,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 .helpText = "Deflect and Parry are both active, giving Parry a new Riposte action triggered by pressing B within 1 second after a successful parry instead of a damage boost.",
                 .isDisabled = [] { return getSettings().game.alternateParry.getValue();}
             });
+        config_bool_select(leftPane, rightPane, getSettings().game.enableCrouchShield,
+            {
+                .key = "Crouch Shielding",
+                .helpText = "Enables crouch shielding and crouch attacks a la N64 Zelda games.",
+            });
         config_bool_select(leftPane, rightPane, getSettings().game.dodgeCancel,
             {
                 .key = "Attack Dodge Cancel",

@@ -185,7 +185,8 @@ void daAlink_c::setUpperGuardAnime(f32 param_0) {
 
 BOOL daAlink_c::checkShieldCrouch() {
     return checkShieldGet() && !checkAttentionLock() && !checkGrabAnime() && !checkUpperReadyThrowAnime() &&
-        !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && mDoCPd_c::getHoldLockR(PAD_1);
+        !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && dusk::getSettings().game.enableCrouchShield
+    && mDoCPd_c::getHoldLockR(PAD_1);
 }
 
 void daAlink_c::setShieldCrouch() {

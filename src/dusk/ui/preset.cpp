@@ -87,8 +87,11 @@ void applyPresetKamilinkInit() {
 
     s.game.swordMultiplier.setValue(40);
     s.game.bowMultiplier.setValue(100);
+    s.game.wolfMultiplier.setValue(50);
     s.game.damageMultiplier.setValue(2);
     s.game.noHeartDrops.setValue(true);
+    s.game.noArrowDrops.setValue(false);
+    s.game.noRupeeDrops.setValue(false);
     s.game.loseRupees.setValue(true);
     s.game.insulatedZoraArmor.setValue(true);
     s.game.sturdierWolfLink.setValue(true);
@@ -112,6 +115,7 @@ void applyPresetKamilinkInit() {
     s.game.noMidnaChargeMeter.setValue(false);
     s.game.dodgeCancel.setValue(true);
     s.game.progressiveCombos.setValue(true);
+    s.game.enableCrouchShield.setValue(true);
 }
 }  // namespace
 

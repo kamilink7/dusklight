@@ -256,6 +256,7 @@ struct UserSettings {
         ConfigVar<bool> meterSpin;
         ConfigVar<bool> dodgeCancel;
         ConfigVar<bool> progressiveCombos;
+        ConfigVar<bool> enableCrouchShield;
 
         // Preferences
         ConfigVar<bool> enableMirrorMode;

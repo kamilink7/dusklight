@@ -13,8 +13,11 @@ public:
         auto& s = getSettings();
         s.game.swordMultiplier.setValue(40);
         s.game.bowMultiplier.setValue(100);
+        s.game.wolfMultiplier.setValue(50);
         s.game.damageMultiplier.setValue(2);
         s.game.noHeartDrops.setValue(true);
+        s.game.noArrowDrops.setValue(false);
+        s.game.noRupeeDrops.setValue(false);
         s.game.loseRupees.setValue(true);
         s.game.insulatedZoraArmor.setValue(true);
         s.game.sturdierWolfLink.setValue(true);
@@ -38,13 +41,17 @@ public:
         s.game.noMidnaChargeMeter.setValue(false);
         s.game.dodgeCancel.setValue(true);
         s.game.progressiveCombos.setValue(true);
+        s.game.enableCrouchShield.setValue(true);
     }
     void applyPresetDeathwish() {
         auto& s = getSettings();
         s.game.swordMultiplier.setValue(30);
         s.game.bowMultiplier.setValue(50);
+        s.game.wolfMultiplier.setValue(50);
         s.game.damageMultiplier.setValue(4);
         s.game.noHeartDrops.setValue(true);
+        s.game.noArrowDrops.setValue(true);
+        s.game.noRupeeDrops.setValue(true);
         s.game.loseRupees.setValue(true);
         s.game.insulatedZoraArmor.setValue(true);
         s.game.sturdierWolfLink.setValue(true);
@@ -68,13 +75,17 @@ public:
         s.game.noMidnaChargeMeter.setValue(false);
         s.game.dodgeCancel.setValue(true);
         s.game.progressiveCombos.setValue(true);
+        s.game.enableCrouchShield.setValue(true);
     }
     void applyPresetVanillaPlus() {
         auto& s = getSettings();
         s.game.swordMultiplier.setValue(50);
         s.game.bowMultiplier.setValue(100);
+        s.game.wolfMultiplier.setValue(50);
         s.game.damageMultiplier.setValue(2);
         s.game.noHeartDrops.setValue(true);
+        s.game.noArrowDrops.setValue(false);
+        s.game.noRupeeDrops.setValue(false);
         s.game.loseRupees.setValue(false);
         s.game.insulatedZoraArmor.setValue(false);
         s.game.sturdierWolfLink.setValue(false);
@@ -96,6 +107,7 @@ public:
         s.game.noArrowDrops.setValue(false);
         s.game.dodgeCancel.setValue(false);
         s.game.progressiveCombos.setValue(false);
+        s.game.enableCrouchShield.setValue(true);
     }
 
 protected:
