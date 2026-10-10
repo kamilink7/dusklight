@@ -94,8 +94,8 @@ daE_MF_HIO_c::daE_MF_HIO_c() {
     model_size = 1.3f;
     movement_speed = 16.0f;
     dash_speed = 45.0f;
-    battle_init_range = 300.0f;
-    attack_init_range = 350.0f;
+    battle_init_range = 350.0f;
+    attack_init_range = 400.0f;
     field_0x1c = 3;
     field_0x1e = 40;
     field_0x20 = 80;
@@ -981,6 +981,7 @@ static void e_mf_fight_run(e_mf_class* i_this) {
     f32 fVar1 = 0.0f;
     int frame = i_this->mpModelMorf->getFrame();
     s8 sVar4 = 1;
+    f32 rnd = cM_rndF(1.0f);
 
     if (pl_check(i_this, i_this->field_0x6b8 + 50.0f, 0x7FFF) == 0 && i_this->field_0x6c0[0] == 0) {
         if (i_this->field_0x6ca == 0) {
@@ -1136,11 +1137,21 @@ static void e_mf_fight_run(e_mf_class* i_this) {
             if ((sVar3 != 0 || (i_this->mPlayerDistance < l_HIO.battle_init_range &&
                 ((daPy_getPlayerActorClass()->getCutAtFlg() != 0 || daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_JUMP) ||
                 ((i_this->field_0x6ac & 48) != 0 && daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_GUARD_ATTACK)))) && i_this->field_0x72c < 1.0f) {
-                i_this->mAction = 7;
-                if (cc_pl_cut_bit_get() == 0x100) {
+                if (rnd < 0.70f) {
+                    i_this->mAction = 7; // ACTION_GUARD
+                    if (cc_pl_cut_bit_get() == 0x100) {
+                        i_this->field_0x5b4 = 0;
+                    } else {
+                        i_this->field_0x5b4 = 5;
+                    }
+                }
+                else if (rnd < 0.85f) {
+                    i_this->mAction = ACTION_ATTACK;
                     i_this->field_0x5b4 = 0;
-                } else {
-                    i_this->field_0x5b4 = 5;
+                }
+                else {
+                    i_this->mAction = ACTION_TAIL_ATTACK;
+                    i_this->field_0x5b4 = 0;
                 }
 
                 i_this->field_0x6e8 = 30.0f;
