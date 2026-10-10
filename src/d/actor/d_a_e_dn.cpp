@@ -2329,9 +2329,22 @@ static void small_damage(e_dn_class* i_this) {
     i_this->field_0x70c = i_this->at_info.mHitDirection.y;
 }
 
+static void* findLizards(void* i_actor, void* i_data) {
+    if (fopAcM_IsActor(i_actor) && i_actor != i_data &&
+        fopAcM_GetName(i_actor) == fpcNm_E_DN_e &&
+        !fpcM_IsCreating(fopAcM_GetID(i_actor)) &&
+        fopAcM_GetRoomNo((fopAc_ac_c*)i_actor) == fopAcM_GetRoomNo((fopAc_ac_c*)i_data))
+    {
+        return i_actor;
+    }
+
+    return NULL;
+}
+
 static void damage_check(e_dn_class* i_this) {
     fopEn_enemy_c* actor = (fopEn_enemy_c*)&i_this->actor;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    e_dn_class* otherLizards = (e_dn_class*)fopAcM_Search(findLizards, i_this);
 
     if (l_HIO.no_learn != 0) {
         i_this->learn = 0;
@@ -2406,9 +2419,12 @@ static void damage_check(e_dn_class* i_this) {
                         }
                     }
 
-                    if (i_this->at_info.mHitStatus != 0) { // heavy attacks only?
+                    if (i_this->at_info.mHitStatus != 0 || player->mCutType == daPy_py_c::CUT_TYPE_DASH_LEFT_SIDESTEP
+                        || player->mCutType == daPy_py_c::CUT_TYPE_DASH_RIGHT_SIDESTEP) { // heavy attacks only?
                         // spin cancel branch
-                        if (player->mCutType == daPy_py_c::CUT_TYPE_JUMP && player->checkCutJumpCancelTurn()) {
+                        if ((player->mCutType == daPy_py_c::CUT_TYPE_JUMP && player->checkCutJumpCancelTurn())
+                        || player->mCutType == daPy_py_c::CUT_TYPE_DASH_LEFT_SIDESTEP
+                        || player->mCutType == daPy_py_c::CUT_TYPE_DASH_RIGHT_SIDESTEP) {
                             small_damage(i_this);
                             i_this->invulnerability_timer = 3;
                         }
@@ -2446,7 +2462,8 @@ static void damage_check(e_dn_class* i_this) {
                                 i_this->mode = 5;
                             }
                         }
-                        else if (player->mComboCutCount == 2 || i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
+                        else if (player->mComboCutCount == 2 || i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)
+                            || (otherLizards != NULL && player->mComboCutCount != 3)) {
                             small_damage(i_this);
                         }
                         if (i_this->at_info.mpCollider->ChkAtType(AT_TYPE_WOLF_ATTACK)) {
@@ -3249,7 +3266,7 @@ static int daE_DN_Execute(e_dn_class* i_this) {
         }
 
         i_this->at_sph.SetAtAtp(2);
-        i_this->at_sph.SetAtSpl(dCcG_At_Spl_UNK_D);
+        i_this->at_sph.SetAtSpl((dCcG_At_Spl)10);
         i_this->at_sph.SetR((70.0f + BREG_F(10)) * l_HIO.model_size);
     }
 
