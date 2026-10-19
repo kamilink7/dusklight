@@ -71,6 +71,9 @@ jobs:
       - name: Build
         run: cmake --build --preset x-linux-ci-${{matrix.preset}}
 
+      - name: Remove randomizer mod
+        run: rm -rf build/install/mods/dev.twilitrealm.randomizer
+
       - name: Generate AppImage
         run: ci/build-appimage.sh
         env:
@@ -82,8 +85,8 @@ jobs:
           name: lazytweaks-${{env.APP_VERSION}}-linux-${{matrix.preset}}-${{matrix.artifact_arch}}
           path: |
             build/install/lazytweaks-*.AppImage
-            build/install/debug.tar.*
-            build/install/sdk/
+          # build/install/debug.tar.*
+          # build/install/sdk/
 
   build-apple:
     name: Build Apple (${{matrix.name}})
