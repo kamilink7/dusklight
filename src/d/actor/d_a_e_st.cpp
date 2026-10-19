@@ -1844,6 +1844,7 @@ static s8 e_st_g_fight(e_st_class* i_this) {
     s8 rv = false;
     f32 combat_start_dist = l_HIO.combat_start_dist;
     f32 rnd = cM_rndF(1.0f);
+    f32 bite_speed = dusk::getSettings().game.slowerEnemies ? 1.5f : 3.0f;
     if (small) {
         combat_start_dist *= BREG_F(11) + 0.58f;
     }
@@ -1913,7 +1914,7 @@ static s8 e_st_g_fight(e_st_class* i_this) {
             break;
 
         case 6:
-            anm_init(i_this, BCK_ST_ATTACK02, 3.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
+            anm_init(i_this, BCK_ST_ATTACK02, 3.0f, J3DFrameCtrl::EMode_NONE, bite_speed);
             i_this->mActionPhase = 7;
             i_this->mSound.startCreatureSound(Z2SE_EN_ST_ATTACK, 0, -1);
             i_this->mAtSph.SetAtAtp(1);

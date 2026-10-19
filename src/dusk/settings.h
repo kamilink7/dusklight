@@ -262,6 +262,7 @@ struct UserSettings {
         ConfigVar<bool> progressiveCombos;
         ConfigVar<bool> enableCrouchShield;
         ConfigVar<bool> enableManualShield;
+        ConfigVar<bool> slowerEnemies;
 
         // Preferences
         ConfigVar<bool> enableMirrorMode;

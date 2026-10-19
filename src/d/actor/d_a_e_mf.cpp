@@ -1398,12 +1398,13 @@ static void e_mf_attack(e_mf_class* i_this) {
     fopEn_enemy_c* a_this = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp34, sp40;
     int frame = i_this->mpModelMorf->getFrame();
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
 
     i_this->field_0x6d4 = 1;
     s16 sVar1, sVar2;
     switch (i_this->field_0x5b4) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_TAIL_02, 6.0f, 0, 1.5f);
+            anm_init(i_this, ANM_ATTACK_TAIL_02, 6.0f, 0, atk_speed);
             i_this->mSound.startCreatureVoice(Z2SE_EN_MF_V_KNIFE2_A, -1);
             i_this->field_0x5b4 = 1;
             // fallthrough
@@ -1481,11 +1482,12 @@ static void e_mf_tail_attack(e_mf_class* i_this) {
     fopEn_enemy_c* a_this = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp30, sp3c;
     int frame = i_this->mpModelMorf->getFrame();
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
 
     i_this->field_0x6d4 = 1;
     switch (i_this->field_0x5b4) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_01, 5.0f, 0, 1.5f);
+            anm_init(i_this, ANM_ATTACK_01, 5.0f, 0, atk_speed);
             i_this->mpModelMorf->setFrame(20.0f);
             i_this->field_0x5b4 = 1;
             i_this->field_0x6c0[1] = 0;
@@ -1511,7 +1513,7 @@ static void e_mf_tail_attack(e_mf_class* i_this) {
             if (i_this->field_0x6c0[1] != 0 && i_this->mpModelMorf->checkFrame(55.0f)) {
                 i_this->mAction = 5;
                 i_this->field_0x5b4 = 1;
-                anm_init(i_this, ANM_ATTACK_TAIL_02, 4.0f, 0, 1.5f);
+                anm_init(i_this, ANM_ATTACK_TAIL_02, 4.0f, 0, atk_speed);
                 i_this->mpModelMorf->setFrame(20.0f);
                 i_this->mSound.startCreatureVoice(Z2SE_EN_MF_V_KNIFE2_A, -1);
                 return;

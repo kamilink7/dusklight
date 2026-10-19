@@ -278,6 +278,9 @@ static int getPolyColor(cBgS_PolyInfo& i_polyInfo, int param_2, GXColor* p_effPr
 }
 
 static void e_rdb_attack(e_rdb_class* i_this) {
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.5f : 3.0f;
+    f32 atk_speed2 = dusk::getSettings().game.slowerEnemies ? 1.0f : 2.0f;
+
     static u16 ap_name[3] = {
         0x8A5C,
         0x8A5D,
@@ -289,17 +292,17 @@ static void e_rdb_attack(e_rdb_class* i_this) {
     switch (i_this->mMode) {
     case 0:
         if (cM_rndF(1.0f) < 0.5f) {
-            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK01, 5.0f, 0, 3.0f);
+            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK01, 5.0f, 0, atk_speed);
             i_this->mMode = 1;
         } else {
-            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK02, 5.0f, 0, 3.0f);
+            anm_init(i_this, e_rdb_class::BCK_RB_ATTACK02, 5.0f, 0, atk_speed);
             i_this->mMode = 2;
         }
         break;
 
     case 1:
         if (frame > 63 && frame < 73) {
-            i_this->mpModelMorf->setPlaySpeed(2.0f);
+            i_this->mpModelMorf->setPlaySpeed(atk_speed2);
             i_this->field_0x6c4 = 1;
         }
 
@@ -337,7 +340,7 @@ static void e_rdb_attack(e_rdb_class* i_this) {
 
     case 2:
         if (frame > 61 && frame < 72) {
-            i_this->mpModelMorf->setPlaySpeed(2.0f);
+            i_this->mpModelMorf->setPlaySpeed(atk_speed2);
             i_this->field_0x6c4 = 1;
         }
 
@@ -352,6 +355,8 @@ static void e_rdb_attack(e_rdb_class* i_this) {
 }
 
 static void e_rdb_spin_attack(e_rdb_class* i_this) {
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 2.0f;
+
     static u16 ap_name[2] = {
         0x8A5F,
         0x8A60,
@@ -362,7 +367,7 @@ static void e_rdb_spin_attack(e_rdb_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_START, 5.0f, 0, 2.0f);
+        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_START, 5.0f, 0, atk_speed);
         i_this->mSound.startCreatureVoice(Z2SE_EN_RDB_V_ATTACK, -1);
         i_this->mMode = 1;
         break;
@@ -371,7 +376,7 @@ static void e_rdb_spin_attack(e_rdb_class* i_this) {
         if (!p_modelMorf->isStop())
             break;
 
-        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_SPIN, 0.0f, 2, 2.0f);
+        anm_init(i_this, e_rdb_class::BCK_RB_ATTACK03_SPIN, 0.0f, 2, atk_speed);
         i_this->mMode = 2;
         i_this->field_0x6b8[0] = 102;
         // [[fallthrough]]

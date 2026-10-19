@@ -1447,10 +1447,12 @@ static void e_rd_fight(e_rd_class* i_this) {
     fopEn_enemy_c* enemy = (fopEn_enemy_c*)&i_this->enemy;
     cXyz sp3c, sp48;
     int frame = i_this->anm_p->getFrame();
+    f32 atk_speed1 = dusk::getSettings().game.slowerEnemies ? 1.5f : l_HIO.swing_speed; // swing_speed = 2.2f
+    f32 atk_speed2 = dusk::getSettings().game.slowerEnemies ? 1.25f : 1.5f;
 
     switch (i_this->mode) {
         case 0: {
-            anm_init(i_this, BCK_RD_ATTACK01, TREG_F(14) + 6.0f, 0, 1.0f);
+            anm_init(i_this, BCK_RD_ATTACK01, TREG_F(14) + 6.0f, 0, atk_speed1);
 
             if (l_HIO.field_0x38 == 0) {
                 i_this->timer[0] = 25;
@@ -1475,7 +1477,7 @@ static void e_rd_fight(e_rd_class* i_this) {
             if (frame == 30) {
                 i_this->anm_p->setFrame(0.0f);
             } else if (i_this->timer[0] == 0) {
-                anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, l_HIO.swing_speed);
+                anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, atk_speed1);
                 i_this->anm_p->setFrame(30.0f);
                 i_this->mode = 2;
             }
@@ -1483,7 +1485,7 @@ static void e_rd_fight(e_rd_class* i_this) {
         }
         // case 4 and 5: "retaliation" branch
         case 4: {
-            anm_init(i_this, BCK_RD_ATTACK01, TREG_F(14) + 6.0f, 0, 1.5f);
+            anm_init(i_this, BCK_RD_ATTACK01, TREG_F(14) + 6.0f, 0, atk_speed2);
 
             if (l_HIO.field_0x38 == 0) {
                 i_this->timer[0] = 25;
@@ -1508,7 +1510,7 @@ static void e_rd_fight(e_rd_class* i_this) {
             if (frame == 30) {
                 i_this->anm_p->setFrame(0.0f);
             } else if (i_this->timer[0] == 0) {
-                anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, 2.20f);
+                anm_init(i_this, BCK_RD_ATTACK01, 2.0f, 0, atk_speed1);
                 i_this->anm_p->setFrame(30.0f);
                 i_this->mode = 2;
             }

@@ -1834,10 +1834,11 @@ void daE_VA_c::executeClearChase() {
 void daE_VA_c::executeClearAttack() {
     f32 anm_frame = mpMorf->getFrame();
     cLib_addCalc(&current.pos.y, 0.0f, 0.1f, 10.0f, 1.0f);
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 2.0f;
 
     switch (mMode) {
     case 0:
-        setBck(ANM_INVI_ATTACK_A_e, J3DFrameCtrl::EMode_NONE, 3.0f, 2.0f);
+        setBck(ANM_INVI_ATTACK_A_e, J3DFrameCtrl::EMode_NONE, 3.0f, atk_speed);
         mSound.startCreatureSound(Z2SE_EN_VA_SWD_ATK_T, 0, -1);
         mMode = 1;
         return;
@@ -1963,10 +1964,11 @@ void daE_VA_c::executeTransChase() {
 
 void daE_VA_c::executeTransAttack() {
     f32 anm_frame = mpMorf->getFrame();
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 2.0f;
 
     switch (mMode) {
     case 0:
-        setBck(ANM_TRANS_ATTACK_A1_e, J3DFrameCtrl::EMode_NONE, 3.0f, 2.0f);
+        setBck(ANM_TRANS_ATTACK_A1_e, J3DFrameCtrl::EMode_NONE, 3.0f, atk_speed);
         mSound.startCreatureSound(Z2SE_EN_VA_SWD_ATK_T, 0, -1);
         mSound.startCreatureVoice(Z2SE_EN_VA_V_ATK1, -1);
         mSound.startCreatureSound(Z2SE_EN_VA_SWD_ATK1, 0, -1);
@@ -1998,7 +2000,7 @@ void daE_VA_c::executeTransAttack() {
         }
 
         if (mpMorf->isStop()) {
-            setBck(ANM_TRANS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, 2.0f);
+            setBck(ANM_TRANS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, atk_speed);
             mSound.startCreatureVoice(Z2SE_EN_VA_V_ATK3, -1);
             mMode = 4;
         }
@@ -2034,7 +2036,7 @@ void daE_VA_c::executeTransAttack() {
         Z2GetAudioMgr()->changeSubBgmStatus(1);
 
         if (!checkBck(ANM_TRANS_ATTACK_A3_e)) {
-            setBck(ANM_TRANS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, 1.0f);
+            setBck(ANM_TRANS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, atk_speed);
             mSound.startCreatureVoice(Z2SE_EN_VA_V_ATK3, -1);
         }
 
@@ -2663,6 +2665,7 @@ void daE_VA_c::executeOpaciChase() {
 
 void daE_VA_c::executeOpaciAttack() {
     f32 anm_frame = mpMorf->getFrame();
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 2.0f;
 
     mBodyCyls[0].OnTgSetBit();
     mBodyCyls[1].OnTgSetBit();
@@ -2670,7 +2673,7 @@ void daE_VA_c::executeOpaciAttack() {
     switch (mMode) {
     case 0:
         speedF = 0.0f;
-        setBck(ANM_SUBS_ATTACK_A1_e, J3DFrameCtrl::EMode_NONE, 5.0f, 2.0f);
+        setBck(ANM_SUBS_ATTACK_A1_e, J3DFrameCtrl::EMode_NONE, 5.0f, atk_speed);
         mSound.startCreatureSound(Z2SE_EN_VA_SWD_ATK_T, 0, -1);
         mSound.startCreatureVoice(Z2SE_EN_VA_V_ATK1, -1);
         mMode = 1;
@@ -2706,7 +2709,7 @@ void daE_VA_c::executeOpaciAttack() {
         }
 
         if (mpMorf->isStop()) {
-            setBck(ANM_SUBS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, 2.0f);
+            setBck(ANM_SUBS_ATTACK_A3_e, J3DFrameCtrl::EMode_NONE, 3.0f, atk_speed);
             mSound.startCreatureVoice(Z2SE_EN_VA_V_ATK3, -1);
             mMode = 2;
         }

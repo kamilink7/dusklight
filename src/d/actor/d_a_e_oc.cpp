@@ -1397,6 +1397,7 @@ void daE_OC_c::executeAttack() {
     s16 pl_ang = fopAcM_searchPlayerAngleY(this);
     f32 my_float = 0.0f;
     int frame_ctrl = (mpMorf->getFrame() - 9.0f);
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.2f : 1.5f;
     if (frame_ctrl >= 0) {
         if (frame_ctrl >= 9) {
             frame_ctrl = 9;
@@ -1421,11 +1422,11 @@ void daE_OC_c::executeAttack() {
             if (cLib_chaseF(&speedF, 0.0f, 2.0f) && (s16)cLib_distanceAngleS(shape_angle.y, pl_ang) < 0x800) {
                 if (cLib_chaseF(&speedF, 0.0f, 2.0f)) {
                     if (cM_rndF(1.0f) < 0.5f) {
-                        setBck(5, 0, 5.0f, 1.5f);
+                        setBck(5, 0, 5.0f, atk_speed);
                         mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_B, -1);
                         mOcState = 1;
                     } else {
-                        setBck(6, 0, 5.0f, 1.5f);
+                        setBck(6, 0, 5.0f, atk_speed);
                         mSound.startCreatureVoice(Z2SE_EN_OC_V_ATTACK_C, -1);
                         mOcState = 2;
                     }

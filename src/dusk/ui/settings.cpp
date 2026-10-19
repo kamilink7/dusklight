@@ -1376,7 +1376,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("The intended difficulty of Lazy Tweaks' complete combat rebalance. Experience a smoother introduction to the combat before difficulty eventually ramps in the second half of the game.");
+                pane.add_text("Experience a smoother introduction to the combat overhaul before difficulty eventually ramps in the second half of the game. For those want a decent challenge that isn't overly punishing.");
             });
         leftPane.register_control(leftPane.add_button("KAMILIGHT").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
@@ -1628,6 +1628,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             {
                 .key = "Progressive Combo Damage",
                 .helpText = "Each sequential hit in a combo string deals slightly more damage. Best when playing with a sword damage multiplier of lower than 50%.",
+            });
+        config_bool_select(leftPane, rightPane, getSettings().game.slowerEnemies,
+            {
+                .key = "Slower Enemy Attacks",
+                .helpText = "Lazy Tweaks greatly increases attack speed for many enemies and bosses by default. Enable this setting to tone it down to be somewhere between Vanilla and the mod's default.",
             });
 
         leftPane.add_section("Gamefeel Stuff");

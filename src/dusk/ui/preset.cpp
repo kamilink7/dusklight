@@ -85,16 +85,15 @@ void applyPresetKamilinkInit() {
     s.game.enhancedMapMenus.setValue(true);
     s.game.enableMenuPointer.setValue(true);
 
-    s.game.swordMultiplier.setValue(40);
+    s.game.swordMultiplier.setValue(30);
     s.game.bowMultiplier.setValue(100);
     s.game.wolfMultiplier.setValue(50);
-    s.game.damageMultiplier.setValue(2);
+    s.game.damageMultiplier.setValue(4);
     s.game.noHeartDrops.setValue(false);
     s.game.heartDropRate.setValue(0);
-    s.game.noArrowDrops.setValue(false);
+    s.game.noArrowDrops.setValue(true);
     s.game.noRupeeDrops.setValue(false);
-    s.game.halfMyShitIsGone.setValue(false);
-    s.game.quarterDeathTax.setValue(true);
+    s.game.halfMyShitIsGone.setValue(true);
     s.game.insulatedZoraArmor.setValue(true);
     s.game.sturdierWolfLink.setValue(true);
     s.game.progressiveDefense.setValue(true);
@@ -108,16 +107,18 @@ void applyPresetKamilinkInit() {
     s.game.swordTrail.setValue(true);
     s.game.fastSpinner.setValue(true);
     s.game.enableFastIronBoots.setValue(true);
-    s.game.armorRupeeDrain.setValue(MagicArmorMode::ON_DAMAGE);
+    s.game.armorRupeeDrain.setValue(MagicArmorMode::NORMAL);
+    s.game.alternateParry.setValue(false);
     s.game.combinedParry.setValue(true);
     s.game.suppressButtonPrompts.setValue(true);
     s.game.noWolfJumpMeter.setValue(false);
     s.game.noMidnaChargeMeter.setValue(false);
     s.game.dodgeCancel.setValue(true);
-    s.game.jumpStrikeCancel.setValue(true);
     s.game.progressiveCombos.setValue(true);
+    s.game.jumpStrikeCancel.setValue(true);
     s.game.enableCrouchShield.setValue(true);
     s.game.enableManualShield.setValue(true);
+    s.game.slowerEnemies.setValue(false);
 }
 }  // namespace
 

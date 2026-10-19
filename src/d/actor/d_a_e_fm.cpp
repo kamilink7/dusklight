@@ -658,7 +658,7 @@ static void e_fm_fight_run(e_fm_class* i_this) {
         for (int i = 0; i <= 1; i++) {
             int sp18 = 1 - i;
             if (fabsf(i_this->mFootPos[i].y - i_this->current.pos.y) < 15.0f && fabsf(i_this->mFootPos[sp18].y - i_this->current.pos.y) >= 15.0f) {
-                move_speed = l_HIO.field_0x14;
+                move_speed = dusk::getSettings().game.slowerEnemies ? 10.0f : l_HIO.field_0x14;
                 i_this->field_0x7e0 = sp18;
             }
         }
@@ -736,12 +736,13 @@ static void e_fm_n_fight(e_fm_class* i_this) {
     int anm_frame = i_this->mpFmModelMorf->getFrame();
     cXyz sp28;
     cXyz sp1C;
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.5f : 2.0f;
 
     i_this->field_0x7c0 = 1;
 
     switch (i_this->mMode) {
     case 0:
-        anm_init(i_this, BCK_FM_ATTACK02, 10.0f, 0, 2.0f);
+        anm_init(i_this, BCK_FM_ATTACK02, 10.0f, 0, atk_speed);
         i_this->mSound.startCreatureSound(Z2SE_EN_FM_ATTACK02_CHAIN, 0, -1);
         i_this->mMode = 1;
         break;

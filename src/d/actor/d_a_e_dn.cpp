@@ -1473,11 +1473,12 @@ static void e_dn_attack_0(e_dn_class* i_this) {
     fopEn_enemy_c* actor = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp2c, sp38;
     int frame = i_this->anm_p->getFrame();
+    f32 atk_speed =  dusk::getSettings().game.slowerEnemies ? 1.25f : 1.75f;
 
     i_this->field_0x6f4 = 1;
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_TAIL_01, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.75f);
+            anm_init(i_this, ANM_ATTACK_TAIL_01, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, atk_speed);
             i_this->sound.startCreatureVoice(Z2SE_EN_DN_V_KNIFE, -1);
             i_this->mode = 1;
             // fallthrough
@@ -1511,12 +1512,13 @@ static void e_dn_attack(e_dn_class* i_this) {
     fopEn_enemy_c* actor = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp34, sp40;
     int frame = i_this->anm_p->getFrame();
+    f32 atk_speed  = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.25f;
 
     i_this->field_0x6f4 = 1;
     s16 sVar1, sVar2;
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_TAIL_02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.25f);
+            anm_init(i_this, ANM_ATTACK_TAIL_02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, atk_speed);
             i_this->sound.startCreatureVoice(Z2SE_EN_DN_V_KNIFE2_A, -1);
             i_this->mode = 1;
             // fallthrough
@@ -1592,11 +1594,12 @@ static void e_dn_tail_attack(e_dn_class* i_this) {
     fopEn_enemy_c* actor = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp30, sp3c;
     int frame = i_this->anm_p->getFrame();
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.5f : 2.0f;
 
     i_this->field_0x6f4 = 1;
     switch (i_this->mode) {
         case 0:
-            anm_init(i_this, ANM_ATTACK_01, TREG_F(14) + 5.0f, J3DFrameCtrl::EMode_NONE, 2.0f);
+            anm_init(i_this, ANM_ATTACK_01, TREG_F(14) + 5.0f, J3DFrameCtrl::EMode_NONE, atk_speed);
             i_this->mode = 1;
             break;
 

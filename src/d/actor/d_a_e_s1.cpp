@@ -596,6 +596,7 @@ static void e_s1_fight(e_s1_class* i_this) {
     fopAc_ac_c* a_this = (fopAc_ac_c*)i_this;
     cXyz sp28;
     cXyz sp1C;
+    f32 atk_speed = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
 
     int anm_frame = i_this->mpMorf->getFrame();
     f32 target_speed = 0.0f;
@@ -609,11 +610,11 @@ static void e_s1_fight(e_s1_class* i_this) {
     case 1:
         if (i_this->mTimers[0] == 0) {
             if (cM_rndF(1.0f) < 0.3333f) {
-                anm_init(i_this, ANM_ATTACK, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+                anm_init(i_this, ANM_ATTACK, 3.0f, J3DFrameCtrl::EMode_NONE, atk_speed);
                 i_this->mSound.startCreatureVoice(Z2SE_EN_NS_V_ATTACK, -1);
                 i_this->mIsSlowAttack = 0;
             } else {
-                anm_init(i_this, ANM_ATTACK_02, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+                anm_init(i_this, ANM_ATTACK_02, 3.0f, J3DFrameCtrl::EMode_NONE, atk_speed);
                 i_this->mSound.startCreatureVoice(Z2SE_EN_NS_V_ATTACK2, -1);
                 i_this->mIsSlowAttack = 1;
             }

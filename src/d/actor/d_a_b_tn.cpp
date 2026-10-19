@@ -2437,6 +2437,9 @@ void daB_TN_c::executeAttackH() {
     s16 playerAngleY = fopAcM_searchPlayerAngleY(this);
     f32 playerDistance = fopAcM_searchPlayerDistance(this);
     daB_TN_c* otherNuts = (daB_TN_c*)fopAcM_Search(findNuts, this);
+    f32 atkASpeed1 = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
+    f32 atkASpeed2 = dusk::getSettings().game.slowerEnemies ? 1.25f : 1.75f;
+    f32 atkBSpeed = dusk::getSettings().game.slowerEnemies ? 1.5f : 2.0f;
 
     switch (mActionMode2) {
     case ACTION2_0_e:
@@ -2445,25 +2448,25 @@ void daB_TN_c::executeAttackH() {
         if (playerDistance < 250.0f) {
             mActionMode2 = ACTION2_1_e;
             if (otherNuts != NULL) {
-                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, atkASpeed1);
             }
             else {
-                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.75f);
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, atkASpeed2);
             }
         } else if (playerDistance < 350.0f) {
             mActionMode2 = ACTION2_2_e;
-            setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
+            setBck(BCK_TNA_ATACK_B, 0, 3.0f, atkBSpeed);
         } else if (cM_rnd() < 0.5f) {
             mActionMode2 = ACTION2_1_e;
             if (otherNuts != NULL) {
-                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.5f);
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, atkASpeed1);
             }
             else {
-                setBck(BCK_TNA_ATACK_A, 0, 3.0f, 1.75f);
+                setBck(BCK_TNA_ATACK_A, 0, 3.0f, atkASpeed2);
             }
         } else {
             mActionMode2 = ACTION2_2_e;
-            setBck(BCK_TNA_ATACK_B, 0, 3.0f, 2.0f);
+            setBck(BCK_TNA_ATACK_B, 0, 3.0f, atkBSpeed);
             setAttackBlurEffect(1);
         }
 
@@ -3749,6 +3752,8 @@ void daB_TN_c::executeAttackL() {
     s16 mPlayerAngleY = fopAcM_searchPlayerAngleY(this);
     f32 mPlayerDistance = fopAcM_searchPlayerDistance(this);
     daAlink_c* link = daAlink_getAlinkActorClass();
+    f32 atkASpeed = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
+    f32 atkBSpeed = dusk::getSettings().game.slowerEnemies ? 1.0f : 1.5f;
 
     speedF = 0.0f;
     current.angle.y = shape_angle.y;
@@ -3781,7 +3786,7 @@ void daB_TN_c::executeAttackL() {
                 mTimer1 = 3;
             } else {
                 mActionMode2 = ACTION2_2_e;
-                setBck(BCK_TNB_ATACK_B, 0, 3.0f, 1.5f);
+                setBck(BCK_TNB_ATACK_B, 0, 3.0f, atkBSpeed);
             }
         } else {
             if (mActionMode2Copy == ACTION2_20_e || mActionMode2Copy == ACTION2_10_e) {
@@ -3794,7 +3799,7 @@ void daB_TN_c::executeAttackL() {
                 }
             } else {
                 mActionMode2 = ACTION2_1_e;
-                setBck(BCK_TNB_ATACK_A, 0, 3.0f, 1.5f);
+                setBck(BCK_TNB_ATACK_A, 0, 3.0f, atkASpeed);
             }
         }
 
@@ -3813,10 +3818,10 @@ void daB_TN_c::executeAttackL() {
 
         if (cM_rnd() < 0.5f) {
             mActionMode2 = ACTION2_2_e;
-            setBck(BCK_TNB_ATACK_B, 0, 10.0f, 1.5f);
+            setBck(BCK_TNB_ATACK_B, 0, 10.0f, atkBSpeed);
         } else {
             mActionMode2 = ACTION2_1_e;
-            setBck(BCK_TNB_ATACK_A, 0, 7.0f, 1.5f);
+            setBck(BCK_TNB_ATACK_A, 0, 7.0f, atkASpeed);
         }
 
         mWalkDir = 0;
@@ -3929,7 +3934,7 @@ void daB_TN_c::executeAttackL() {
             }
 
             if (mpModelMorf2->checkFrame(41.0f) && mWalkDir == 10) {
-                setBck(BCK_TNB_ATACK_A, 0, 5.0f, 1.5f);
+                setBck(BCK_TNB_ATACK_A, 0, 5.0f, atkASpeed);
                 setSwordAtBit(0);
                 setSwordAtBreak(1);
                 mActionMode2 = ACTION2_1_e;
@@ -3958,7 +3963,7 @@ void daB_TN_c::executeAttackL() {
         }
 
         mActionMode2 = ACTION2_1_e;
-        setBck(BCK_TNB_ATACK_A, 0, 3.0f, 1.5f);
+        setBck(BCK_TNB_ATACK_A, 0, 3.0f, atkASpeed);
         return;
 
     case ACTION2_4_e:
@@ -3967,7 +3972,7 @@ void daB_TN_c::executeAttackL() {
         }
 
         mActionMode2 = ACTION2_2_e;
-        setBck(BCK_TNB_ATACK_B, 0, 3.0f, 1.5f);
+        setBck(BCK_TNB_ATACK_B, 0, 3.0f, atkBSpeed);
         return;
     }
 }

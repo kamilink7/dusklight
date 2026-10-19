@@ -45,6 +45,7 @@ public:
         s.game.progressiveCombos.setValue(true);
         s.game.enableCrouchShield.setValue(true);
         s.game.enableManualShield.setValue(true);
+        s.game.slowerEnemies.setValue(true);
     }
     void applyPresetDeathwish() {
         auto& s = getSettings();
@@ -81,6 +82,7 @@ public:
         s.game.jumpStrikeCancel.setValue(true);
         s.game.enableCrouchShield.setValue(true);
         s.game.enableManualShield.setValue(true);
+        s.game.slowerEnemies.setValue(false);
     }
     void applyPresetVanillaPlus() {
         auto& s = getSettings();
@@ -115,6 +117,7 @@ public:
         s.game.jumpStrikeCancel.setValue(false);
         s.game.enableCrouchShield.setValue(true);
         s.game.enableManualShield.setValue(true);
+        s.game.slowerEnemies.setValue(true);
     }
     void applyPresetKamilight() {
         auto& s = getSettings();
@@ -152,6 +155,7 @@ public:
         s.game.progressiveCombos.setValue(true);
         s.game.enableCrouchShield.setValue(true);
         s.game.enableManualShield.setValue(true);
+        s.game.slowerEnemies.setValue(false);
     }
 
 protected:

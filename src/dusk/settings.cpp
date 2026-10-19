@@ -85,6 +85,7 @@ UserSettings g_userSettings = {
         .progressiveCombos {"game.progressiveCombos", false},
         .enableCrouchShield {"game.enableCrouchShield", false},
         .enableManualShield {"game.enableManualShield", false},
+        .slowerEnemies {"game.slowerEnemies", false},
 
         // Preferences
         .enableMirrorMode {"game.enableMirrorMode", false},
@@ -365,6 +366,7 @@ void registerSettings() {
     Register(g_userSettings.game.progressiveCombos);
     Register(g_userSettings.game.enableCrouchShield);
     Register(g_userSettings.game.enableManualShield);
+    Register(g_userSettings.game.slowerEnemies);
     Register(g_userSettings.game.enableMirrorMode);
     Register(g_userSettings.game.invertCameraXAxis);
     Register(g_userSettings.game.invertCameraYAxis);
