@@ -255,6 +255,9 @@ jobs:
       - name: Build bundled mods
         run: cmake --build --preset ${{matrix.preset}} --target dusklight_mods
 
+      - name: Remove randomizer mod
+        run: rm -f build/android-arm64/bundled_mods/randomizer.dusk
+
       - name: Build APK
         working-directory: platforms/android
         run: ./gradlew :app:assembleRelease --rerun-tasks
