@@ -127,6 +127,11 @@ constexpr std::array kLightSwordModes = {
     "Include Damage Boost",
 };
 
+constexpr std::array kTitleScreenBGM = {
+    "Courage",
+    "Kakariko Saved",
+};
+
 bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {
     if (backend == "auto") {
         outBackend = BACKEND_AUTO;
@@ -1688,6 +1693,38 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 "Makes the sword trail more prominent when swinging.");
         addOption("Suppress Button Prompts", getSettings().game.suppressButtonPrompts,
                 "Suppresses many button prompts that become redundant for experienced players.");
+        leftPane.register_control(
+            leftPane.add_select_button({
+                .key = "Title Screen BGM",
+                .getValue =
+                    [] {
+                        return kTitleScreenBGM[static_cast<u8>(getSettings().game.titleScreenBGM.getValue())];
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.titleScreenBGM.getValue() !=
+                               getSettings().game.titleScreenBGM.getDefaultValue();
+                    },
+            }),
+            rightPane, [](Pane& pane) {
+                for (int i = 0; i < kTitleScreenBGM.size(); i++) {
+                    pane.add_button({
+                            .text = kTitleScreenBGM[i],
+                            .isSelected =
+                                [i] {
+                                    return getSettings().game.titleScreenBGM.getValue() == static_cast<TitleScreenBGM>(i);
+                                },
+                        })
+                        .on_pressed([i] {
+                            mDoAud_seStartMenu(kSoundItemChange);
+                            getSettings().game.titleScreenBGM.setValue(static_cast<TitleScreenBGM>(i));
+                            config::save();
+                        });
+                }
+                pane.add_rml(
+                    "<br/>Change the title screen music.");
+            });
 
         leftPane.add_section("Other Shit (UI)");
         config_percent_select(leftPane, rightPane, getSettings().game.zItemScale,

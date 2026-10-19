@@ -94,6 +94,11 @@ enum class LightSwordMode : u8 {
     INCLUDE_DAMAGE = 2,
 };
 
+enum class TitleScreenBGM : u8 {
+    COURAGE = 0,
+    KAKARIKO_SAVED = 1,
+};
+
 namespace config {
 template <>
 struct ConfigEnumRange<BloomMode> {
@@ -281,6 +286,7 @@ struct UserSettings {
         ConfigVar<bool> shadowMidna;
         ConfigVar<bool> invisibleMidna;
         ConfigVar<LightSwordMode> alwaysLightSword;
+        ConfigVar<TitleScreenBGM> titleScreenBGM;
         ConfigVar<bool> swordTrail;
         ConfigVar<bool> suppressButtonPrompts;
         ConfigVar<float> midnaPositionX;
