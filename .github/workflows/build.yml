@@ -161,6 +161,15 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{matrix.preset}}
 
+      # drop the upstream randomizer mod from the bundle, then re-sign since
+      # removing files invalidates the bundle's ad-hoc signature
+      - name: Remove randomizer mod
+        if: matrix.platform == 'macos'
+        run: |
+          rm -rf build/install/Dusklight.app/Contents/Resources/mods/dev.twilitrealm.randomizer
+          codesign --force --sign - --entitlements platforms/macos/Dusklight.entitlements build/install/Dusklight.app
+          codesign --verify --deep --strict build/install/Dusklight.app
+
       - name: Package app bundle
         if: matrix.platform == 'macos'
         run: ditto -c -k --keepParent build/install/Dusklight.app build/install/Dusklight.app.zip
