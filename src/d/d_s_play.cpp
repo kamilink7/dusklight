@@ -148,8 +148,8 @@ void dScnPly_preLoad_HIO_c::genMessage(JORMContext* mctx) {
 
 s8 dScnPly_c::calcPauseTimer() {
 #if TARGET_PC
-    if (dusk::getSettings().game.noHitstop && !(dusk::getSettings().game.debugFlyCamLockEvents
-        || dusk::getSettings().game.debugFlyCam)) {
+    if (dusk::getSettings().game.noHitstop && !dusk::getSettings().game.debugFlyCamLockEvents
+    && !dusk::getSettings().game.debugFlyCam) {
 
         pauseTimer = 0;
         nextPauseTimer = 0;
