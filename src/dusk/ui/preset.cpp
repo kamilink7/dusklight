@@ -89,10 +89,12 @@ void applyPresetKamilinkInit() {
     s.game.bowMultiplier.setValue(100);
     s.game.wolfMultiplier.setValue(50);
     s.game.damageMultiplier.setValue(2);
-    s.game.noHeartDrops.setValue(true);
+    s.game.noHeartDrops.setValue(false);
+    s.game.heartDropRate.setValue(0);
     s.game.noArrowDrops.setValue(false);
     s.game.noRupeeDrops.setValue(false);
-    s.game.halfMyShitIsGone.setValue(true);
+    s.game.halfMyShitIsGone.setValue(false);
+    s.game.quarterDeathTax.setValue(true);
     s.game.insulatedZoraArmor.setValue(true);
     s.game.sturdierWolfLink.setValue(true);
     s.game.progressiveDefense.setValue(true);
@@ -109,11 +111,10 @@ void applyPresetKamilinkInit() {
     s.game.armorRupeeDrain.setValue(MagicArmorMode::ON_DAMAGE);
     s.game.combinedParry.setValue(true);
     s.game.suppressButtonPrompts.setValue(true);
-    s.game.noRupeeDrops.setValue(false);
-    s.game.noArrowDrops.setValue(false);
     s.game.noWolfJumpMeter.setValue(false);
     s.game.noMidnaChargeMeter.setValue(false);
     s.game.dodgeCancel.setValue(true);
+    s.game.jumpStrikeCancel.setValue(true);
     s.game.progressiveCombos.setValue(true);
     s.game.enableCrouchShield.setValue(true);
     s.game.enableManualShield.setValue(true);
@@ -152,7 +153,7 @@ PresetWindow::PresetWindow() : WindowSmall("modal") {
          applyPresetDusk},
         {"Lazy Tweaks",
             "Experience most of what Lazy Tweaks has to offer. "
-            "Kamilink's 'definitive' difficulty.",
+            "Enables the 'intended' difficulty for LT's complete combat overhaul.",
             applyPresetKamilinkInit},
     };
 

@@ -1378,6 +1378,15 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 pane.clear();
                 pane.add_text("The intended difficulty of Lazy Tweaks' complete combat rebalance. Experience a smoother introduction to the combat before difficulty eventually ramps in the second half of the game.");
             });
+        leftPane.register_control(leftPane.add_button("KAMILIGHT").on_pressed([this] {
+            mDoAud_seStartMenu(kSoundClick);
+            applyPresetKamilight();
+            config::save();
+        }),
+            rightPane, [](Pane& pane) {
+                pane.clear();
+                pane.add_text("Kamilink's 'definitive' difficulty. For those who want to sweat a little.");
+            });
         leftPane.register_control(leftPane.add_button("VANILLA PLUS").on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
             applyPresetVanillaPlus();
@@ -1472,7 +1481,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         config_bool_select(leftPane, rightPane, getSettings().game.progressiveDefense,
             {
-                .key = "Progressive Damage Multiplier",
+                .key = "Progressive Damage Received Multiplier",
                 .helpText = "Automatically applies a smoother difficulty curve by placing an additional 2x damage multiplier to the existing value halfway through the game (2x becomes 4x, 4x becomes 6x, etc.).",
             });
         config_bool_select(leftPane, rightPane, getSettings().game.insulatedZoraArmor,
