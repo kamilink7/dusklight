@@ -11730,12 +11730,12 @@ int daAlink_c::checkNormalAction() {
                 return checkDoCutAction();
             }
         } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_HELM_SPLITTER) {
-            if (checkWolf() && mSkillCooldown <= 0) {
+            if (checkWolf() && mSkillCooldown <= 150) {
                 return procWolfJumpAttackInit(1);
             } else if (mSkillCooldown <= 150) {
                 return checkDoCutAction();
             }
-        } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_UNK_139 && mSkillCooldown <= 0) {
+        } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_UNK_139 && mSkillCooldown <= 150) {
             return procWolfJumpAttackInit(1);
         } else if (dComIfGp_getDoStatus() == BUTTON_STATUS_DRAW) {
             changeCutFast();
