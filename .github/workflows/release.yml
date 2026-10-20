@@ -74,7 +74,7 @@ jobs:
               *-android-*)
                 for f in "$dir"*.apk; do cp "$f" "release/$name.apk"; done ;;
               *-ios-*)
-                echo "Skipping $name" ;;
+                cp "$dir"Dusklight.ipa "release/$name.zip" ;;
               *)
                 echo "::warning::Unrecognized artifact $name" ;;
             esac
