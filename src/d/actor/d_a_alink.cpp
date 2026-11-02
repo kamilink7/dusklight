@@ -6,9 +6,6 @@
 #include "d/dolzel.h" // IWYU pragma: keep
 
 #include "d/actor/d_a_alink.h"
-
-#include <linux/input-event-codes.h>
-
 #include "JSystem/J2DGraph/J2DAnmLoader.h"
 #include "JSystem/J3DGraphBase/J3DMaterial.h"
 #include "JSystem/J3DGraphLoader/J3DAnmLoader.h"
@@ -18324,17 +18321,6 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
-        // Set "dodge" prompt on Z
-        if (!mIsWolfDodge && checkNowWolf()) {
-            fopAc_ac_c* zhint = dComIfGp_att_getZHint();
-            if (zhint != NULL) {
-                setMidnaTalkStatus(BUTTON_STATUS_CHECK);
-            }
-            else {
-                dComIfGp_setZStatus(BUTTON_STATUS_DODGE, 1);
-            }
-            mCanWolfDodge = true;
-        }
         // Wolf Z-dodge handling
         if (!mIsWolfDodge && checkNowWolf() && !checkGrabAnime() && !checkUpperReadyThrowAnime()
             && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && !getWallGrabStatus()
