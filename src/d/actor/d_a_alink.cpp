@@ -18321,16 +18321,16 @@ int daAlink_c::execute() {
             mDodgeTimer = 0;
         }
 
-        // Wolf Z-dodge handling
+        // Wolf R-dodge handling
         if (!mIsWolfDodge && checkNowWolf() && !checkGrabAnime() && !checkUpperReadyThrowAnime()
             && !wallGrabTrigger() && !checkFmChainGrabAnime() && !checkEventRun() && !getWallGrabStatus()
-            && mDoCPd_c::getTrigZ(PAD_1)) {
+            && (mDoCPd_c::getHoldR(PAD_1) || mDoCPd_c::getTrigR(PAD_1)) && mDoCPd_c::getTrigA(PAD_1)) {
             procWolfBackJumpInit(1);
             mDodgeTimer = 15;
             mWaitThisLong = 30;
             mIsWolfDodge = true;
         }
-        // Wolf Z-dodge followup attack
+        // Wolf R-dodge followup attack
         if (mIsWolfDodge && mDoCPd_c::getTrigB(PAD_1)) {
             resetUpperAnime(UPPER_2, 3.0f);
             procWolfWaitAttackInit(2);
