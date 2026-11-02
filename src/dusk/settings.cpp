@@ -91,9 +91,6 @@ UserSettings g_userSettings = {
         .enableMirrorMode {"game.enableMirrorMode", false},
         .minimalHUD {"game.minimalHUD", false},
         .hudScale {"game.hudScale", 1.0f},
-        .zItemScale {"game.zItemScale", 1.0f},
-        .hideZButtonAmmo {"game.hideZButtonAmmo", false},
-        .hideMidnaIcon {"game.hideMidnaIcon", false},
         .pauseOnFocusLost {"game.pauseOnFocusLost", false},
         .enableLinkDollRotation {"game.enableLinkDollRotation", false},
         .enableAchievementToasts {"game.enableAchievementToasts", true},
@@ -106,8 +103,6 @@ UserSettings g_userSettings = {
         .alwaysLightSword {"game.alwaysLightSword", LightSwordMode::OFF},
         .swordTrail {"game.swordTrail", false},
         .suppressButtonPrompts {"game.suppressButtonPrompts", false},
-        .midnaPositionX {"game.midnaPositionX", 0.0f},
-        .midnaPositionY {"game.midnaPositionY", 0.0f},
         .skillMeterXPos {"game.skillMeterXPos", 0.0f},
         .skillMeterYPos {"game.skillMeterYPos", 0.0f},
 
@@ -380,9 +375,6 @@ void registerSettings() {
     Register(g_userSettings.game.touchCameraYSensitivity);
     Register(g_userSettings.game.minimalHUD);
     Register(g_userSettings.game.hudScale);
-    Register(g_userSettings.game.zItemScale);
-    Register(g_userSettings.game.hideZButtonAmmo);
-    Register(g_userSettings.game.hideMidnaIcon);
     Register(g_userSettings.game.pauseOnFocusLost,
         [](const bool& value, const bool&) { aurora_set_pause_on_focus_lost(value); });
     Register(g_userSettings.game.enableDiscordPresence);
@@ -477,8 +469,6 @@ void registerSettings() {
     Register(g_userSettings.game.alwaysLightSword);
     Register(g_userSettings.game.swordTrail);
     Register(g_userSettings.game.suppressButtonPrompts);
-    Register(g_userSettings.game.midnaPositionX);
-    Register(g_userSettings.game.midnaPositionY);
     Register(g_userSettings.game.skillMeterXPos);
     Register(g_userSettings.game.skillMeterYPos);
 

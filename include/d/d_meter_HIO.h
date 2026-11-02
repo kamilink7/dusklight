@@ -698,24 +698,24 @@ public:
     /* 0x1C0 */ f32 mButtonYItemPosX;
     /* 0x1C4 */ f32 mButtonYItemPosY;
     /* 0x1C8 */ f32 mButtonYItemScale;
-    /* 0x1CC */ f32 mButtonZItemPosX; // These three fields actually control mButtonZItemScale
-    /* 0x1D0 */ f32 mButtonZItemPosY; // Renamed for clarity
-    /* 0x1D4 */ f32 mButtonZItemScale;
-    /* 0x1D8 */ f32 field_0x1d8; // These are just...misnamed?
-    /* 0x1DC */ f32 field_0x1dc; // ^ actually probably a holdover from Wind Waker
-    /* 0x1E0 */ f32 field_0x1e0;
+    /* 0x1CC */ f32 field_0x1cc;
+    /* 0x1D0 */ f32 field_0x1d0;
+    /* 0x1D4 */ f32 field_0x1d4;
+    /* 0x1D8 */ f32 mButtonZItemPosX;
+    /* 0x1DC */ f32 mButtonZItemPosY;
+    /* 0x1E0 */ f32 mButtonZItemScale;
     /* 0x1E4 */ f32 mButtonItemRotation[3];
     /* 0x1F0 */ f32 mXItemNumPosX;
     /* 0x1F4 */ f32 mYItemNumPosX;
-    /* 0x1F8 */ f32 mZItemNumPosX;
+    /* 0x1F8 */ f32 field_0x1f8;
     /* 0x1FC */ f32 mItemBNumPosX;
     /* 0x200 */ f32 mXItemNumPosY;
     /* 0x204 */ f32 mYItemNumPosY;
-    /* 0x208 */ f32 mZItemNumPosY;
+    /* 0x208 */ f32 field_0x208;
     /* 0x20C */ f32 mItemBNumPosY;
     /* 0x210 */ f32 mXItemNumScale;
     /* 0x214 */ f32 mYItemNumScale;
-    /* 0x218 */ f32 mZItemNumScale;
+    /* 0x218 */ f32 field_0x218;
     /* 0x21C */ f32 mItemBNumScale;
     /* 0x220 */ f32 mItemBBaseScale[2];
     /* 0x228 */ f32 mItemBBasePosX[2];
@@ -736,13 +736,10 @@ public:
     /* 0x290 */ f32 field_0x290;
     /* 0x294 */ f32 field_0x294;
     /* 0x298 */ f32 field_0x298[2];
-    // Element 0 stays at its upstream offset so prebuilt code mods reading these as scalars
-    // still see the live value; element 1 is at the end of the class. Access via the
-    // mButtonZItemBase*(i) accessors below.
-    /* 0x2A0 */ f32 mButtonZItemBaseScale0_;
-    /* 0x2A4 */ f32 mButtonZItemBasePosX0_;
-    /* 0x2A8 */ f32 mButtonZItemBasePosY0_;
-    /* 0x2AC */ f32 mButtonZItemBaseAlpha0_;
+    /* 0x2A0 */ f32 mButtonZItemBaseScale;
+    /* 0x2A4 */ f32 mButtonZItemBasePosX;
+    /* 0x2A8 */ f32 mButtonZItemBasePosY;
+    /* 0x2AC */ f32 mButtonZItemBaseAlpha;
     /* 0x2B0 */ f32 mButtonBaseAlpha;
     /* 0x2B4 */ f32 mButtonATextScale;
     /* 0x2B8 */ f32 mButtonATextPosX;
@@ -949,27 +946,7 @@ public:
     /* 0xA90 */ dMeter_drawMiniGameHIO_c mMiniGame;
     /* 0xC20 */ dMeter_drawEmpButtonHIO_c mEmpButton;
     /* 0xE7C */ dMeter_drawLightDropHIO_c mLightDrop;
-
-    // Second element of the Z item-base tunables, appended so the upstream layout is unchanged.
-    f32 mButtonZItemBaseScale1_;
-    f32 mButtonZItemBasePosX1_;
-    f32 mButtonZItemBasePosY1_;
-    f32 mButtonZItemBaseAlpha1_;
-
-public:
-    f32& mButtonZItemBaseScale(int i) {
-        return i == 0 ? mButtonZItemBaseScale0_ : mButtonZItemBaseScale1_;
-    }
-    f32& mButtonZItemBasePosX(int i) {
-        return i == 0 ? mButtonZItemBasePosX0_ : mButtonZItemBasePosX1_;
-    }
-    f32& mButtonZItemBasePosY(int i) {
-        return i == 0 ? mButtonZItemBasePosY0_ : mButtonZItemBasePosY1_;
-    }
-    f32& mButtonZItemBaseAlpha(int i) {
-        return i == 0 ? mButtonZItemBaseAlpha0_ : mButtonZItemBaseAlpha1_;
-    }
-};  // Size = 0xF28 plus appended Z tunables
+};  // Size = 0xF28
 
 STATIC_ASSERT(sizeof(dMeter_drawHIO_c) == 3880);
 

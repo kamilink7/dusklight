@@ -51,7 +51,6 @@ This was mainly a fun side project for me as someone who is pretty new to C++ an
 ## Quality of Life
 - Auto update checker, like the main Dusklight branch; takes you to latest Github release.
 - Independent data directory from main Dusklight install.
-- Assign items to the **Z button** from the item wheel. Compatible with Twilit Essential's Quick Select feature and Olivia!!!'s Extra Items mod!
 - Faster bottle drinking, faster swimming/swim dashing with and without Zora armor.
 - **Suppress Button Prompts**: hide prompts that experienced players don't need.
 - **Easy Quick Spin** cheat (Cheats tab) now uses R + Left/Right.
@@ -65,11 +64,10 @@ This was mainly a fun side project for me as someone who is pretty new to C++ an
 - **No Battle Music** and **Mute All Music** options.
 
 ## HUD stuff for mod compatibility
-- **Z-Item Scale**, **Hide Z Button Ammo**, and **Hide Midna Icon**.
-- Move the **Midna icon** and **Skill Meter** anywhere on screen.
+- Move the **Skill Meter** anywhere on screen.
 
 ## On mod compatibility
-Mod compatibility with big mods is always going to be finnicky at times, even on vanilla Dusklight. However, most mods are compatible out of the box! For those big mods that touch a lot of things (Twilit Essentials, Dawnlight, A Link Between Twilight, etc.), be sure to configure their settings so as to not conflict with existing Lazy Tweaks features. The big one is Z-items, which Lazy Tweaks already comes with natively. Disable it and any other potentially conflicting features and you should be good. I personally use Twilit Essentials and have had an incredibly smooth experience (thanks to Fimmel).
+Mod compatibility with big mods is always going to be finnicky at times, even on vanilla Dusklight. However, most mods are compatible out of the box! For those big mods that touch a lot of things (Twilit Essentials, Dawnlight, A Link Between Twilight, etc.), be sure to configure their settings so as to not conflict with existing Lazy Tweaks features. Disable any potentially conflicting features and you should be good. I personally use Twilit Essentials and have had an incredibly smooth experience (thanks to Fimmel).
 
 ## INSTRUCTIONS:
 Windows: extract into its own folder and launch. Uses its own data directory at %AppData%\Kamilink\LazyTweaks by default. You can port over your existing Dusklight settings by just copy and pasting the contents of %AppData%\TwilitRealm\Dusklight to the new directory.

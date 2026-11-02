@@ -1690,68 +1690,6 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 "Suppresses many button prompts that become redundant for experienced players.");
 
         leftPane.add_section("Other Shit (UI)");
-        config_percent_select(leftPane, rightPane, getSettings().game.zItemScale,
-            "Z-Item Scale",
-            "Scales the size of item icons on Z. Re-equip item or reload area after changing.",
-            50, 200, 5);
-        config_bool_select(leftPane, rightPane, getSettings().game.hideZButtonAmmo,
-            {
-                .key = "Hide Z Button Ammo",
-                .helpText = "Hides the ammo counter on Z-button items, for compatibility with mods that make HUD alterations. Re-equip item or reload area after changing.",
-            });
-        config_bool_select(leftPane, rightPane, getSettings().game.hideMidnaIcon,
-            {
-                .key = "Hide Midna Icon",
-                .helpText = "Hides the Midna icon. She will be sad (also might break quick transform).",
-            });
-        leftPane.register_control(
-            leftPane.add_child<NumberButton>(NumberButton::Props{
-                .key = "Midna Position X",
-                .getValue = [] { return getSettings().game.midnaPositionX.getValue(); },
-                .setValue =
-                    [](int value) {
-                        getSettings().game.midnaPositionX.setValue(value);
-                        config::save();
-                    },
-                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
-                .isModified =
-                    [] {
-                        return getSettings().game.midnaPositionX.getValue() !=
-                               getSettings().game.midnaPositionX.getDefaultValue();
-                    },
-                .min = -900,
-                .max = 100,
-                .step = 1,
-                .suffix = " ",
-            }),
-            rightPane, [](Pane& pane) {
-                pane.clear();
-                pane.add_text("Offsets the Midna icon horizontally.");
-            });
-        leftPane.register_control(
-            leftPane.add_child<NumberButton>(NumberButton::Props{
-                .key = "Midna Position Y",
-                .getValue = [] { return getSettings().game.midnaPositionY.getValue(); },
-                .setValue =
-                    [](int value) {
-                        getSettings().game.midnaPositionY.setValue(value);
-                        config::save();
-                    },
-                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
-                .isModified =
-                    [] {
-                        return getSettings().game.midnaPositionY.getValue() !=
-                               getSettings().game.midnaPositionY.getDefaultValue();
-                    },
-                .min = -450,
-                .max = 450,
-                .step = 1,
-                .suffix = " ",
-            }),
-            rightPane, [](Pane& pane) {
-                pane.clear();
-                pane.add_text("Offsets the Midna icon vertically.");
-            });
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
                 .key = "Skill Meter Offset X",

@@ -268,9 +268,6 @@ struct UserSettings {
         ConfigVar<bool> enableMirrorMode;
         ConfigVar<bool> minimalHUD;
         ConfigVar<float> hudScale;
-        ConfigVar<float> zItemScale;
-        ConfigVar<bool> hideZButtonAmmo;
-        ConfigVar<bool> hideMidnaIcon;
         ConfigVar<bool> pauseOnFocusLost;
         ConfigVar<bool> enableLinkDollRotation;
         ConfigVar<bool> enableAchievementToasts;
@@ -283,8 +280,6 @@ struct UserSettings {
         ConfigVar<LightSwordMode> alwaysLightSword;
         ConfigVar<bool> swordTrail;
         ConfigVar<bool> suppressButtonPrompts;
-        ConfigVar<float> midnaPositionX;
-        ConfigVar<float> midnaPositionY;
         ConfigVar<float> skillMeterXPos;
         ConfigVar<float> skillMeterYPos;
 

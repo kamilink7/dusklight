@@ -39,9 +39,6 @@ public:
         /* 0x1 */ X_STATUS,
         /* 0x2 */ Y_ITEM,
         /* 0x3 */ Y_STATUS,
-        /* 0x4 */ Z_ITEM,
-        /* 0x5 */ Z_STATUS,
-
     };
 
     int _create();
@@ -171,16 +168,14 @@ public:
     /* 0x1CF */ u8 mNunZStatus;
     /* 0x1D0 */ u8 mNunCStatus;
     /* 0x1D1 */ u8 mBottleStatus;
-    /* 0x1D2 */ u8 mItemStatusAbi_[4];   // see mItemStatus at the end of the class
-    /* 0x1D6 */ u8 field_0x1d6Abi_[2];   // see field_0x1d6 at the end of the class
-    /* 0x1D8 */ u8 field_0x1d8Abi_[2];   // see field_0x1d8 at the end of the class
+    /* 0x1D2 */ u8 mItemStatus[4];
+    /* 0x1D6 */ u8 field_0x1d6[2];
+    /* 0x1D8 */ u8 field_0x1d8[2];
     /* 0x1DA */ u8 mArrowNum;
     /* 0x1DB */ u8 mPachinkoNum;
     /* 0x1DC */ u8 mDoSetFlag;
     /* 0x1DD */ u8 mASetFlag;
     /* 0x1DE */ u8 mRSetFlag;
-    // X and Y are adjacent as upstream; Z is at the end of the class, so reach all three
-    // through setFlag(i) rather than indexing off &mXSetFlag.
     /* 0x1DF */ u8 mXSetFlag;
     /* 0x1E0 */ u8 mYSetFlag;
     /* 0x1E1 */ u8 field_0x1e1;
@@ -272,18 +267,14 @@ public:
     /* 0x348 */ f32 field_0x348;
     /* 0x34C */ f32 field_0x34c;
     /* 0x350 */ f32 field_0x350;
-    /* 0x354 */ f32 field_0x354;
-    /* 0x358 */ f32 field_0x358;
-    /* 0x35C */ f32 field_0x35c;
+    /* 0x354 */ u8 field_0x354[0x360 - 0x354];
     /* 0x360 */ f32 field_0x360;
     /* 0x364 */ f32 field_0x364;
     /* 0x368 */ f32 field_0x368;
     /* 0x36C */ f32 field_0x36c;
     /* 0x370 */ f32 field_0x370;
     /* 0x374 */ f32 field_0x374;
-    /* 0x378 */ f32 field_0x378;
-    /* 0x37C */ f32 field_0x37c;
-    /* 0x380 */ f32 field_0x380;
+    /* 0x378 */ u8 field_0x378[0x384 - 0x378];
     /* 0x384 */ f32 field_0x384;
     /* 0x388 */ f32 field_0x388;
     /* 0x38C */ f32 field_0x38c;
@@ -294,9 +285,7 @@ public:
     /* 0x3B4 */ f32 field_0x3b4[2];
     /* 0x3BC */ f32 field_0x3bc[2];
     /* 0x3C4 */ f32 field_0x3c4[2];
-    /* 0x3CC */ f32 field_0x3cc[2];
-    /* 0x3D4 */ f32 field_0x3d4[2];
-    /* 0x3DC */ f32 field_0x3dc[2];
+    /* 0x3CC */ u8 field_0x3cc[0x3e4 - 0x3CC];
     /* 0x3E4 */ f32 field_0x3e4;
     /* 0x3E8 */ f32 field_0x3e8;
     /* 0x3EC */ f32 field_0x3ec;
@@ -329,21 +318,6 @@ public:
         bool ready;
     } mPresentationTargets;
 #endif
-
-    /* Z-slot storage appended past the end of the upstream layout.
-     *
-     * dMeter2_c is reachable from prebuilt code mods, so its field offsets are ABI. Each
-     * widened array keeps an upstream-sized placeholder (the *Abi_ members) at its original
-     * offset and its real storage lives here; names are unchanged, so call sites are too.
-     * See d_meter2_draw.h for the full rationale.
-     */
-    u8 mItemStatus[6];
-    u8 field_0x1d6[3];
-    u8 field_0x1d8[3];
-    u8 mZSetFlag;
-
-public:
-    u8& setFlag(int i) { return i == 0 ? mXSetFlag : i == 1 ? mYSetFlag : mZSetFlag; }
 };
 
 #endif /* D_METER_D_METER2_H */

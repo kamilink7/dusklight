@@ -113,10 +113,7 @@ public:
                                                   // and cursor is on combinable item
     /* 0x1DC */ J2DTextBox* mpBowArrowComboString[5];  // Displays "Bow & Arrow Combo" if bow is
                                                        // equipped and cursor is on combinable item
-    // Layers 0 and 1 keep their upstream addresses and hold the live buffers, because .dusk
-    // code mods read them here; only the third layer moves to the end of the class.
-    // Access through mpSelectItemTexBuf(a, b, c).
-    /* 0x1F0 */ ResTIMG* mpSelectItemTexBuf_[4][3][2];
+    /* 0x1F0 */ ResTIMG* mpSelectItemTexBuf[4][3][2];
     /* 0x250 */ ResTIMG* mpItemBuf[MAX_ITEM_SLOTS][3];
     /* 0x370 */ dMenu_ItemExplain_c* mpItemExplain;
     /* 0x374 */ void*
@@ -181,7 +178,7 @@ public:
     /* 0x6A9 */ u8 field_0x6a9;  // unused
     /* 0x6AA */ u8 mXButtonSlot;
     /* 0x6AB */ u8 mYButtonSlot;
-    /* 0x6AC */ u8 field_0x6ac; // This is mZButtonSlot, refactoring back to OG name for now
+    /* 0x6AC */ u8 field_0x6ac;
     /* 0x6AD */ u8 field_0x6ad;
     /* 0x6AE */ u8 mItemsTotal;  // Contains the amount of items which are actually obtained and in
                                  // the item wheel
@@ -215,13 +212,6 @@ public:
     /* 0x6D3 */ u8 field_0x6d3;
 #if TARGET_PC
     bool mPointerTouchPressHoveredCurrent;
-
-    ResTIMG* mpSelectItemTexBufZ_[4][3];  // third layer; see mpSelectItemTexBuf_ above
-
-public:
-    ResTIMG*& mpSelectItemTexBuf(int a, int b, int c) {
-        return c < 2 ? mpSelectItemTexBuf_[a][b][c] : mpSelectItemTexBufZ_[a][b];
-    }
 #endif
 };
 

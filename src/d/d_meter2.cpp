@@ -77,7 +77,7 @@ int dMeter2_c::_create() {
         mBombNum[i] = dComIfGs_getBombNum(i);
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         mItemMaxNum[i] = dComIfGs_getSelectItemIndex(i);
     }
 
@@ -162,22 +162,19 @@ int dMeter2_c::_create() {
     mRSetFlag = dComIfGp_isRSetFlag(2);
     mXSetFlag = dComIfGp_isXSetFlag(2);
     mYSetFlag = dComIfGp_isYSetFlag(2);
-    mZSetFlag = dComIfGp_isZSetFlag(2);
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         dComIfGp_setSelectItem(i);
     }
 
     mItemStatus[X_ITEM] = dComIfGp_getSelectItem(0);
     mItemStatus[Y_ITEM] = dComIfGp_getSelectItem(1);
-    mItemStatus[Z_ITEM] = dComIfGp_getSelectItem(2);
     mItemStatus[X_STATUS] = dComIfGp_getXStatus();
     mItemStatus[Y_STATUS] = dComIfGp_getYStatus();
-    mItemStatus[Z_STATUS] = dComIfGp_getZStatus();
     field_0x188 = 0.0f;
     field_0x18c = 0.0f;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         field_0x1d6[i] = dMeter2Info_isDirectUseItem(i);
         field_0x1d8[i] = dComIfGp_getSelectItemNum(i);
     }
@@ -210,7 +207,7 @@ int dMeter2_c::_create() {
     field_0x130 = mpMeterDraw->getNowLightDropRateCalc();
     mpHeap->getTotalFreeSize();
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (field_0x128 == 0) {
             if (mItemStatus[i * 2] == dItemNo_BOMB_BAG_LV1_e || mItemStatus[i * 2] == dItemNo_NORMAL_BOMB_e ||
                 mItemStatus[i * 2] == dItemNo_WATER_BOMB_e || mItemStatus[i * 2] == dItemNo_POKE_BOMB_e)
@@ -1762,7 +1759,6 @@ void dMeter2_c::moveButtonR() {
 void dMeter2_c::moveButtonZ() {
     bool draw_buttonZ = false;
 
-    /**
     if (field_0x324 != g_drawHIO.mButtonZScale) {
         field_0x324 = g_drawHIO.mButtonZScale;
         draw_buttonZ = true;
@@ -1793,18 +1789,18 @@ void dMeter2_c::moveButtonZ() {
         draw_buttonZ = true;
     }
 
-    if (field_0x3e4 != g_drawHIO.mButtonZItemBaseScale(1)) {
-        field_0x3e4 = g_drawHIO.mButtonZItemBaseScale(1);
+    if (field_0x3e4 != g_drawHIO.mButtonZItemBaseScale) {
+        field_0x3e4 = g_drawHIO.mButtonZItemBaseScale;
         draw_buttonZ = true;
     }
 
-    if (field_0x3e8 != g_drawHIO.mButtonZItemBasePosX(1)) {
-        field_0x3e8 = g_drawHIO.mButtonZItemBasePosX(1);
+    if (field_0x3e8 != g_drawHIO.mButtonZItemBasePosX) {
+        field_0x3e8 = g_drawHIO.mButtonZItemBasePosX;
         draw_buttonZ = true;
     }
 
-    if (field_0x3ec != g_drawHIO.mButtonZItemBasePosY(1)) {
-        field_0x3ec = g_drawHIO.mButtonZItemBasePosY(1);
+    if (field_0x3ec != g_drawHIO.mButtonZItemBasePosY) {
+        field_0x3ec = g_drawHIO.mButtonZItemBasePosY;
         draw_buttonZ = true;
     }
 
@@ -1822,7 +1818,6 @@ void dMeter2_c::moveButtonZ() {
         field_0x338 = g_drawHIO.mButtonZFontPosY;
         draw_buttonZ = true;
     }
-    Keeping these just commented in case I want to roll things back without fucking it up in git **/
 
     if (dComIfGp_getZStatusForce() != 0) {
         dComIfGp_setZStatus(dComIfGp_getZStatusForce(), dComIfGp_getZSetFlagForce());
@@ -1920,10 +1915,10 @@ void dMeter2_c::moveButtonS() {
 }
 
 void dMeter2_c::moveButtonXY() {
-    bool sp8[3];
-    bool spC[3];
+    bool sp8[2];
+    bool spC[2];
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         sp8[i] = 0;
         spC[i] = 0;
     }
@@ -1958,21 +1953,6 @@ void dMeter2_c::moveButtonXY() {
         sp8[1] = 1;
     }
 
-    if (field_0x354 != g_drawHIO.mButtonZScale) {
-        field_0x354 = g_drawHIO.mButtonZScale;
-        sp8[2] = 1;
-    }
-
-    if (field_0x358 != g_drawHIO.mButtonZPosX) {
-        field_0x358 = g_drawHIO.mButtonZPosX;
-        sp8[2] = 1;
-    }
-
-    if (field_0x35c != g_drawHIO.mButtonZPosY) {
-        field_0x35c = g_drawHIO.mButtonZPosY;
-        sp8[2] = 1;
-    }
-
     if (field_0x360 != g_drawHIO.mButtonXItemScale) {
         field_0x360 = g_drawHIO.mButtonXItemScale;
         sp8[0] = 1;
@@ -2001,21 +1981,6 @@ void dMeter2_c::moveButtonXY() {
     if (field_0x374 != g_drawHIO.mButtonYItemPosY) {
         field_0x374 = g_drawHIO.mButtonYItemPosY;
         sp8[1] = 1;
-    }
-
-    if (field_0x378 != g_drawHIO.mButtonZItemScale) {
-        field_0x378 = g_drawHIO.mButtonZItemScale;
-        sp8[2] = 1;
-    }
-
-    if (field_0x37c != g_drawHIO.mButtonZItemPosX) {
-        field_0x37c = g_drawHIO.mButtonZItemPosX;
-        sp8[2] = 1;
-    }
-
-    if (field_0x380 != g_drawHIO.mButtonZItemPosY) {
-        field_0x380 = g_drawHIO.mButtonZItemPosY;
-        sp8[2] = 1;
     }
 
     for (int i = 0; i < 2; i++) {
@@ -2048,27 +2013,12 @@ void dMeter2_c::moveButtonXY() {
             field_0x3c4[i] = g_drawHIO.mButtonYItemBasePosY[i];
             sp8[1] = 1;
         }
-
-        if (field_0x3cc[i] != g_drawHIO.mButtonZItemBaseScale(i)) {
-            field_0x3cc[i] = g_drawHIO.mButtonZItemBaseScale(i);
-            sp8[2] = 1;
-        }
-
-        if (field_0x3d4[i] != g_drawHIO.mButtonZItemBasePosX(i)) {
-            field_0x3d4[i] = g_drawHIO.mButtonZItemBasePosX(i);
-            sp8[2] = 1;
-        }
-
-        if (field_0x3dc[i] != g_drawHIO.mButtonZItemBasePosY(i)) {
-            field_0x3dc[i] = g_drawHIO.mButtonZItemBasePosY(i);
-            sp8[2] = 1;
-        }
     }
 
     if (g_drawHIO.mItemScaleAdjustON && field_0x4bd != g_drawHIO.mItemScalePercent) {
         field_0x4bd = g_drawHIO.mItemScalePercent;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             sp8[i] = 1;
         }
     }
@@ -2076,7 +2026,7 @@ void dMeter2_c::moveButtonXY() {
     if (field_0x3f0 != g_drawHIO.mButtonXYTextScale) {
         field_0x3f0 = g_drawHIO.mButtonXYTextScale;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             sp8[i] = 1;
         }
     }
@@ -2084,7 +2034,7 @@ void dMeter2_c::moveButtonXY() {
     if (field_0x3f4 != g_drawHIO.mButtonXYTextPosX) {
         field_0x3f4 = g_drawHIO.mButtonXYTextPosX;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             sp8[i] = 1;
         }
     }
@@ -2092,7 +2042,7 @@ void dMeter2_c::moveButtonXY() {
     if (field_0x3f8 != g_drawHIO.mButtonXYTextPosY) {
         field_0x3f8 = g_drawHIO.mButtonXYTextPosY;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             sp8[i] = 1;
         }
     }
@@ -2113,7 +2063,7 @@ void dMeter2_c::moveButtonXY() {
         }
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (field_0x128 != 0) {
             if (field_0x128 != field_0x12c) {
                 spC[i] = 1;
@@ -2137,8 +2087,8 @@ void dMeter2_c::moveButtonXY() {
                     sp8[i] = 1;
                 }
 
-                if (setFlag(i) != dComIfGp_isXSetFlag(2)) {
-                    setFlag(i) = dComIfGp_isXSetFlag(2);
+                if ((&mXSetFlag)[i] != dComIfGp_isXSetFlag(2)) {
+                    (&mXSetFlag)[i] = dComIfGp_isXSetFlag(2);
                     spC[i] = 1;
                     sp8[i] = 1;
                 }
@@ -2159,30 +2109,8 @@ void dMeter2_c::moveButtonXY() {
                     sp8[i] = 1;
                 }
 
-                if (setFlag(i) != dComIfGp_isYSetFlag(2)) {
-                    setFlag(i) = dComIfGp_isYSetFlag(2);
-                    spC[i] = 1;
-                    sp8[i] = 1;
-                }
-            } else if (i == 2) {
-                if (dComIfGp_getZStatusForce() != 0) {
-                    dComIfGp_setZStatus(dComIfGp_getZStatusForce(), dComIfGp_getZSetFlagForce());
-                    dComIfGp_setZStatusForce(0, 0);
-                }
-
-                if (mItemStatus[i * 2 + 1] != dComIfGp_getZStatus()) {
-                    mItemStatus[i * 2 + 1] = dComIfGp_getZStatus();
-
-                    if (mItemStatus[i * 2 + 1] == 0x2D || mItemStatus[i * 2 + 1] == 0x2E) {
-                        dComIfGp_setZStatus(mItemStatus[i * 2 + 1], 1);
-                    }
-
-                    spC[i] = 1;
-                    sp8[i] = 1;
-                }
-
-                if (setFlag(i) != dComIfGp_isZSetFlag(2)) {
-                    setFlag(i) = dComIfGp_isZSetFlag(2);
+                if ((&mXSetFlag)[i] != dComIfGp_isYSetFlag(2)) {
+                    (&mXSetFlag)[i] = dComIfGp_isYSetFlag(2);
                     spC[i] = 1;
                     sp8[i] = 1;
                 }
@@ -2484,7 +2412,7 @@ void dMeter2_c::move2DContents() {
             var_r19 = 1;
             var_r30 -= 1;
         }
-        /**
+
         if (mpMeterDraw->isEmphasisZ() && var_r30 != 0 && mpEmpButton->isSetButton(3)) {
             if (mZStatus == 8) {
                 mpEmpButton->setString(mpMeterDraw->getActionString(100, 0, NULL), 3, 2 - var_r30,
@@ -2497,7 +2425,7 @@ void dMeter2_c::move2DContents() {
             var_r28 = 1;
             var_r30 -= 1;
         }
-        **/
+
         if (mpMeterDraw->isEmphasisR() && var_r30 != 0 && mpEmpButton->isSetButton(2)) {
             mpEmpButton->setString(mpMeterDraw->getActionString(mRStatus, 0, NULL), 2, 2 - var_r30,
                                    0);
@@ -2709,7 +2637,7 @@ void dMeter2_c::moveBombNum() {
 
                 if (var_r22 == 0) {
                     if (temp_r31 == dItemNo_BOMB_ARROW_e) {
-                        for (int j = 0; j < 3; j++) {
+                        for (int j = 0; j < 2; j++) {
                             if (i + SLOT_15 == dComIfGs_getSelectItemIndex(j) ||
                                 i + SLOT_15 == dComIfGs_getMixItemIndex(j))
                             {
@@ -2722,7 +2650,7 @@ void dMeter2_c::moveBombNum() {
                     dComIfGs_setItem(i + SLOT_15, dItemNo_BOMB_BAG_LV1_e);
                     dComIfGp_setItem(i + SLOT_15, dItemNo_BOMB_BAG_LV1_e);
 
-                    for (int j = 0; j < 3; j++) {
+                    for (int j = 0; j < 2; j++) {
                         if (i + SLOT_15 == dComIfGs_getSelectMixItemNoArrowIndex(j)) {
                             dComIfGp_setSelectItem(j);
                         }
@@ -2733,7 +2661,7 @@ void dMeter2_c::moveBombNum() {
                 mBombMax[i] = dComIfGs_getBombMax(temp_r28);
 
                 if (temp_r31 != dItemNo_BOMB_ARROW_e) {
-                    for (int j = 0; j < 3; j++) {
+                    for (int j = 0; j < 2; j++) {
                         if (i + SLOT_15 == dComIfGs_getSelectMixItemNoArrowIndex(j)) {
                             mpMeterDraw->setItemNum(j, dComIfGp_getSelectItemNum(j),
                                                     dComIfGp_getSelectItemMaxNum(j));
@@ -2756,7 +2684,7 @@ void dMeter2_c::moveBombNum() {
         }
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (mItemMaxNum[i] != dComIfGs_getSelectItemIndex(i)) {
             for (int j = 0; j < 3; j++) {
                 if (j + SLOT_15 == dComIfGs_getSelectItemIndex(i)) {
@@ -2774,7 +2702,7 @@ void dMeter2_c::moveBottleNum() {
     for (int i = 0; i < 4; i++) {
         if (dComIfGs_getItem((u8)(i + SLOT_11), true) == dItemNo_BEE_CHILD_e) {
             if (mBottleNum[i] != dComIfGs_getBottleNum(i)) {
-                for (int j = 0; j < 3; j++) {
+                for (int j = 0; j < 2; j++) {
                     if (i + SLOT_11 == dComIfGs_getSelectItemIndex(j)) {
                         mpMeterDraw->setItemNum(j, dComIfGp_getSelectItemNum(j),
                                                 dComIfGp_getSelectItemMaxNum(j));
@@ -2846,7 +2774,7 @@ void dMeter2_c::moveArrowNum() {
 
         i = 0;
         var_r28 = 0;
-        for (; i < 3; i++, var_r28 += 2) {
+        for (; i < 2; i++, var_r28 += 2) {
             if (mItemStatus[var_r28] == dItemNo_BOW_e || mItemStatus[var_r28] == dItemNo_LIGHT_ARROW_e ||
                 mItemStatus[var_r28] == dItemNo_ARROW_LV1_e || mItemStatus[var_r28] == dItemNo_ARROW_LV2_e ||
                 mItemStatus[var_r28] == dItemNo_ARROW_LV3_e || mItemStatus[var_r28] == dItemNo_HAWK_ARROW_e)
@@ -2927,7 +2855,7 @@ void dMeter2_c::movePachinkoNum() {
         mPachinkoNum--;
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (mItemStatus[i * 2] == dItemNo_PACHINKO_e) {
             mpMeterDraw->setItemNum(i, mPachinkoNum, dComIfGs_getPachinkoMax());
         }
@@ -3119,7 +3047,7 @@ void dMeter2_c::alphaAnimeButton() {
         mpMeterDraw->setButtonIconBAlpha(mAStatus, mStatus, field_0x128 == 0);
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         mpMeterDraw->setButtonIconAlpha(i, mItemStatus[i * 2], mStatus,
                                         field_0x128 == 0 ? true : false);
 
@@ -3248,7 +3176,7 @@ u8 dMeter2_c::isKeyVisible() {
 }
 
 int dMeter2_c::isArrowEquip() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (mItemStatus[i * 2] == dItemNo_BOW_e || mItemStatus[i * 2] == dItemNo_LIGHT_ARROW_e ||
             mItemStatus[i * 2] == dItemNo_ARROW_LV1_e || mItemStatus[i * 2] == dItemNo_ARROW_LV2_e ||
             mItemStatus[i * 2] == dItemNo_ARROW_LV3_e || mItemStatus[i * 2] == dItemNo_HAWK_ARROW_e ||
@@ -3261,7 +3189,7 @@ int dMeter2_c::isArrowEquip() {
 }
 
 int dMeter2_c::isPachinkoEquip() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if (mItemStatus[i * 2] == dItemNo_PACHINKO_e) {
             return i + 1;
         }

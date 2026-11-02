@@ -19,7 +19,7 @@ public:
         SELECT_X_e,
         SELECT_Y_e,
         SELECT_Z_e,
-        SELECT_MAX_e = 3,
+        SELECT_MAX_e = 2,
     };
 
     struct item_params {
@@ -182,10 +182,6 @@ public:
 
     bool lightDropRowUsed() const;
     void resetRows();
-
-    /* Fully-opaque target that getButtonZAlpha() eases toward; compare against this rather than
-       1.0f, since the Midna icon pane's initial alpha is what counts as "not dimmed". */
-    f32 getButtonZAlphaMax();
 #endif
 
     /* 0x004 */ item_params mItemParams[4];
@@ -193,12 +189,11 @@ public:
     /* 0x078 */ J2DScreen* mpScreen;
     /* 0x07C */ J2DScreen* mpKanteraScreen;
     /* 0x080 */ J2DScreen* mpPikariScreen;
-    /* 0x084 */ J2DPicture* mpItemNumTexAbi_[2][3];  // see mpItemNumTex at the end of the class
+    /* 0x084 */ J2DPicture* mpItemNumTex[2][3];
     /* 0x09C */ CPaneMgr* field_0x9c[3];
     /* 0x0A8 */ int field_0xa8;
-    // Grown to 3 by consuming the adjacent unreferenced field_0xb4[8], which is exactly one
-    // pointer on PC; mpParent and everything after it keep their upstream offsets.
-    /* 0x0AC */ dKantera_icon_c* mpKanteraMeter[3];
+    /* 0x0AC */ dKantera_icon_c* mpKanteraMeter[2];
+    /* 0x0B4 */ u8 field_0xb4[8];
     /* 0x0BC */ CPaneMgr* mpParent;
     /* 0x0C0 */ CPaneMgr* mpAText[5];
     /* 0x0D4 */ CPaneMgr* mpBText[5];
@@ -230,9 +225,7 @@ public:
     /* 0x318 */ CPaneMgr* mpLightB;
     /* 0x31C */ CPaneMgr* mpLightXY[3];
     /* 0x328 */ CPaneMgr* mpItemB;
-    // X and Y stay at their upstream addresses so prebuilt mods that read this array see the
-    // real panes; Z lives in mpItemXYZ_ at the end. Access through mpItemXY(i).
-    /* 0x32C */ CPaneMgr* mpItemXY_[2];
+    /* 0x32C */ CPaneMgr* mpItemXY[2];
     /* 0x334 */ CPaneMgr* mpItemR;
     /* 0x338 */ CPaneMgr* mpBTextA;
     /* 0x33C */ CPaneMgr* mpBTextB;
@@ -253,7 +246,7 @@ public:
     /* 0x4B8 */ CPaneMgrAlpha* mpUzu;
     /* 0x4BC */ u8 field_0x4bc[0x28];
     /* 0x4E4 */ ResTIMG* mpItemBTex[2][2];
-    /* 0x4F4 */ ResTIMG* mpItemXYTexAbi_[2][2][2];  // see mpItemXYTex at the end of the class
+    /* 0x4F4 */ ResTIMG* mpItemXYTex[2][2][2];
     /* 0x514 */ J2DPicture* mpItemBPane;
     /* 0x518 */ J2DPicture* mpItemXYPane[3];
     /* 0x524 */ int field_0x524[2][2];
@@ -338,13 +331,13 @@ public:
     /* 0x767 */ u8 field_0x767;
     /* 0x768 */ u8 field_0x768[3];
     /* 0x76B */ u8 field_0x76b;
-    // Grown to 3 by consuming the adjacent unreferenced field_0x76e.
-    /* 0x76C */ u8 field_0x76c[3];
+    /* 0x76C */ u8 field_0x76c[2];
+    /* 0x76E */ u8 field_0x76e;
     /* 0x76F */ u8 mButtonBItem;
     /* 0x770 */ u8 field_0x770;
     /* 0x771 */ u8 field_0x771;
     /* 0x772 */ u8 field_0x772;
-    /* 0x773 */ u8 field_0x773[3];
+    /* 0x773 */ u8 field_0x773[2];
     /* 0x778 */ f32 mParentScale;
     /* 0x77C */ f32 mParentAlpha;
     /* 0x780 */ f32 mButtonsPosX;
@@ -388,7 +381,7 @@ public:
     /* 0x81C */ f32 mButtonXItemBaseAlpha[2];
     /* 0x824 */ f32 mButtonYItemBaseAlpha[2];
     /* 0x82C */ f32 field_0x82c[2];
-    /* 0x834 */ f32 mButtonZItemBaseAlphaAbi_;  // see mButtonZItemBaseAlpha at the end
+    /* 0x834 */ f32 mButtonZItemBaseAlpha;
     /* 0x838 */ f32 mButtonBaseAlpha;
     /* 0x83C */ f32 mButtonATextSpacing;
     /* 0x840 */ f32 mButtonCrossAlpha;
@@ -403,29 +396,6 @@ public:
 #if TARGET_PC
     bool mExecuting;
 #endif
-
-    /* Z-slot storage appended past the end of the upstream layout.
-     *
-     * dMeter2Draw_c is handed to prebuilt code mods as a raw pointer, so its field offsets are
-     * ABI. Widening an array in place would move every later member and silently corrupt any
-     * mod compiled against upstream. Instead each widened array keeps an upstream-sized
-     * placeholder (the *Abi_ members) at its original offset and its real storage lives here,
-     * which only grows sizeof and moves nothing. Members below are named exactly as before, so
-     * existing call sites are unchanged.
-     *
-     * mpItemXY is the exception: mods do read it, so X and Y keep their upstream addresses in
-     * mpItemXY_ and only Z moves here. Reach it through mpItemXY(i).
-     */
-    J2DPicture* mpItemNumTex[3][3];
-    ResTIMG* mpItemXYTex[3][2][3];
-    f32 mButtonZItemBaseAlpha[2];
-    CPaneMgr* mpItemXYZ_;
-
-public:
-    CPaneMgr*& mpItemXY(int i) { return i < SELECT_Z_e ? mpItemXY_[i] : mpItemXYZ_; }
-    CPaneMgr* const& mpItemXY(int i) const {
-        return i < SELECT_Z_e ? mpItemXY_[i] : mpItemXYZ_;
-    }
 };
 
 #endif /* D_METER_D_METER2_DRAW_H */
