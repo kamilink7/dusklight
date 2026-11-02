@@ -6,6 +6,9 @@
 #include "d/dolzel.h" // IWYU pragma: keep
 
 #include "d/actor/d_a_alink.h"
+
+#include <linux/input-event-codes.h>
+
 #include "JSystem/J2DGraph/J2DAnmLoader.h"
 #include "JSystem/J3DGraphBase/J3DMaterial.h"
 #include "JSystem/J3DGraphLoader/J3DAnmLoader.h"
@@ -9391,8 +9394,7 @@ BOOL daAlink_c::midnaTalkTrigger() const {
         return dusk::getActionBindTrig(dusk::ActionBinds::CALL_MIDNA, 0);
     }
 #endif
-    // return mItemTrigger & BTN_Z;
-    return mDoCPd_c::getHoldA(PAD_1) && mDoCPd_c::getHoldZ(PAD_1);
+    return mItemTrigger & BTN_Z;
 }
 
 BOOL daAlink_c::swordSwingTrigger() {
