@@ -523,9 +523,7 @@ void Z2SeqMgr::bgmStreamPrepare(u32 bgmID) {
     }
 
     Z2GetSoundMgr()->startSound(bgmID, &mStreamBgmHandle, NULL);
-    if (mStreamBgmHandle) {
-        mStreamBgmHandle->lockWhenPrepared();
-    }
+    mStreamBgmHandle->lockWhenPrepared();
 
     switch (bgmID) {
 #if PLATFORM_GCN
