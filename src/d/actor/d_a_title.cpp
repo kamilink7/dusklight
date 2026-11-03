@@ -11,6 +11,7 @@
 #include "d/d_pane_class_alpha.h"
 #include "d/d_s_logo.h"
 #include "d/d_s_play.h"
+#include "dusk/game_mode.hpp"
 #include "f_op/f_op_msg_mng.h"
 #include "f_op/f_op_overlap_mng.h"
 #include "f_op/f_op_scene_mng.h"
@@ -68,15 +69,18 @@ static const u32 l_titleBgmID = 0x2000028;
 // Fixed title shot, captured with TITLE_CAM_CAPTURE (d_s_play.h)
 static const cXyz l_titleCamCenter(-24146.77f, 171.92f, -22204.51f);
 static const cXyz l_titleCamEye(-24131.27f, 160.66f, -22198.75f);
-static const f32 l_titleCamFovy = 50.0f;
+static const f32 l_titleCamFovy = 60.0f;
 
 static bool l_titleBgmStarted;
 
 static void titleScene_proc() {
     if (!l_titleBgmStarted) {
+        Z2GetSoundMgr()->getStreamMgr()->stop();
         Z2GetSeqMgr()->bgmStreamPrepare(l_titleBgmID);
         Z2GetSeqMgr()->bgmStreamPlay();
-        l_titleBgmStarted = true;
+        if (Z2GetSeqMgr()->mStreamBgmHandle) {
+            l_titleBgmStarted = true;
+        }
     }
 
     dCamera_c* camera = dCam_getBody();
@@ -210,7 +214,11 @@ int daTitle_c::Execute() {
     mDoGph_gInf_c::resetDimming();
 #endif
 
-    IF_DUSK(titleScene_proc());
+#if TARGET_PC
+    if (!dusk::gamemode::getGameModeManager().isCurrentGameMode("bossrush")) {
+        titleScene_proc();
+    }
+#endif
 
     if (fopOvlpM_IsPeek()) {
         return 1;
