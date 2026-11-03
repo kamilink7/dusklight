@@ -86,6 +86,19 @@ public:
     static DUSK_GAME_DATA s8 pauseTimer;
     static DUSK_GAME_DATA s8 nextPauseTimer;
 
+    #if TARGET_PC
+    // Set to 1 to leave Link, enemies and the camera free on the title screen and log
+    // the camera position every second, so a shot can be lined up and copied into
+    // d_a_title.cpp.
+    #define TITLE_CAM_CAPTURE 0
+
+    static bool isOpening() { return sIsOpening; }
+    static bool isOpeningHold() { return sIsOpening && !TITLE_CAM_CAPTURE; }
+
+    // Set while the title screen's play scene (fpcNm_OPENING_SCENE_e) is alive
+    static DUSK_GAME_DATA bool sIsOpening;
+    #endif
+
     #if DEBUG
     void onDebugPause() {
         debugPause = TRUE;

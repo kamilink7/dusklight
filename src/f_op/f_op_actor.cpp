@@ -326,6 +326,16 @@ static int fopAc_Execute(void* i_this) {
         s32 move = dComIfGp_event_moveApproval(actor);
         fopAcM_OffStatus(actor, fopAcStts_UNK_0x40000000_e);
 
+        #if TARGET_PC
+        // Hold Link and enemies on the title screen. They get one execute first so
+        // their models are posed before they freeze.
+        const bool titleHold = dScnPly_c::isOpeningHold() &&
+            (fopAcM_GetGroup(actor) == fopAc_PLAYER_e || fopAcM_GetGroup(actor) == fopAc_ENEMY_e);
+        if (titleHold && fopAcM_CheckCondition(actor, fopAcCnd_TITLE_FROZEN_e)) {
+            move = 0;
+        }
+        #endif
+
         if (!fopAcM_CheckStatus(actor, fopAcStts_UNK_0x20000000_e) &&
             (move == 2 ||
                 (move != 0 && !fopAcM_CheckStatus(actor, fopAc_ac_c::getStopStatus()) &&
@@ -342,6 +352,12 @@ static int fopAc_Execute(void* i_this) {
             ret = fpcMtd_Execute((process_method_class DUSK_CONST*)actor->sub_method, actor);
 
             #if DEBUG
+            }
+            #endif
+
+            #if TARGET_PC
+            if (titleHold) {
+                fopAcM_OnCondition(actor, fopAcCnd_TITLE_FROZEN_e);
             }
             #endif
         } else {

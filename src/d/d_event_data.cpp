@@ -610,6 +610,12 @@ void dEvDtStaff_c::specialProcMessage() {
             wk->l_msgId = d_GameOver_Create(wk->l_msgNo);
             break;
         case 'TELO':
+#if TARGET_PC
+            // If message object exists outside the play scene (in this case the title screen)
+            if (dComIfGp_getMsgObjectClass() == NULL) {
+                break;
+            }
+#endif
             idata = dComIfGp_evmng_getMyIntegerP(staffId, "ForStart");
 
             if (idata != NULL && *idata != 0) {

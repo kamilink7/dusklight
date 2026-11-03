@@ -101,6 +101,10 @@ DUSK_GAME_DATA s8 dScnPly_c::pauseTimer;
 
 DUSK_GAME_DATA s8 dScnPly_c::nextPauseTimer;
 
+#if TARGET_PC
+DUSK_GAME_DATA bool dScnPly_c::sIsOpening;
+#endif
+
 #if DEBUG
 u8 dScnPly_c::debugPause;
 #endif
@@ -865,6 +869,10 @@ static int dScnPly_Delete(dScnPly_c* i_this) {
     }
     #endif
 
+    #if TARGET_PC
+    dScnPly_c::sIsOpening = false;
+    #endif
+
     daSus_c::reset();
     dMpath_c::remove();
     dTres_c::remove();
@@ -1508,6 +1516,8 @@ static int phase_4(dScnPly_c* i_this) {
 #endif
     JUT_ASSERT(2709, heap2 != NULL);
     dComIfGp_setMsgExpHeap(heap2);
+
+    IF_DUSK(dScnPly_c::sIsOpening = fpcM_GetName(i_this) == fpcNm_OPENING_SCENE_e);
 
     if (fpcM_GetName(i_this) == fpcNm_OPENING_SCENE_e) {
         fopAcM_create(fpcNm_TITLE_e, 0, NULL, -1, NULL, NULL, -1);
