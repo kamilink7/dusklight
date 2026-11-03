@@ -223,7 +223,8 @@ int daTitle_c::Execute() {
 #endif
 
 #if TARGET_PC
-    if (!dusk::gamemode::getGameModeManager().isCurrentGameMode("bossrush")) {
+    if (dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::gamemode::kVanillaGameModeId) ||
+        dusk::gamemode::getGameModeManager().isCurrentGameMode("randomizer")) {
         titleScene_proc();
     }
 #endif
