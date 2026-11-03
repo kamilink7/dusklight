@@ -64,19 +64,27 @@ static char const l_arcName[] = "Title";
 #endif
 
 #if TARGET_PC
-static const u32 l_titleBgmID = 0x2000028;
+// Read lazily: settings aren't registered/loaded yet during static initialization
+static u32 getTitleBgmID() {
+    return dusk::getSettings().game.titleScreenBGM == dusk::TitleScreenBGM::COURAGE ? 0x2000028 : 0x2000024;
+}
 
 // Fixed title shot, captured with TITLE_CAM_CAPTURE (d_s_play.h)
 static const cXyz l_titleCamCenter(-24146.77f, 171.92f, -22204.51f);
 static const cXyz l_titleCamEye(-24131.27f, 160.66f, -22198.75f);
 static const f32 l_titleCamFovy = 60.0f;
 
+// Cam position for Pedestal of Time
+// static const cXyz l_titleCamCenter(6.31f, 1792.23f, -2393.61f);
+// static const cXyz l_titleCamEye(6.08f, 1789.29f, -2373.83f);
+// static const f32 l_titleCamFovy = 50.0f;
+
 static bool l_titleBgmStarted;
 
 static void titleScene_proc() {
     if (!l_titleBgmStarted) {
         Z2GetSoundMgr()->getStreamMgr()->stop();
-        Z2GetSeqMgr()->bgmStreamPrepare(l_titleBgmID);
+        Z2GetSeqMgr()->bgmStreamPrepare(getTitleBgmID());
         Z2GetSeqMgr()->bgmStreamPlay();
         if (Z2GetSeqMgr()->mStreamBgmHandle) {
             l_titleBgmStarted = true;

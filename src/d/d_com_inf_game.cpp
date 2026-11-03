@@ -1219,6 +1219,8 @@ DUSK_GAME_DATA GXColor g_blackColor = {0, 0, 0, 255};
 int dComIfG_changeOpeningScene(scene_class* i_scene, s16 i_procName) {
     dComIfGp_offEnableNextStage();
     dComIfGp_setNextStage("F_SP108", 0, 5, 1);
+    // Stage, point, room, and layer for Sacred Grove
+    // dComIfGp_setNextStage("F_SP117", 1, 1, 0);
     mDoAud_setSceneName(dComIfGp_getNextStageName(), dComIfGp_getNextStageRoomNo(),
                         dComIfGp_getNextStageLayer());
     dComIfGs_setRestartRoomParam(0);
