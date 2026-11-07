@@ -183,6 +183,7 @@ static void ShowAllJAIStreams() {
 
         if (ImGui::BeginChild(buf, ImVec2(), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY)) {
             ImGui::Text("[%p]", &stream);
+            ImGui::Text("ID: 0x%08X", (u32)stream.soundID_);
             bool paused = stream.status_.field_0x0.flags.paused;
             ImGui::Checkbox("Paused", &paused);
             stream.status_.field_0x0.flags.paused = paused;

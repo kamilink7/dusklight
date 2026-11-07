@@ -66,7 +66,16 @@ static char const l_arcName[] = "Title";
 #if TARGET_PC
 // Read lazily: settings aren't registered/loaded yet during static initialization
 static u32 getTitleBgmID() {
-    return dusk::getSettings().game.titleScreenBGM.getValue() == dusk::TitleScreenBGM::COURAGE ? 0x2000028 : 0x2000024;
+    switch (dusk::getSettings().game.titleScreenBGM.getValue()) {
+        case dusk::TitleScreenBGM::COURAGE:
+            return 0x2000028;
+        case dusk::TitleScreenBGM::KAKARIKO_SAVED:
+            return 0x2000024;
+        case dusk::TitleScreenBGM::SAVE_ILIA:
+            return 0x200002C;
+        default:
+            return 0x2000028;
+    }
 }
 
 // Fixed title shot, captured with TITLE_CAM_CAPTURE (d_s_play.h)

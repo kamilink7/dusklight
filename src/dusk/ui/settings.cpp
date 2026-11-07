@@ -130,6 +130,7 @@ constexpr std::array kLightSwordModes = {
 constexpr std::array kTitleScreenBGM = {
     "Courage",
     "Kakariko Saved",
+    "Save Ilia",
 };
 
 bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {

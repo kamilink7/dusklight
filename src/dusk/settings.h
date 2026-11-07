@@ -95,8 +95,9 @@ enum class LightSwordMode : u8 {
 };
 
 enum class TitleScreenBGM : u8 {
-    COURAGE = 0,
-    KAKARIKO_SAVED = 1,
+    COURAGE = 0,        // ID: 0x2000028
+    KAKARIKO_SAVED = 1, // ID: 0x2000024
+    SAVE_ILIA = 2,      // ID: 0x200002C
 };
 
 namespace config {
