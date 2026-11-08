@@ -131,6 +131,8 @@ constexpr std::array kTitleScreenBGM = {
     "Courage",
     "Kakariko Saved",
     "Save Ilia",
+    "Ilia's Theme",
+    "Prince Ralis Saved"
 };
 
 bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {

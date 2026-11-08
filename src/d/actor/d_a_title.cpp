@@ -73,6 +73,10 @@ static u32 getTitleBgmID() {
             return 0x2000024;
         case dusk::TitleScreenBGM::SAVE_ILIA:
             return 0x200002C;
+        case dusk::TitleScreenBGM::ILIA_THEME:
+            return 0x200002E;
+        case dusk::TitleScreenBGM::PRINCE_RALIS_SAVED:
+            return 0x2000002;
         default:
             return 0x2000028;
     }
