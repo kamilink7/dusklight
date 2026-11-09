@@ -1216,11 +1216,19 @@ DUSK_GAME_DATA GXColor g_clearColor = {0, 0, 0, 0};
 
 DUSK_GAME_DATA GXColor g_blackColor = {0, 0, 0, 255};
 
+void setNextStageFromConfig() {
+    if (dusk::getSettings().game.titleScreenStage.getValue() == dusk::TitleScreenStage::FOGGY_GROVE) {
+        dComIfGp_setNextStage("F_SP108", 0, 5, 1);
+    }
+    else if (dusk::getSettings().game.titleScreenStage.getValue() == dusk::TitleScreenStage::PEDESTAL_OF_TIME) {
+        // Stage, point, room, and layer for Sacred Grove
+        dComIfGp_setNextStage("F_SP117", 1, 1, 0);
+    }
+}
+
 int dComIfG_changeOpeningScene(scene_class* i_scene, s16 i_procName) {
     dComIfGp_offEnableNextStage();
-    dComIfGp_setNextStage("F_SP108", 0, 5, 1);
-    // Stage, point, room, and layer for Sacred Grove
-    // dComIfGp_setNextStage("F_SP117", 1, 1, 0);
+    setNextStageFromConfig();
     mDoAud_setSceneName(dComIfGp_getNextStageName(), dComIfGp_getNextStageRoomNo(),
                         dComIfGp_getNextStageLayer());
     dComIfGs_setRestartRoomParam(0);

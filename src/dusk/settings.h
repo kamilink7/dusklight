@@ -102,6 +102,11 @@ enum class TitleScreenBGM : u8 {
     PRINCE_RALIS_SAVED = 4, // ID: 0x2000002
 };
 
+enum class TitleScreenStage : u8 {
+    FOGGY_GROVE = 0,
+    PEDESTAL_OF_TIME = 1,
+};
+
 namespace config {
 template <>
 struct ConfigEnumRange<BloomMode> {
@@ -287,6 +292,7 @@ struct UserSettings {
         ConfigVar<bool> invisibleMidna;
         ConfigVar<LightSwordMode> alwaysLightSword;
         ConfigVar<TitleScreenBGM> titleScreenBGM;
+        ConfigVar<TitleScreenStage> titleScreenStage;
         ConfigVar<bool> swordTrail;
         ConfigVar<bool> suppressButtonPrompts;
         ConfigVar<float> skillMeterXPos;

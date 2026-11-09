@@ -11,6 +11,7 @@
 #include "d/d_pane_class_alpha.h"
 #include "d/d_s_logo.h"
 #include "d/d_s_play.h"
+#include "dusk/config.hpp"
 #include "dusk/game_mode.hpp"
 #include "f_op/f_op_msg_mng.h"
 #include "f_op/f_op_overlap_mng.h"
@@ -82,10 +83,49 @@ static u32 getTitleBgmID() {
     }
 }
 
+// Use the stage that is actually loaded rather than the live setting, so the camera can never
+// disagree with the scene and so that the setting can change while the title screen is already up
+static dusk::TitleScreenStage getLoadedTitleStage() {
+    if (!strcmp(dComIfGp_getStartStageName(), "F_SP117")) {
+        return dusk::TitleScreenStage::PEDESTAL_OF_TIME;
+    }
+    return dusk::TitleScreenStage::FOGGY_GROVE;
+}
+
+static cXyz getTitleCamCenter() {
+    switch (getLoadedTitleStage()) {
+        case dusk::TitleScreenStage::PEDESTAL_OF_TIME:
+            return {-12.0f, 2192.23f, -2393.61f};
+        case dusk::TitleScreenStage::FOGGY_GROVE:
+        default:
+            return {-24146.77f, 171.92f, -22204.51f};
+    }
+}
+
+static cXyz getTitleCamEye() {
+    switch (getLoadedTitleStage()) {
+        case dusk::TitleScreenStage::PEDESTAL_OF_TIME:
+            return {-12.0f, 2189.29f, -2373.83f};
+        case dusk::TitleScreenStage::FOGGY_GROVE:
+        default:
+            return {-24131.27f, 160.66f, -22198.75f};
+    }
+}
+
+static f32 getTitleCamFovy() {
+    switch (getLoadedTitleStage()) {
+        case dusk::TitleScreenStage::PEDESTAL_OF_TIME:
+            return 50.0f;
+        case dusk::TitleScreenStage::FOGGY_GROVE:
+        default:
+            return 60.0f;
+    }
+}
+
 // Fixed title shot, captured with TITLE_CAM_CAPTURE (d_s_play.h)
-static const cXyz l_titleCamCenter(-24146.77f, 171.92f, -22204.51f);
-static const cXyz l_titleCamEye(-24131.27f, 160.66f, -22198.75f);
-static const f32 l_titleCamFovy = 60.0f;
+// static const cXyz l_titleCamCenter(-24146.77f, 171.92f, -22204.51f);
+// static const cXyz l_titleCamEye(-24131.27f, 160.66f, -22198.75f);
+// static const f32 l_titleCamFovy = 60.0f;
 
 // Cam position for Pedestal of Time
 // static const cXyz l_titleCamCenter(6.31f, 1792.23f, -2393.61f);
@@ -120,7 +160,7 @@ static void titleScene_proc() {
     }
 #else
     // Re-applied every frame so nothing that starts the camera later can move it
-    camera->Reset(l_titleCamCenter, l_titleCamEye, l_titleCamFovy, 0);
+    camera->Reset(getTitleCamCenter(), getTitleCamEye(), getTitleCamFovy(), 0);
     camera->Stop();
 #endif
 }
@@ -239,6 +279,11 @@ int daTitle_c::Execute() {
     if (dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::gamemode::kVanillaGameModeId) ||
         dusk::gamemode::getGameModeManager().isCurrentGameMode("randomizer")) {
         titleScene_proc();
+        if (getLoadedTitleStage() != dusk::getSettings().game.titleScreenStage.getValue()) {
+            if (dScnPly_c::isOpening() && !mDoRst::isReset()) {
+                JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
+            }
+        }
     }
 #endif
 

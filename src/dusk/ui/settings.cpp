@@ -24,6 +24,7 @@
 #include "dusk/livesplit.h"
 #include "dusk/presentation.hpp"
 #include "dusk/speedrun.h"
+#include "d/d_s_play.h"
 
 #include <aurora/gfx.h>
 #include <aurora/lib/window.hpp>
@@ -133,6 +134,11 @@ constexpr std::array kTitleScreenBGM = {
     "Save Ilia",
     "Ilia's Theme",
     "Prince Ralis Saved"
+};
+
+constexpr std::array kTitleScreenStage = {
+    "Faron Woods Foggy Grove",
+    "Pedestal of Time",
 };
 
 bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {
@@ -1726,7 +1732,47 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                         });
                 }
                 pane.add_rml(
-                    "<br/>Change the title screen music.");
+                    "<br/>Change the title screen music. Effective after reset.");
+            });
+        leftPane.register_control(
+            leftPane.add_select_button({
+                .key = "Title Screen Stage",
+                .getValue =
+                    [] {
+                        return kTitleScreenStage[static_cast<u8>(getSettings().game.titleScreenStage.getValue())];
+                    },
+                .isDisabled = [] { return getSettings().game.speedrunMode.getValue(); },
+                .isModified =
+                    [] {
+                        return getSettings().game.titleScreenStage.getValue() !=
+                               getSettings().game.titleScreenStage.getDefaultValue();
+                    },
+            }),
+            rightPane, [](Pane& pane) {
+                for (int i = 0; i < kTitleScreenStage.size(); i++) {
+                    pane.add_button({
+                            .text = kTitleScreenStage[i],
+                            .isSelected =
+                                [i] {
+                                    return getSettings().game.titleScreenStage.getValue() == static_cast<TitleScreenStage>(i);
+                                },
+                        })
+                        .on_pressed([i] {
+                            mDoAud_seStartMenu(kSoundItemChange);
+                            if (getSettings().game.titleScreenStage.getValue() == static_cast<TitleScreenStage>(i)) {
+                                return;
+                            }
+                            getSettings().game.titleScreenStage.setValue(static_cast<TitleScreenStage>(i));
+                            config::save();
+                            // The opening scene's stage is chosen when the scene is created, so
+                            // reload it (soft reset) if the title screen is currently showing.
+                            // if (dScnPly_c::isOpening()) {
+                            //     JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
+                            // }
+                        });
+                }
+                pane.add_rml(
+                    "<br/>Change the title screen stage.");
             });
 
         leftPane.add_section("Other Shit (UI)");

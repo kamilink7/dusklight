@@ -102,6 +102,7 @@ UserSettings g_userSettings = {
         .invisibleMidna {"game.invisibleMidna", false},
         .alwaysLightSword {"game.alwaysLightSword", LightSwordMode::OFF},
         .titleScreenBGM {"game.titleScreenBGM", TitleScreenBGM::COURAGE},
+        .titleScreenStage {"game.titleScreenStage", TitleScreenStage::FOGGY_GROVE},
         .swordTrail {"game.swordTrail", false},
         .suppressButtonPrompts {"game.suppressButtonPrompts", false},
         .skillMeterXPos {"game.skillMeterXPos", 0.0f},
@@ -469,6 +470,7 @@ void registerSettings() {
     Register(g_userSettings.game.invisibleMidna);
     Register(g_userSettings.game.alwaysLightSword);
     Register(g_userSettings.game.titleScreenBGM);
+    Register(g_userSettings.game.titleScreenStage);
     Register(g_userSettings.game.swordTrail);
     Register(g_userSettings.game.suppressButtonPrompts);
     Register(g_userSettings.game.skillMeterXPos);
