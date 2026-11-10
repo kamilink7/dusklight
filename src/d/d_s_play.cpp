@@ -36,6 +36,8 @@
 #include "f_op/f_op_kankyo_mng.h"
 #include "d/actor/d_a_alink.h"
 #include "d/actor/d_a_midna.h"
+#include "dusk/game_mode.hpp"
+#include "dusk/title_debug.hpp" // TITLE_DEBUG_LOG
 #include "JSystem/JKernel/JKRAram.h"
 #include "JSystem/JKernel/JKRAramArchive.h"
 
@@ -1178,8 +1180,23 @@ static int phase_0(dScnPly_c* i_this) {
 
 static int phase_1(dScnPly_c* i_this) {
     dStage_roomControl_c::setProcID(fopScnM_GetID(i_this));
+    if (fpcM_GetName(i_this) == fpcNm_OPENING_SCENE_e) TITLE_DEBUG_LOG("phase_1 enter");
+#if TARGET_PC
+    // Re-apply the configured title stage at the last moment in case any mod changes it
+    if (fpcM_GetName(i_this) == fpcNm_OPENING_SCENE_e && (dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::gamemode::kVanillaGameModeId) ||
+        dusk::gamemode::getGameModeManager().isCurrentGameMode("randomizer_dev.twilitrealm.randomizer"))) {
+        // dStage_nextStage_c::set() ignores requests while one is already enabled (first request
+        // wins), so a stage requested earlier, e.g. by a mod, must be cleared before overriding it
+        dComIfGp_offEnableNextStage();
+        setNextStageFromConfig();
+        mDoAud_setSceneName(dComIfGp_getNextStageName(), dComIfGp_getNextStageRoomNo(),
+                            dComIfGp_getNextStageLayer());
+        TITLE_DEBUG_LOG("phase_1 override applied");
+    }
+#endif
 
     dComIfGp_setStartStage(dComIfGp_getNextStartStage());
+    if (fpcM_GetName(i_this) == fpcNm_OPENING_SCENE_e) TITLE_DEBUG_LOG("phase_1 start stage set");
 
     if (dComIfGp_getStartStageLayer() < 0 && daPy_py_c::checkRoomRestartStart()) {
         int layer = dComIfG_play_c::getLayerNo_common_common(dComIfGp_getStartStageName(), dComIfGp_getStartStageRoomNo(), dComIfGp_getStartStageLayer());

@@ -25,6 +25,9 @@
 #include <cstdio>
 #include <cstring>
 
+#include "dusk/mods/svc/save.hpp"
+#include "dusk/title_debug.hpp" // TITLE_DEBUG_LOG
+
 
 #if TARGET_PC
 #include "dusk/settings.h"
@@ -1216,6 +1219,7 @@ DUSK_GAME_DATA GXColor g_clearColor = {0, 0, 0, 0};
 
 DUSK_GAME_DATA GXColor g_blackColor = {0, 0, 0, 255};
 
+#if TARGET_PC
 void setNextStageFromConfig() {
     if (dusk::getSettings().game.titleScreenStage.getValue() == dusk::TitleScreenStage::FOGGY_GROVE) {
         dComIfGp_setNextStage("F_SP108", 0, 5, 1);
@@ -1224,11 +1228,19 @@ void setNextStageFromConfig() {
         // Stage, point, room, and layer for Sacred Grove
         dComIfGp_setNextStage("F_SP117", 1, 1, 0);
     }
+    else {
+        dComIfGp_setNextStage("F_SP108", 0, 5, 1);
+    }
 }
+#endif
 
 int dComIfG_changeOpeningScene(scene_class* i_scene, s16 i_procName) {
+#if TARGET_PC
+    dusk::mods::svc::save_clear_active_slot();
+#endif
     dComIfGp_offEnableNextStage();
     setNextStageFromConfig();
+    TITLE_DEBUG_LOG("changeOpeningScene requested");
     mDoAud_setSceneName(dComIfGp_getNextStageName(), dComIfGp_getNextStageRoomNo(),
                         dComIfGp_getNextStageLayer());
     dComIfGs_setRestartRoomParam(0);

@@ -487,6 +487,11 @@ void save_no_slot() {
     item_gives_clear();
 }
 
+// Copy of save_no_slot() without the item give clear, hopefully preventing adverse affects with other mod gamemodes
+void save_clear_active_slot() {
+    s_currentSlot = -1;
+}
+
 void invalidate_save(std::string_view saveName) {
     s_saves.erase(std::string{saveName});
 }

@@ -1214,6 +1214,9 @@ stage_arrow_class* dComIfGp_getRoomArrow(int i_roomNo);
 void dComIfGp_setNextStage(char const* i_stage, s16 i_point, s8 i_roomNo, s8 i_layer, f32 i_lastSpeed,
                            u32 i_lastMode, int, s8 i_wipe, s16 i_lastAngle, int param_9, int i_wipeSpeedT);
 void dComIfGp_setNextStage(char const* i_stage, s16 i_point, s8 i_roomNo, s8 i_layer);
+#if TARGET_PC
+void setNextStageFromConfig();
+#endif
 void dComIfGp_setSelectItem(int index);
 u8 dComIfGp_getSelectItem(int index);
 void dComIfGp_mapShow();

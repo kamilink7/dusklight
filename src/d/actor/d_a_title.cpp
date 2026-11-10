@@ -13,6 +13,7 @@
 #include "d/d_s_play.h"
 #include "dusk/config.hpp"
 #include "dusk/game_mode.hpp"
+#include "dusk/title_debug.hpp" // TITLE_DEBUG_LOG
 #include "f_op/f_op_msg_mng.h"
 #include "f_op/f_op_overlap_mng.h"
 #include "f_op/f_op_scene_mng.h"
@@ -277,10 +278,11 @@ int daTitle_c::Execute() {
 
 #if TARGET_PC
     if (dusk::gamemode::getGameModeManager().isCurrentGameMode(dusk::gamemode::kVanillaGameModeId) ||
-        dusk::gamemode::getGameModeManager().isCurrentGameMode("randomizer")) {
+        dusk::gamemode::getGameModeManager().isCurrentGameMode("randomizer_dev.twilitrealm.randomizer")) {
         titleScene_proc();
         if (getLoadedTitleStage() != dusk::getSettings().game.titleScreenStage.getValue()) {
             if (dScnPly_c::isOpening() && !mDoRst::isReset()) {
+                if (!JUTGamePad::C3ButtonReset::sResetSwitchPushing) TITLE_DEBUG_LOG("daTitle mismatch -> reset");
                 JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
             }
         }

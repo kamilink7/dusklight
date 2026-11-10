@@ -1,5 +1,6 @@
 #include "dusk/autosave.h"
 
+#include "d/d_s_play.h"
 #include "dusk/ui/ui.hpp"
 #include "imgui/ImGuiConsole.hpp"
 #include "mods/svc/save.hpp"
@@ -32,7 +33,8 @@ bool canAutoSave() {
 
     return dusk::getSettings().game.autoSave && shouldAutoSave && mAutoSaveProc == 0 &&
            strcmp(dComIfGp_getStartStageName(), "F_SP102") != 0 &&
-           strcmp(dComIfGp_getStartStageName(), "F_SP112") != 0;
+           strcmp(dComIfGp_getStartStageName(), "F_SP112") != 0 &&
+            !dScnPly_c::isOpening(); // explicitly do not allow autosaves during the title screen, just in case
 }
 
 void triggerAutoSave() {
