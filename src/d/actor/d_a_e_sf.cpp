@@ -553,7 +553,7 @@ static void e_sf_attack_0(e_sf_class* i_this) {
 
     switch (i_this->mActionPhase) {
         case PHASE_INIT:
-            anm_init(i_this, BCK_SF_ATTACK02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+            anm_init(i_this, BCK_SF_ATTACK02, TREG_F(14) + 6.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
             i_this->mSound.startCreatureVoice(Z2SE_EN_SF_V_ATTACK, -1);
             i_this->mActionPhase = ATTACK_0_PHASE_END;
             // fallthrough
@@ -592,12 +592,13 @@ static void e_sf_attack(e_sf_class* i_this) {
     fopEn_enemy_c* a_this = (fopEn_enemy_c*)&i_this->actor;
     cXyz sp34, sp40;
     int frame = i_this->mpModelMorf->getFrame();
+    f32 rnd = cM_rndF(1.0f);
 
     i_this->field_0x6ae = 1;
 
     switch (i_this->mActionPhase) {
         case PHASE_INIT:
-            anm_init(i_this, BCK_SF_ATTACK01, TREG_F(14) + 8.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+            anm_init(i_this, BCK_SF_ATTACK01, TREG_F(14) + 8.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
             i_this->mSound.startCreatureVoice(Z2SE_EN_SF_V_ATTACK, -1);
             i_this->mActionPhase = ATTACK_PHASE_END;
             // fallthrough
@@ -607,7 +608,7 @@ static void e_sf_attack(e_sf_class* i_this) {
             }
 
             if (frame == (int)(TREG_F(7) + 10.0f)) {
-                anm_init(i_this, BCK_SF_ATTACK01, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+                anm_init(i_this, BCK_SF_ATTACK01, 5.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
                 i_this->mpModelMorf->setFrame(55.0f);
             }
 
@@ -620,8 +621,14 @@ static void e_sf_attack(e_sf_class* i_this) {
             }
 
             if (frame >= (int)(TREG_F(8) + 100.0f)) {
-                i_this->mAction = ACTION_FIGHT_RUN;
-                i_this->mActionPhase = FIGHT_RUN_PHASE_0;
+                if (rnd < 0.5f) {
+                    i_this->mAction = ACTION_ATTACK;
+                    i_this->mActionPhase = PHASE_INIT;
+                }
+                else {
+                    i_this->mAction = ACTION_FIGHT_RUN;
+                    i_this->mActionPhase = FIGHT_RUN_PHASE_0;
+                }
             }
             break;
     }
@@ -705,7 +712,7 @@ static void e_sf_s_damage(e_sf_class* i_this) {
     switch (i_this->mActionPhase) {
         case PHASE_INIT:
             i_this->mActionPhase = S_DAMAGE_PHASE_END;
-            anm_init(i_this, BCK_SF_DAMAGE, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f);
+            anm_init(i_this, BCK_SF_DAMAGE, 5.0f, J3DFrameCtrl::EMode_NONE, 1.5f);
             i_this->mSound.startCreatureVoice(Z2SE_EN_SF_V_DAMAGE, -1);
             i_this->mSound.startCreatureSound(Z2SE_EN_SF_SHAKE_BONES, 0, -1);
             break;
@@ -975,7 +982,8 @@ static void damage_check(e_sf_class* i_this) {
                     unkFlag2 = true;
                 }
 
-                if (i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_BOMB) || (daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_HEAD_JUMP || i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_IRON_BALL))) {
+                if (i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_BOMB) || (daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_MORTAL_DRAW_A ||
+                    daPy_getPlayerActorClass()->getCutType() == daPy_py_c::CUT_TYPE_MORTAL_DRAW_B || i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_IRON_BALL))) {
                     if (i_this->mAction == ACTION_CRASH || i_this->mAtInfo.mpCollider->ChkAtType(AT_TYPE_BOMB)) {
                         fopAcM_createDisappear(a_this, &a_this->current.pos, 15, 0, 0x29);
                         fopAcM_delete(a_this);
@@ -1003,7 +1011,7 @@ static void damage_check(e_sf_class* i_this) {
                     i_this->mAction = ACTION_CRASH;
                     i_this->mActionPhase = PHASE_INIT;
                     a_this->health = 0;
-                } else {
+                } else if (i_this->mAction != ACTION_ATTACK) {
                     i_this->mAction = ACTION_S_DAMAGE;
                     i_this->mActionPhase = PHASE_INIT;
                     i_this->field_0x6c4 = TREG_F(0) + 25.0f;
